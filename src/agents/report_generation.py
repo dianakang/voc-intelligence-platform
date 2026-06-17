@@ -29,6 +29,34 @@ class ReportGenerationAgent(BaseAgent):
             temperature=0.4,
         )
 
+    @staticmethod
+    def _unwrap_retry_error(exc: Exception) -> Exception:
+        """Unwrap tenacity RetryError to surface the actual underlying exception."""
+        last = getattr(exc, "last_attempt", None)
+        if last is not None:
+            try:
+                last.result()
+            except Exception as inner:
+                return inner
+        return exc
+
+    def _call_with_fallback(self, prompt: str, max_tokens: int) -> str:
+        """Try the primary model; fall back to Sonnet if it returns an API error."""
+        try:
+            return self.call(prompt, max_tokens=max_tokens)
+        except Exception as primary_exc:
+            inner = self._unwrap_retry_error(primary_exc)
+            fallback = settings.model_sonnet
+            if self.model == fallback:
+                raise
+            self.log(f"[yellow]{type(inner).__name__} on {self.model} — retrying with {fallback}: {inner}")
+            original = self.model
+            self.model = fallback
+            try:
+                return self.call(prompt, max_tokens=max_tokens)
+            finally:
+                self.model = original
+
     def generate_executive_summary(self, result: VOCAnalysisResult) -> VOCAnalysisResult:
         self.log("Generating executive summary with Claude Opus...")
 
@@ -99,7 +127,7 @@ KEY INSIGHTS:
 ..."""
 
         try:
-            response = self.call(prompt, max_tokens=3000)
+            response = self._call_with_fallback(prompt, max_tokens=3000)
 
             # Split into summary and insights
             if "KEY INSIGHTS:" in response:
@@ -117,8 +145,9 @@ KEY INSIGHTS:
 
             self.log(f"Executive summary generated ({len(result.executive_summary)} chars, {len(result.key_insights)} insights)")
         except Exception as e:
-            self.log(f"[red]Report generation failed: {e}")
-            result.executive_summary = "Report generation failed. Please check API configuration."
+            inner = self._unwrap_retry_error(e)
+            self.log(f"[red]Report generation failed ({type(inner).__name__}): {inner}")
+            result.executive_summary = f"Report generation failed: {inner}"
             result.key_insights = ["Analysis complete — see individual sections for details."]
 
         return result

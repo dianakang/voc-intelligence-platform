@@ -29,6 +29,11 @@ htmlcov/
 .coverage
 coverage.xml
 
+# ── Generated markdown reports ────────────────────────────────────────────────
+*.md
+!README.md
+!**/README.md
+
 # ── Data & generated outputs ───────────────────────────────────────────────────
 # Keep data/raw and data/reports tracked (useful for demos)
 # Uncomment to ignore large data files:

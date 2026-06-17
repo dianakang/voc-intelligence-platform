@@ -96,7 +96,8 @@ def build_taxonomy(state: VOCWorkflowState) -> dict:
     taxonomy_agent = VOCTaxonomyAgent()
     classified = taxonomy_agent.classify_reviews(state["cleaned_reviews"])
 
-    # Build RAG index
+    # Build RAG index — clear stale data from any previous run first
+    VectorStore.clear_process_memory()
     vector_store = VectorStore()
     chunks = chunk_reviews(classified)
     if chunks:

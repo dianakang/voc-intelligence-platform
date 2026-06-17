@@ -51,9 +51,9 @@ function EvidenceQuotes({ quotes, limit = 2 }: { quotes: string[]; limit?: numbe
   const shown = expanded ? quotes : quotes.slice(0, limit);
   if (quotes.length === 0) return null;
   return (
-    <div className="mt-3 space-y-1.5">
+    <div className="mt-4 space-y-2">
       {shown.map((q, i) => (
-        <blockquote key={i} className="text-xs text-gray-500 italic border-l-2 border-gray-200 pl-3 py-0.5">
+        <blockquote key={i} className="text-xs text-gray-500 italic border-l-3 border-gray-200 pl-3 py-1 leading-relaxed">
           "{q}"
         </blockquote>
       ))}
@@ -66,36 +66,86 @@ function EvidenceQuotes({ quotes, limit = 2 }: { quotes: string[]; limit?: numbe
   );
 }
 
+function firstSentence(text: string) {
+  const end = text.search(/[.!?]\s/);
+  return end > 0 ? text.slice(0, end + 1) : text;
+}
+
+function ExpectationGapCard({ gap }: { gap: ExpectationGapItem }) {
+  const [open, setOpen] = useState(false);
+  const severityBorder = { high: "border-l-red-400", medium: "border-l-yellow-400", low: "border-l-green-400" }[gap.gap_severity] ?? "border-l-gray-300";
+  const expectedSnippet = firstSentence(gap.expectation);
+  const actualSnippet = firstSentence(gap.actual_experience);
+  return (
+    <div className={`bg-white border border-gray-200 border-l-4 ${severityBorder} rounded-xl overflow-hidden`}>
+      {/* Header */}
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <GapSeverityBadge severity={gap.gap_severity} />
+          <h3 className="font-semibold text-gray-900 text-sm truncate">{gap.dimension}</h3>
+        </div>
+        <span className="text-xs text-gray-400 flex-shrink-0">{open ? "↑" : "↓"}</span>
+      </button>
+
+      {/* Expected → Actual comparison — always visible */}
+      <div className="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 border-t border-gray-100">
+        <div className="px-5 py-3">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Expected</p>
+          <p className="text-sm text-gray-700 leading-snug">{expectedSnippet}</p>
+        </div>
+        <div className="px-5 py-3 bg-red-50/40">
+          <p className="text-[10px] font-semibold text-red-400 uppercase tracking-wider mb-1">Reality</p>
+          <p className="text-sm text-gray-700 leading-snug">{actualSnippet}</p>
+        </div>
+      </div>
+
+      {/* Expanded detail */}
+      {open && (
+        <div className="border-t border-gray-100 px-5 py-4 space-y-3">
+          {(gap.expectation !== expectedSnippet || gap.actual_experience !== actualSnippet) && (
+            <div className="grid sm:grid-cols-2 gap-3 text-xs text-gray-600">
+              <p className="leading-relaxed"><span className="font-medium text-gray-700">Full expectation: </span>{gap.expectation}</p>
+              <p className="leading-relaxed"><span className="font-medium text-gray-700">Full experience: </span>{gap.actual_experience}</p>
+            </div>
+          )}
+          <div className="p-3 bg-blue-50 rounded-lg">
+            <p className="text-[10px] font-semibold text-blue-500 uppercase tracking-wider mb-1">Recommended Action</p>
+            <p className="text-sm text-blue-800 leading-relaxed">{gap.recommended_action}</p>
+          </div>
+          <EvidenceQuotes quotes={gap.supporting_reviews} limit={2} />
+        </div>
+      )}
+
+      {/* Recommended action teaser when collapsed */}
+      {!open && (
+        <div className="border-t border-gray-100 px-5 py-2.5 bg-blue-50/50">
+          <p className="text-xs text-blue-700 leading-snug line-clamp-1">
+            <span className="font-semibold">Action: </span>{firstSentence(gap.recommended_action)}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ExpectationGapSection({ gaps }: { gaps: ExpectationGapItem[] }) {
+  if (gaps.length === 0) {
+    return (
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center text-gray-400 text-sm">
+        No expectation gap data in this report. Re-run the analysis to generate this section.
+      </div>
+    );
+  }
   const sorted = [...gaps].sort((a, b) => {
     const order = { high: 0, medium: 1, low: 2 };
     return (order[a.gap_severity] ?? 3) - (order[b.gap_severity] ?? 3);
   });
   return (
-    <div className="space-y-4">
-      {sorted.map((gap, i) => (
-        <div key={i} className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="flex items-start justify-between gap-2 mb-3">
-            <h3 className="font-semibold text-gray-900">{gap.dimension}</h3>
-            <GapSeverityBadge severity={gap.gap_severity} />
-          </div>
-          <div className="grid sm:grid-cols-2 gap-3 text-sm mb-3">
-            <div>
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Customer Expectation</div>
-              <p className="text-gray-700">{gap.expectation}</p>
-            </div>
-            <div>
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Actual Experience</div>
-              <p className="text-gray-700">{gap.actual_experience}</p>
-            </div>
-          </div>
-          <p className="text-sm text-gray-600 mb-2">{gap.gap_description}</p>
-          <div className="p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
-            <strong>Recommended Action:</strong> {gap.recommended_action}
-          </div>
-          <EvidenceQuotes quotes={gap.supporting_reviews} />
-        </div>
-      ))}
+    <div className="space-y-3">
+      {sorted.map((gap, i) => <ExpectationGapCard key={i} gap={gap} />)}
     </div>
   );
 }
@@ -165,6 +215,300 @@ function ImprovementSection({ improvements }: { improvements: ImprovementPoint[]
   );
 }
 
+// ── Executive Summary ────────────────────────────────────────────────────────
+
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/^#{1,3}\s.*/gm, "")          // remove headers
+    .replace(/^\s*---+\s*$/gm, "")          // remove HR
+    .replace(/^\s*\*{2,4}\s*$/gm, "")       // remove bare ** lines
+    .replace(/^\*\*[^*]+\*\*.*\|.*$/gm, "") // remove meta lines like **Analysis Date:** x | **Reviews:** y
+    .replace(/\*\*([^*]+)\*\*/g, "$1")      // strip bold markers
+    .replace(/\n{3,}/g, "\n\n")             // collapse excess newlines
+    .trim();
+}
+
+function parseParagraphs(text: string): string[] {
+  return stripMarkdown(text)
+    .split(/\n\n+/)
+    .map(p => p.replace(/\n/g, " ").trim())
+    .filter(p => p.length > 20);
+}
+
+function parseInsight(raw: string): { headline: string; detail: string } {
+  // Pattern: "Headline sentence.** Detail text"  (LLM bold bullet stripped of leading **)
+  const boldSplit = raw.match(/^([\s\S]+?\.\s*)\*+\s*([\s\S]*)$/);
+  if (boldSplit) return { headline: boldSplit[1].trim(), detail: boldSplit[2].trim() };
+  // Fallback: split at first ". "
+  const dot = raw.indexOf(". ");
+  if (dot > 0 && dot < 100) return { headline: raw.slice(0, dot + 1), detail: raw.slice(dot + 2) };
+  return { headline: raw, detail: "" };
+}
+
+function ExecutiveSummarySection({ summary, insights }: { summary: string; insights: string[] }) {
+  const [expanded, setExpanded] = useState(false);
+  const paragraphs = parseParagraphs(summary);
+  const visible = expanded ? paragraphs : paragraphs.slice(0, 2);
+  const cleanInsights = insights.filter(i => i.trim().length > 10);
+
+  return (
+    <div className="space-y-4">
+      {/* Summary paragraphs */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6">
+        <div className="space-y-3">
+          {visible.map((p, i) => (
+            <p key={i} className="text-sm text-gray-700 leading-relaxed">{p}</p>
+          ))}
+        </div>
+        {paragraphs.length > 2 && (
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="mt-3 text-xs text-blue-600 hover:underline"
+          >
+            {expanded ? "Show less ↑" : `Read full summary (${paragraphs.length - 2} more paragraphs) ↓`}
+          </button>
+        )}
+      </div>
+
+      {/* Key insights grid */}
+      {cleanInsights.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-4">Key Insights</h3>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {cleanInsights.map((raw, i) => {
+              const { headline, detail } = parseInsight(raw);
+              return (
+                <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                  <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 leading-snug">{headline}</p>
+                    {detail && <p className="text-xs text-gray-500 mt-1 leading-relaxed">{detail}</p>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Positioning priority cards ────────────────────────────────────────────────
+
+function parsePositioningPriorities(text: string) {
+  // Try format: (1) LABEL — Topic: text
+  const numbered = [...text.matchAll(/\((\d+)\)\s+([^—]+?)\s+—\s+([^:]+):\s+([\s\S]*?)(?=\s*\(\d+\)|$)/g)];
+  if (numbered.length > 0) {
+    const introEnd = text.search(/\s*\(\d+\)/);
+    return {
+      intro: introEnd > 0 ? text.slice(0, introEnd).trim() : "",
+      priorities: numbered.map((m, i) => ({
+        num: String(i + 1),
+        label: m[2].trim(),
+        topic: m[3].trim(),
+        body: m[4].trim(),
+      })),
+    };
+  }
+  // Try format: TIMEFRAME (period): text  e.g. "IMMEDIATE (0-3 months):"
+  const timeboxed = [...text.matchAll(/([A-Z][A-Z\s-]+?)\s*\([^)]+\):\s*([\s\S]*?)(?=[A-Z]{3,}[^a-z]*\([^)]+\):|$)/g)];
+  if (timeboxed.length > 0) {
+    const introEnd = text.search(/[A-Z]{3,}[^a-z]*\([^)]+\):/);
+    return {
+      intro: introEnd > 0 ? text.slice(0, introEnd).trim() : "",
+      priorities: timeboxed.map((m, i) => ({
+        num: String(i + 1),
+        label: m[1].trim(),
+        topic: "",
+        body: m[2].trim(),
+      })),
+    };
+  }
+  return { intro: text, priorities: [] };
+}
+
+const PRIORITY_PALETTE: Record<number, { bg: string; border: string; badge: string; num: string }> = {
+  1: { bg: "bg-red-50",    border: "border-red-200",    badge: "bg-red-100 text-red-700",       num: "bg-red-500 text-white" },
+  2: { bg: "bg-orange-50", border: "border-orange-200", badge: "bg-orange-100 text-orange-700", num: "bg-orange-500 text-white" },
+  3: { bg: "bg-blue-50",   border: "border-blue-200",   badge: "bg-blue-100 text-blue-700",     num: "bg-blue-500 text-white" },
+  4: { bg: "bg-purple-50", border: "border-purple-200", badge: "bg-purple-100 text-purple-700", num: "bg-purple-500 text-white" },
+};
+
+function PriorityCard({ num, label, topic, body }: { num: string; label: string; topic: string; body: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const colors = PRIORITY_PALETTE[parseInt(num)] ?? PRIORITY_PALETTE[4];
+  const sentenceEnd = body.search(/[.!?]\s/);
+  const summary = sentenceEnd > 0 ? body.slice(0, sentenceEnd + 1) : body;
+  const rest = sentenceEnd > 0 ? body.slice(sentenceEnd + 2).trim() : null;
+  return (
+    <div className={`rounded-xl border ${colors.border} ${colors.bg} p-4`}>
+      <div className="flex items-start gap-3 mb-2">
+        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${colors.num}`}>{num}</span>
+        <div className="flex-1 min-w-0">
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${colors.badge}`}>{label}</span>
+          <h4 className="font-semibold text-gray-900 text-sm mt-1.5">{topic}</h4>
+        </div>
+      </div>
+      <p className="text-sm text-gray-700 leading-relaxed pl-9">{summary}</p>
+      {rest && (
+        <>
+          {expanded && <p className="text-sm text-gray-600 leading-relaxed pl-9 mt-2">{rest}</p>}
+          <button onClick={() => setExpanded(!expanded)} className="pl-9 mt-1.5 text-xs text-blue-600 hover:underline">
+            {expanded ? "Show less ↑" : "Read more ↓"}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Marketing sub-components ──────────────────────────────────────────────────
+
+function MessagesToAvoid({ messages }: { messages: string[] }) {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const parsed = messages.map(m => {
+    const quoted = m.match(/^'([^']+)':\s*([\s\S]*)/);
+    if (quoted) return { label: quoted[1], explanation: quoted[2].trim() };
+    const colon = m.indexOf(": ");
+    return colon > 0
+      ? { label: m.slice(0, colon), explanation: m.slice(colon + 2) }
+      : { label: m.slice(0, 60), explanation: m };
+  });
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <h3 className="text-[10px] font-semibold text-red-500 uppercase tracking-wider mb-3">Messages to Avoid</h3>
+      <div className="space-y-1.5">
+        {parsed.map(({ label, explanation }, i) => (
+          <div key={i} className="border border-red-100 rounded-lg overflow-hidden">
+            <button
+              onClick={() => setOpenIdx(openIdx === i ? null : i)}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-red-50/70 transition-colors"
+            >
+              <span className="text-red-400 text-xs flex-shrink-0">✗</span>
+              <span className="text-sm font-medium text-gray-800 flex-1 text-left">'{label}'</span>
+              <span className="text-xs text-gray-400 flex-shrink-0">{openIdx === i ? "↑" : "↓"}</span>
+            </button>
+            {openIdx === i && (
+              <div className="px-4 pb-3 pt-0 bg-red-50/50 border-t border-red-100">
+                <p className="text-xs text-gray-600 leading-relaxed pt-2">{explanation}</p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MarketingSection({ rec }: { rec: import("@/lib/api").MarketingRecommendation }) {
+  const quoteMatch = rec.current_perception.match(/'([^']{10,80}?)'/);
+  const dominantQuote = quoteMatch ? quoteMatch[1] : null;
+  return (
+    <div className="space-y-4">
+      {/* Current perception */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Customer Perception Today</h3>
+        {dominantQuote && (
+          <div className="flex items-start gap-3 bg-amber-50 border-l-4 border-amber-400 px-4 py-3 rounded-r-xl mb-3">
+            <div>
+              <p className="text-base font-semibold text-amber-900 italic leading-snug">"{dominantQuote}"</p>
+              <p className="text-xs text-amber-600 mt-1">Dominant customer sentiment</p>
+            </div>
+          </div>
+        )}
+        <p className="text-sm text-gray-600 leading-relaxed">{rec.current_perception}</p>
+      </div>
+
+      {/* Value drivers as tags */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Actual Value Drivers</h3>
+        <div className="flex flex-wrap gap-2">
+          {rec.actual_value_drivers.map((v, i) => {
+            const dashIdx = v.indexOf(" — ");
+            const label = dashIdx > 0 ? v.slice(0, dashIdx) : v;
+            return (
+              <span
+                key={i}
+                title={v}
+                className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-800 text-sm font-medium px-3 py-1.5 rounded-full cursor-default"
+              >
+                <span className="text-green-500 text-xs">✓</span>
+                {label}
+              </span>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Message proposals */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Recommended Messages</h3>
+        <div className="space-y-2">
+          {rec.new_message_proposals.map((msg, i) => (
+            <div key={i} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+              <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                {i + 1}
+              </span>
+              <p className="text-sm text-blue-800 italic leading-relaxed">"{msg}"</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <MessagesToAvoid messages={rec.messages_to_avoid} />
+      <EvidenceQuotes quotes={rec.evidence} limit={2} />
+    </div>
+  );
+}
+
+function CompetitorCard({ comp }: { comp: import("@/lib/api").CompetitorData }) {
+  const [expanded, setExpanded] = useState(false);
+  const features: [string, string][] = [
+    ["Picture", comp.picture_quality],
+    ["Sound", comp.sound_quality],
+    ["UX", comp.ux],
+    ["Smart TV", comp.smart_features],
+  ];
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <div>
+          <h3 className="font-semibold text-gray-900">{comp.name}</h3>
+          <p className="text-xs text-gray-400 mt-0.5">{comp.model}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-gray-600 bg-gray-100 px-2.5 py-1 rounded-lg">{comp.price_range}</span>
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+          >
+            {expanded ? "Less ↑" : "Details ↓"}
+          </button>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-gray-100">
+        {features.map(([label, text]) => {
+          const firstSentenceEnd = text.search(/[.!?]\s/);
+          const headline = firstSentenceEnd > 0 ? text.slice(0, firstSentenceEnd + 1) : text;
+          const rest = firstSentenceEnd > 0 ? text.slice(firstSentenceEnd + 2) : null;
+          return (
+            <div key={label} className="px-4 py-3">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">{label}</p>
+              <p className="text-xs text-gray-700 leading-relaxed">{headline}</p>
+              {expanded && rest && (
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed">{rest}</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function ReportContent({ result }: { result: VOCResult }) {
   return (
     <div className="space-y-12">
@@ -190,22 +534,7 @@ function ReportContent({ result }: { result: VOCResult }) {
       {/* Executive Summary */}
       <section>
         <SectionHeader number="0" title="Executive Summary" />
-        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
-          <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">{result.executive_summary}</p>
-          {result.key_insights.length > 0 && (
-            <div>
-              <h3 className="text-sm font-semibold text-gray-800 mb-2">Key Insights</h3>
-              <ul className="space-y-1.5">
-                {result.key_insights.map((insight, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                    <span className="text-blue-500 font-bold mt-0.5">•</span>
-                    {insight}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+        <ExecutiveSummarySection summary={result.executive_summary} insights={result.key_insights} />
       </section>
 
       {/* Sentiment Distribution */}
@@ -230,16 +559,16 @@ function ReportContent({ result }: { result: VOCResult }) {
           {result.complaints.map((c) => (
             <div key={c.rank} className="bg-white border border-gray-200 rounded-xl p-5">
               <div className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-full bg-red-100 text-red-700 text-sm font-bold flex items-center justify-center flex-shrink-0">
+                <div className="w-7 h-7 rounded-full bg-red-100 text-red-700 text-sm font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                   {c.rank}
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-2">
                     <span className="font-semibold text-gray-900">{c.category}</span>
                     <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{c.aspect}</span>
                     <span className="text-xs text-red-600 font-medium">{c.frequency_pct.toFixed(1)}% of reviews</span>
                   </div>
-                  <p className="text-sm text-gray-600">{c.root_cause}</p>
+                  <p className="text-sm text-gray-600 leading-relaxed">{c.root_cause}</p>
                   <EvidenceQuotes quotes={c.representative_reviews} />
                 </div>
               </div>
@@ -288,41 +617,7 @@ function ReportContent({ result }: { result: VOCResult }) {
       {result.marketing_recommendations && (
         <section>
           <SectionHeader number="4" title="Marketing Recommendations" />
-          <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-5">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Current Customer Perception</h3>
-              <p className="text-gray-800">{result.marketing_recommendations.current_perception}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Actual Value Drivers</h3>
-              <ul className="space-y-1">
-                {result.marketing_recommendations.actual_value_drivers.map((v, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                    <span className="text-green-500">✓</span>{v}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">New Message Proposals</h3>
-              <ul className="space-y-2">
-                {result.marketing_recommendations.new_message_proposals.map((msg, i) => (
-                  <li key={i} className="p-3 bg-blue-50 rounded-lg text-sm text-blue-800 italic">"{msg}"</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-red-600 uppercase tracking-wide mb-2">Messages to Avoid</h3>
-              <ul className="space-y-1">
-                {result.marketing_recommendations.messages_to_avoid.map((m, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                    <span className="text-red-500">✗</span>{m}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <EvidenceQuotes quotes={result.marketing_recommendations.evidence} limit={3} />
-          </div>
+          <MarketingSection rec={result.marketing_recommendations} />
         </section>
       )}
 
@@ -333,46 +628,70 @@ function ReportContent({ result }: { result: VOCResult }) {
           <div className="space-y-5">
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="bg-white border border-green-200 rounded-xl p-5">
-                <h3 className="text-sm font-semibold text-green-700 mb-3">Samsung Strengths</h3>
-                <ul className="space-y-1.5">
-                  {result.positioning_analysis.samsung_strengths.map((s, i) => (
-                    <li key={i} className="text-sm text-gray-700 flex items-start gap-2"><span className="text-green-500">+</span>{s}</li>
-                  ))}
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center">+</span>
+                  <h3 className="text-sm font-semibold text-green-700">Samsung Strengths</h3>
+                </div>
+                <ul className="space-y-3">
+                  {result.positioning_analysis.samsung_strengths.map((s, i) => {
+                    const dot = s.indexOf(". ");
+                    const headline = dot > 0 ? s.slice(0, dot + 1) : s;
+                    const detail = dot > 0 ? s.slice(dot + 2) : null;
+                    return (
+                      <li key={i} className="pl-3 border-l-2 border-green-200">
+                        <p className="text-sm font-medium text-gray-900 leading-snug">{headline}</p>
+                        {detail && <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{detail}</p>}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
               <div className="bg-white border border-red-200 rounded-xl p-5">
-                <h3 className="text-sm font-semibold text-red-700 mb-3">Samsung Weaknesses</h3>
-                <ul className="space-y-1.5">
-                  {result.positioning_analysis.samsung_weaknesses.map((w, i) => (
-                    <li key={i} className="text-sm text-gray-700 flex items-start gap-2"><span className="text-red-500">−</span>{w}</li>
-                  ))}
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="w-5 h-5 rounded-full bg-red-100 text-red-700 text-xs font-bold flex items-center justify-center">−</span>
+                  <h3 className="text-sm font-semibold text-red-700">Samsung Weaknesses</h3>
+                </div>
+                <ul className="space-y-3">
+                  {result.positioning_analysis.samsung_weaknesses.map((w, i) => {
+                    const dot = w.indexOf(". ");
+                    const headline = dot > 0 ? w.slice(0, dot + 1) : w;
+                    const detail = dot > 0 ? w.slice(dot + 2) : null;
+                    return (
+                      <li key={i} className="pl-3 border-l-2 border-red-200">
+                        <p className="text-sm font-medium text-gray-900 leading-snug">{headline}</p>
+                        {detail && <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{detail}</p>}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             </div>
 
             {result.positioning_analysis.competitors.map((comp) => (
-              <div key={comp.name} className="bg-white border border-gray-200 rounded-xl p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-gray-900">{comp.name}</h3>
-                  <span className="text-sm text-gray-500">{comp.price_range}</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-3">
-                  {[["Picture", comp.picture_quality], ["Sound", comp.sound_quality], ["UX", comp.ux], ["Smart TV", comp.smart_features]].map(([label, val]) => (
-                    <div key={label} className="bg-gray-50 rounded-lg p-2">
-                      <p className="text-gray-400 mb-0.5">{label}</p>
-                      <p className={`font-semibold ${val === "better" ? "text-red-600" : val === "worse" ? "text-green-600" : "text-yellow-600"}`}>
-                        {val}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <CompetitorCard key={comp.name} comp={comp} />
             ))}
 
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
-              <h3 className="text-sm font-semibold text-blue-800 mb-2">Positioning Recommendation</h3>
-              <p className="text-sm text-blue-700">{result.positioning_analysis.positioning_recommendation}</p>
-            </div>
+            {(() => {
+              const { intro, priorities } = parsePositioningPriorities(
+                result.positioning_analysis.positioning_recommendation
+              );
+              return priorities.length > 0 ? (
+                <div>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Priority Action Areas</h3>
+                  {intro && <p className="text-sm text-gray-600 leading-relaxed mb-4">{intro}</p>}
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {priorities.map(p => (
+                      <PriorityCard key={p.num} {...p} />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
+                  <h3 className="text-sm font-semibold text-blue-800 mb-2">Positioning Recommendation</h3>
+                  <p className="text-sm text-blue-700 leading-relaxed">{result.positioning_analysis.positioning_recommendation}</p>
+                </div>
+              );
+            })()}
           </div>
         </section>
       )}

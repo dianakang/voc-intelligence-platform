@@ -62,6 +62,13 @@ class ExpectationGapAgent(BaseAgent):
             for r in expectation_reviews + price_expectation + brand_expectation
         }.values())[:25]
 
+        # Fallback: if RAG is empty (e.g. in-memory store not shared across nodes),
+        # sample directly from reviews so the agent always has context.
+        if not pool and reviews:
+            import random
+            pool = random.sample(reviews, min(25, len(reviews)))
+            self.log("[yellow]RAG pool empty — using direct review sample as fallback")
+
         context = retriever.format_for_context(pool, max_chars=8000)
 
         complaints_str = "\n".join(f"- {c.category}: {c.root_cause}" for c in result.complaints[:6])

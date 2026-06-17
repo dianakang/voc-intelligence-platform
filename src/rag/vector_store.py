@@ -14,6 +14,12 @@ from src.rag.embedder import Embedder, EMBEDDING_DIM
 console = Console()
 
 
+# Module-level list used when neither Qdrant nor Pinecone is available.
+# Shared across all VectorStore instances in the same process so that data
+# upserted in one pipeline stage is visible to later stages.
+_PROCESS_MEMORY: list[dict] = []
+
+
 class VectorStore:
     """Unified vector store: tries Qdrant, then Pinecone, then in-memory."""
 
@@ -22,10 +28,15 @@ class VectorStore:
         self._backend: str = "memory"
         self._qdrant = None
         self._pinecone_index = None
-        self._memory: list[dict] = []
+        self._memory = _PROCESS_MEMORY  # shared reference, not a new list
         self._collection = settings.qdrant_collection
 
         self._init_qdrant() or self._init_pinecone()
+
+    @staticmethod
+    def clear_process_memory() -> None:
+        """Clear the in-memory store. Call at the start of each pipeline run."""
+        _PROCESS_MEMORY.clear()
 
     def _init_qdrant(self) -> bool:
         try:
