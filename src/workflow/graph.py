@@ -30,6 +30,7 @@ from src.agents.importance_analysis import ImportanceAnalysisAgent
 from src.agents.competitive_positioning import CompetitivePositioningAgent
 from src.agents.expectation_gap import ExpectationGapAgent
 from src.agents.segment_divergence import SegmentDivergenceAnalysisAgent
+from src.agents.cx_action_agent import CXActionAgent
 from src.agents.report_generation import ReportGenerationAgent
 
 console = Console()
@@ -215,13 +216,20 @@ def run_parallel_analysis(state: VOCWorkflowState) -> dict:
     push_progress(agent_statuses=dict(agent_statuses), current_step="Segment divergence analysis", progress_pct=86)
     segment_agent = SegmentDivergenceAnalysisAgent()
     result = segment_agent.analyze(reviews, retriever, result)
-    _tick("SegmentDivergenceAnalysisAgent", "Segment divergence analysis complete", 88)
+    _tick("SegmentDivergenceAnalysisAgent", "Segment divergence analysis complete", 87)
+
+    # Task 11: CX Action generation
+    agent_statuses["CXActionAgent"] = "running"
+    push_progress(agent_statuses=dict(agent_statuses), current_step="CX action generation", progress_pct=88)
+    cx_agent = CXActionAgent()
+    result = cx_agent.analyze(reviews, retriever, result)
+    _tick("CXActionAgent", "CX action generation complete", 89)
 
     return {
         "result": result,
         "agent_statuses": agent_statuses,
         "current_step": "Analysis complete",
-        "progress_pct": 88,
+        "progress_pct": 89,
     }
 
 
@@ -299,6 +307,7 @@ def run_voc_pipeline(model_code: str, max_reviews: int = 200) -> VOCWorkflowStat
             "ImportanceAnalysisAgent": "pending",
             "ExpectationGapAgent": "pending",
             "SegmentDivergenceAnalysisAgent": "pending",
+            "CXActionAgent": "pending",
             "ReportGenerationAgent": "pending",
         },
         "errors": [],

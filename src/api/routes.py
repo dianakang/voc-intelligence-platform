@@ -94,6 +94,7 @@ async def start_analysis(req: RunAnalysisRequest, background_tasks: BackgroundTa
             "ImportanceAnalysisAgent": "pending",
             "ExpectationGapAgent": "pending",
             "SegmentDivergenceAnalysisAgent": "pending",
+            "CXActionAgent": "pending",
             "ReportGenerationAgent": "pending",
         },
         "error": None,

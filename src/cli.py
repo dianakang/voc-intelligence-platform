@@ -57,16 +57,12 @@ def run(
 
     _print_summary(result)
 
-    # Save reports
-    md_path = out_dir / f"voc_report_{model_code}_{result.analysis_date[:10]}.md"
-    md_content = generate_markdown_report(result)
-    md_path.write_text(md_content, encoding="utf-8")
+    # Save reports (these functions write the file themselves and return the saved Path)
+    md_path = generate_markdown_report(result)
     console.print(f"\n[green]Markdown report:[/green] {md_path}")
 
     if json_output:
-        json_path = out_dir / f"voc_report_{model_code}_{result.analysis_date[:10]}.json"
-        json_content = generate_json_report(result)
-        json_path.write_text(json_content, encoding="utf-8")
+        json_path = generate_json_report(result)
         console.print(f"[green]JSON report:[/green] {json_path}")
 
 

@@ -47,10 +47,10 @@ REPORT_TEMPLATE = """# Samsung TV VOC Intelligence Report
 
 ## Task 1: Customer Complaint Analysis
 
-| Rank | Category | Frequency | Root Cause |
-|------|----------|-----------|------------|
+| Rank | Category | Issue Type | Frequency | Root Cause |
+|------|----------|-----------|-----------|------------|
 {% for c in result.complaints %}
-| {{ c.rank }} | {{ c.category }} | {{ c.frequency }} ({{ "%.0f"|format(c.frequency_pct) }}%) | {{ c.root_cause }} |
+| {{ c.rank }} | {{ c.category }} | {{ "Product Defect" if c.issue_type == "product_defect" else "Purchase Experience" }} | {{ c.frequency }} ({{ "%.0f"|format(c.frequency_pct) }}%) | {{ c.root_cause }} |
 {% endfor %}
 
 {% for c in result.complaints[:3] %}
@@ -256,6 +256,20 @@ REPORT_TEMPLATE = """# Samsung TV VOC Intelligence Report
 - {{ message }}
 {% endfor %}
 {% endif %}
+
+---
+
+## Task 11: CX Action Toolkit
+
+{% for action in result.cx_actions %}
+### [{{ action.priority|upper }}] {{ action.title }} ({{ action.action_type|replace('_', ' ')|title }})
+
+**Issue Type:** {{ "Product Defect" if action.issue_type == "product_defect" else "Purchase Experience" }}
+**Related Issue:** {{ action.related_issue }}
+
+{{ action.content }}
+
+{% endfor %}
 
 ---
 

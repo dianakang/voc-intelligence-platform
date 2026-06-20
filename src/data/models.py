@@ -87,6 +87,7 @@ class ComplaintItem(BaseModel):
     root_cause: str
     representative_reviews: list[str]
     aspect: str
+    issue_type: str = "product_defect"  # "product_defect" | "purchase_experience"
 
 
 class SatisfactionDriver(BaseModel):
@@ -185,6 +186,15 @@ class SegmentDivergenceAnalysis(BaseModel):
     marketing_message_by_segment: list[str]
 
 
+class CXActionItem(BaseModel):
+    action_type: str  # "faq" | "support_script" | "proactive_notice" | "install_guide"
+    title: str
+    content: str
+    related_issue: str
+    issue_type: str  # "product_defect" | "purchase_experience"
+    priority: str  # "high" | "medium" | "low"
+
+
 class VOCAnalysisResult(BaseModel):
     product_id: str
     model: str
@@ -202,6 +212,7 @@ class VOCAnalysisResult(BaseModel):
     contradictions: list[ContradictionCase] = Field(default_factory=list)
     importance_matrix: list[ImportanceItem] = Field(default_factory=list)
     expectation_gaps: list[ExpectationGapItem] = Field(default_factory=list)
+    cx_actions: list[CXActionItem] = Field(default_factory=list)
 
     # Sentiment distribution
     sentiment_distribution: dict[str, int] = Field(default_factory=dict)

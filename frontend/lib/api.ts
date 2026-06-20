@@ -24,6 +24,7 @@ export interface VOCResult {
   contradictions: ContradictionCase[];
   importance_matrix: ImportanceItem[];
   expectation_gaps: ExpectationGapItem[];
+  cx_actions: CXActionItem[];
   sentiment_distribution: Record<string, number>;
   aspect_sentiment_summary: Record<string, AspectSentiment>;
   executive_summary: string;
@@ -38,6 +39,16 @@ export interface Complaint {
   frequency_pct: number;
   root_cause: string;
   representative_reviews: string[];
+  issue_type: "product_defect" | "purchase_experience";
+}
+
+export interface CXActionItem {
+  action_type: "faq" | "support_script" | "proactive_notice" | "install_guide";
+  title: string;
+  content: string;
+  related_issue: string;
+  issue_type: "product_defect" | "purchase_experience";
+  priority: "high" | "medium" | "low";
 }
 
 export interface SatisfactionDriver {

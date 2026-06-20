@@ -49,6 +49,8 @@ SAMSUNG_U7900F_SPEC: dict = {
         "samsung_knox": True,
         "ambient_mode": True,
         "apps": "Samsung Smart TV Hub",
+        "account_requirement": "Samsung Account required to use streaming apps, SmartThings, and other network-based smart features",
+        "free_content": "Endless free content via Samsung TV Plus (ad-supported live channels)",
     },
     "gaming": {
         "input_lag_4k_60hz": "~13ms",
@@ -97,6 +99,13 @@ SAMSUNG_U7900F_SPEC: dict = {
         "one_connect_box": False,
         "solar_remote": False,
         "eco_remote": True,
+        "delivery_availability": "Standard shipping; in-store pickup availability varies by location and may show as limited/unavailable",
+        "marketing_highlights": [
+            "Crystal Processor 4K",
+            "MetalStream Design",
+            "Samsung Knox Security",
+            "Endless Free Content (Samsung TV Plus)",
+        ],
     },
 }
 

@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { api, VOCResult, ExpectationGapItem, ContradictionCase, ImprovementPoint, SegmentInsight } from "@/lib/api";
+import { api, VOCResult, ExpectationGapItem, ContradictionCase, ImprovementPoint, SegmentInsight, CXActionItem } from "@/lib/api";
 import { SentimentPieChart } from "@/components/charts/SentimentPieChart";
 import { AspectBarChart } from "@/components/charts/AspectBarChart";
 import { ImportanceMatrix } from "@/components/charts/ImportanceMatrix";
@@ -206,7 +206,7 @@ function ContradictionSection({ cases }: { cases: ContradictionCase[] }) {
         <div key={i} className="bg-white border border-gray-200 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-3">
             <div className={`text-xs font-bold px-2 py-0.5 rounded-full ${c.contradiction_type === "type_a" ? "bg-orange-100 text-orange-700" : "bg-brand-100 text-brand-700"}`}>
-              {c.contradiction_type === "type_a" ? "Type A: Hidden Complaint" : "Type B: Hidden Praise"}
+              {c.contradiction_type === "type_a" ? "High rating, hidden complaint" : "Low rating, praises product"}
             </div>
             <div className="flex gap-0.5">
               {Array.from({ length: 5 }).map((_, j) => (
@@ -256,6 +256,59 @@ function ImprovementSection({ improvements }: { improvements: ImprovementPoint[]
           </div>
           <EvidenceQuotes quotes={imp.supporting_evidence} />
         </div>
+      ))}
+    </div>
+  );
+}
+
+const ACTION_TYPE_LABELS: Record<string, string> = {
+  faq: "FAQ",
+  support_script: "Support Script",
+  proactive_notice: "Proactive Notice",
+  install_guide: "Install Guide",
+};
+
+function CXActionCard({ action }: { action: CXActionItem }) {
+  const [open, setOpen] = useState(false);
+  const snippet = firstSentence(action.content);
+  const hasMore = snippet !== action.content;
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full">
+            {ACTION_TYPE_LABELS[action.action_type] || action.action_type}
+          </span>
+          <span
+            className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+              action.issue_type === "purchase_experience" ? "bg-gray-100 text-gray-600" : "bg-red-50 text-red-600"
+            }`}
+          >
+            {action.issue_type === "purchase_experience" ? "Purchase Experience" : "Product Issue"}
+          </span>
+        </div>
+        <PriorityBadge priority={action.priority} />
+      </div>
+      <h3 className="font-semibold text-gray-900 text-sm mb-1.5">{action.title}</h3>
+      <p className="text-sm text-gray-700 leading-relaxed">{open ? action.content : snippet}</p>
+      {hasMore && (
+        <button onClick={() => setOpen(!open)} className="text-xs text-brand-600 hover:underline mt-1.5">
+          {open ? "Show less ↑" : "Read more ↓"}
+        </button>
+      )}
+      <p className="text-xs text-gray-400 mt-2">Addresses: {action.related_issue}</p>
+    </div>
+  );
+}
+
+function CXActionSection({ actions }: { actions: CXActionItem[] }) {
+  if (actions.length === 0) {
+    return <p className="text-sm text-gray-400">No CX actions generated.</p>;
+  }
+  return (
+    <div className="grid sm:grid-cols-2 gap-4">
+      {actions.map((action, i) => (
+        <CXActionCard key={i} action={action} />
       ))}
     </div>
   );
@@ -699,6 +752,10 @@ function ReportContent({ result }: { result: VOCResult }) {
       {/* Task 1: Complaints */}
       <section id="complaints" className="scroll-mt-24">
         <SectionHeader number="1" title="Top Complaints" />
+        <p className="text-xs text-gray-500 -mt-3 mb-4">
+          Tagged by type: <span className="font-semibold text-red-600">Product Issue</span> (defect — route to engineering)
+          vs. <span className="font-semibold text-gray-600">Purchase Experience</span> (delivery/account/setup — route to CX).
+        </p>
         <div className="space-y-3">
           {result.complaints.map((c) => (
             <div key={c.rank} className="bg-white border border-gray-200 rounded-xl p-5">
@@ -710,6 +767,13 @@ function ReportContent({ result }: { result: VOCResult }) {
                   <div className="flex items-center gap-2 flex-wrap mb-2">
                     <span className="font-semibold text-gray-900">{c.category}</span>
                     <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{c.aspect}</span>
+                    <span
+                      className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+                        c.issue_type === "purchase_experience" ? "bg-gray-100 text-gray-600" : "bg-red-50 text-red-600"
+                      }`}
+                    >
+                      {c.issue_type === "purchase_experience" ? "Purchase Experience" : "Product Issue"}
+                    </span>
                     <span className="text-xs text-red-600 font-medium">{c.frequency_pct.toFixed(1)}% of reviews</span>
                   </div>
                   <p className="text-sm text-gray-600 leading-relaxed">{c.root_cause}</p>
@@ -855,7 +919,11 @@ function ReportContent({ result }: { result: VOCResult }) {
 
       {/* Task 6: Contradictions */}
       <section id="contradictions" className="scroll-mt-24">
-        <SectionHeader number="6" title="Review Contradictions" />
+        <SectionHeader number="6" title="Paradox Reviews" />
+        <p className="text-xs text-gray-500 -mt-3 mb-4">
+          Star rating ≠ product quality. These reviews separate <span className="font-semibold text-gray-700">emotional rating</span> from
+          <span className="font-semibold text-gray-700"> actual product experience</span> — useful for telling roadmap priorities apart from service fixes.
+        </p>
         <ContradictionSection cases={result.contradictions} />
       </section>
 
@@ -872,6 +940,18 @@ function ReportContent({ result }: { result: VOCResult }) {
         <SectionHeader number="8" title="Customer Expectation Gap Analysis" badge="핵심" />
         <ExpectationGapSection gaps={result.expectation_gaps} />
       </section>
+
+      {/* Task 11: CX Action Toolkit */}
+      {result.cx_actions && result.cx_actions.length > 0 && (
+        <section id="cx-actions" className="scroll-mt-24">
+          <SectionHeader number="11" title="CX Action Toolkit" />
+          <p className="text-xs text-gray-500 -mt-3 mb-4">
+            Ready-to-use <span className="font-semibold text-gray-700">FAQ entries, support scripts, and proactive notices</span> generated
+            directly from the complaint clusters above — for customer support and help-center publishing.
+          </p>
+          <CXActionSection actions={result.cx_actions} />
+        </section>
+      )}
     </div>
   );
 }
@@ -938,9 +1018,10 @@ function ReportPageInner() {
       : []),
     ...(result.marketing_recommendations ? [{ id: "marketing", label: "Marketing Recommendations" }] : []),
     ...(result.positioning_analysis ? [{ id: "positioning", label: "Competitive Positioning" }] : []),
-    { id: "contradictions", label: "Review Contradictions" },
+    { id: "contradictions", label: "Paradox Reviews" },
     { id: "importance", label: "Importance-Frequency Matrix" },
     { id: "expectation-gaps", label: "Expectation Gap Analysis" },
+    ...(result.cx_actions && result.cx_actions.length > 0 ? [{ id: "cx-actions", label: "CX Action Toolkit" }] : []),
   ];
 
   return (

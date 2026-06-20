@@ -16,6 +16,11 @@ Your task is to:
 2. Determine the root cause of each complaint
 3. Rank complaints by frequency and severity
 4. Extract representative review quotes
+5. Classify each complaint as either a genuine PRODUCT DEFECT (hardware/software issue with the
+   TV itself, e.g. dead pixels, laggy UI, weak speakers) or a PURCHASE EXPERIENCE issue (anything
+   about buying, account setup/login, delivery, installation, or pickup that is NOT a flaw in the
+   TV itself). This separation matters because product issues drive engineering/roadmap decisions
+   while purchase experience issues drive logistics/CX decisions.
 
 Return structured JSON only. Be specific and actionable in your analysis."""
 
@@ -67,6 +72,7 @@ Identify the TOP 8 complaint categories. For each, provide:
       "rank": 1,
       "category": "category name",
       "aspect": "picture_quality|sound|smart_tv|price|installation|reliability|design|gaming|connectivity|remote",
+      "issue_type": "product_defect|purchase_experience",
       "frequency": <estimated count>,
       "frequency_pct": <percentage of negative reviews>,
       "root_cause": "specific technical or experiential root cause",
@@ -90,6 +96,7 @@ Focus on actionable, specific complaints. Rank by frequency × severity."""
                         frequency_pct=item.get("frequency_pct", 0.0),
                         root_cause=item.get("root_cause", ""),
                         representative_reviews=item.get("representative_reviews", []),
+                        issue_type=item.get("issue_type", "product_defect"),
                     )
                 )
             self.log(f"Identified {len(result.complaints)} complaint categories")

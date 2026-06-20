@@ -1,21 +1,23 @@
 # Samsung TV VOC Intelligence Platform
 
-AI-powered Voice of Customer (VOC) analysis for Samsung TVs. The pipeline scrapes customer reviews, cleans and classifies them, runs a battery of LLM-driven analysis agents (sentiment, complaints, satisfaction, competitive positioning, expectation gaps, etc.), and produces an executive-ready Markdown/JSON report — accessible via CLI, REST API, or a Next.js dashboard.
+AI-powered Voice of Customer (VOC) analysis for Samsung TVs. The pipeline scrapes customer reviews, cleans and classifies them, runs a battery of LLM-driven analysis agents (sentiment, complaints, satisfaction, competitive positioning, expectation gaps, CX actions, etc.), and produces an executive-ready Markdown/JSON report — accessible via CLI, REST API, or a Next.js dashboard.
+
+Primary users are **in-house marketers** (PDP copy, ad messaging, promotions) and the **CX/customer support team** (FAQ updates, response scripts), with outputs designed to extend to product/PM, e-commerce ops, and sales enablement. Every analysis is grounded jointly in the review text **and** the product spec/PDP (price, account requirements, delivery/pickup status) so the platform can separate a genuine **product issue** from a **purchase-experience issue** (delivery, account setup, installation) instead of treating all complaints as defects.
 
 ## Architecture
 
 ```
-Reviews (scraper) → Cleaning → Taxonomy + RAG indexing → Parallel analysis agents → Executive report
+Reviews (scraper) → Cleaning → Taxonomy + RAG indexing (grounded in PDP/spec) → Parallel analysis agents → Executive report
 ```
 
-- **`src/data/`** — review scraping (`scraper.py`) and product spec extraction (`spec_extractor.py`)
+- **`src/data/`** — review scraping (`scraper.py`) and product spec/PDP extraction (`spec_extractor.py`), including price, account requirements, and delivery/pickup availability
 - **`src/rag/`** — chunking, embedding, and retrieval (Qdrant preferred, Pinecone fallback)
-- **`src/agents/`** — one agent per analysis task (review cleaning, taxonomy, sentiment, complaints, satisfaction/improvement, marketing, contradictions, importance, competitive positioning, expectation gap, segment divergence, report generation)
+- **`src/agents/`** — one agent per analysis task: review cleaning, taxonomy, sentiment, complaints (tagged `product_defect` vs `purchase_experience`), satisfaction/improvement, marketing, paradox/contradiction detection (rating vs. review-text mismatches — separates emotional rating from actual product experience), importance, competitive positioning, expectation gap, segment divergence, **CX action generation** (turns complaint clusters into FAQ entries, support scripts, and proactive notices), report generation
 - **`src/workflow/graph.py`** — LangGraph state machine that orchestrates the agents end to end
 - **`src/reports/generator.py`** — renders the final `VOCAnalysisResult` into Markdown/JSON
 - **`src/api/`** — FastAPI app exposing the pipeline as an async job (`main.py` is the entrypoint)
 - **`src/cli.py`** — Typer CLI for running the pipeline from the terminal
-- **`frontend/`** — Next.js dashboard that triggers a run and visualizes progress/results
+- **`frontend/`** — Next.js dashboard that triggers a run and visualizes progress/results, including a Paradox Reviews section and a CX Action Toolkit for support teams
 
 ## Prerequisites
 

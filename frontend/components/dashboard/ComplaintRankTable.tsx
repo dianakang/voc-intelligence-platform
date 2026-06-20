@@ -12,6 +12,12 @@ export function ComplaintRankTable({ complaints }: Props) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
+              <span
+                className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                  c.issue_type === "purchase_experience" ? "bg-gray-400" : "bg-red-500"
+                }`}
+                title={c.issue_type === "purchase_experience" ? "Purchase experience issue" : "Product issue"}
+              />
               <span className="text-sm font-medium text-gray-900">{c.category}</span>
               <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
                 {Math.round(c.frequency_pct)}%
