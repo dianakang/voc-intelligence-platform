@@ -87,7 +87,7 @@ export default function AnalysisPage() {
             value={modelCode}
             onChange={(e) => setModelCode(e.target.value)}
             disabled={isRunning}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 bg-white"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50 bg-white"
           >
             {MODEL_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -107,7 +107,7 @@ export default function AnalysisPage() {
             step={10}
             onChange={(e) => setMaxReviews(parseInt(e.target.value))}
             disabled={isRunning}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50"
           />
           <p className="text-xs text-gray-400 mt-1">Recommended: 200–500 for best results</p>
         </div>
@@ -116,7 +116,7 @@ export default function AnalysisPage() {
           <button
             onClick={handleRun}
             disabled={isActive || loading}
-            className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Starting…" : isActive ? "Analysis Running…" : "Run VOC Analysis"}
           </button>
@@ -139,7 +139,7 @@ export default function AnalysisPage() {
               ["5", "Executive Report", "Narrative synthesis by Claude Opus"],
             ].map(([num, name, desc]) => (
               <li key={num} className="flex items-start gap-3">
-                <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{num}</span>
+                <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{num}</span>
                 <span><strong>{name}</strong> — {desc}</span>
               </li>
             ))}

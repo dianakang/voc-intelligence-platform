@@ -22,7 +22,7 @@ const AGENT_LABELS: Record<string, string> = {
 
 const STATUS_CONFIG: Record<string, { icon: string; color: string; bg: string }> = {
   done: { icon: "✓", color: "text-green-700", bg: "bg-green-100" },
-  running: { icon: "⟳", color: "text-blue-700", bg: "bg-blue-100" },
+  running: { icon: "⟳", color: "text-brand-700", bg: "bg-brand-100" },
   error: { icon: "✗", color: "text-red-700", bg: "bg-red-100" },
   pending: { icon: "○", color: "text-gray-400", bg: "bg-gray-100" },
 };
@@ -57,8 +57,8 @@ export function AgentExecutionPanel({ status }: Props) {
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold text-gray-900">Agent Execution</h2>
           {isActive && (
-            <span className="flex items-center gap-1.5 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse inline-block" />
+            <span className="flex items-center gap-1.5 text-xs text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse inline-block" />
               Live
             </span>
           )}
@@ -77,14 +77,14 @@ export function AgentExecutionPanel({ status }: Props) {
       <div className="mb-6">
         <div className="flex items-center justify-between text-sm mb-1.5">
           <span className="text-gray-600 truncate max-w-xs">{status.current_step}</span>
-          <span className="font-medium text-blue-600 ml-2 flex-shrink-0">{status.progress_pct}%</span>
+          <span className="font-medium text-brand-600 ml-2 flex-shrink-0">{status.progress_pct}%</span>
         </div>
         <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
           <div
             className={cn(
               "h-2 rounded-full transition-all duration-700",
               status.status === "error" ? "bg-red-500" :
-              status.status === "done" ? "bg-green-500" : "bg-blue-500"
+              status.status === "done" ? "bg-green-500" : "bg-brand-500"
             )}
             style={{ width: `${status.progress_pct}%` }}
           />
@@ -104,8 +104,8 @@ export function AgentExecutionPanel({ status }: Props) {
               key={agentName}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-300",
-                isKeyTask ? "ring-1 ring-blue-200 bg-blue-50/50" :
-                isThisRunning ? "bg-blue-50" :
+                isKeyTask ? "ring-1 ring-brand-200 bg-brand-50/50" :
+                isThisRunning ? "bg-brand-50" :
                 agentStatus === "done" ? "bg-green-50/60" :
                 "bg-gray-50"
               )}
@@ -123,11 +123,11 @@ export function AgentExecutionPanel({ status }: Props) {
               <span className={cn(
                 "text-sm",
                 agentStatus === "pending" ? "text-gray-400" :
-                agentStatus === "running" ? "text-blue-800 font-medium" :
+                agentStatus === "running" ? "text-brand-800 font-medium" :
                 "text-gray-800"
               )}>
                 {label}
-                {isKeyTask && <span className="ml-1 text-xs text-blue-500 font-medium">★</span>}
+                {isKeyTask && <span className="ml-1 text-xs text-brand-500 font-medium">★</span>}
               </span>
             </div>
           );

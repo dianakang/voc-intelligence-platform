@@ -3,9 +3,9 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const COLORS: Record<string, string> = {
-  Positive: "#22c55e",
-  Negative: "#ef4444",
-  Neutral: "#94a3b8",
+  Positive: "#1428a0",
+  Negative: "#5567c8",
+  Neutral: "#b3bdeb",
 };
 
 interface Props {
@@ -18,7 +18,7 @@ export function SentimentPieChart({ data }: Props) {
       <PieChart>
         <Pie data={data} cx="50%" cy="50%" outerRadius={85} dataKey="value" label={(props) => `${props.name ?? ""} ${(((props.percent as number | undefined) ?? 0) * 100).toFixed(0)}%`}>
           {data.map((entry, index) => (
-            <Cell key={index} fill={COLORS[entry.name] || "#6366f1"} />
+            <Cell key={index} fill={COLORS[entry.name] || "#1428a0"} />
           ))}
         </Pie>
         <Tooltip formatter={(value) => [Number(value), "Reviews"]} />

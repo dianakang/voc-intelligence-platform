@@ -7,7 +7,7 @@ export function ComplaintRankTable({ complaints }: Props) {
     <div className="space-y-3">
       {complaints.map((c) => (
         <div key={c.rank} className="flex items-start gap-3">
-          <div className="w-6 h-6 rounded-full bg-red-100 text-red-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+          <div className="w-6 h-6 rounded-full bg-brand-100 text-brand-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
             {c.rank}
           </div>
           <div className="flex-1 min-w-0">

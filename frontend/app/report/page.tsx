@@ -8,6 +8,52 @@ import { SentimentPieChart } from "@/components/charts/SentimentPieChart";
 import { AspectBarChart } from "@/components/charts/AspectBarChart";
 import { ImportanceMatrix } from "@/components/charts/ImportanceMatrix";
 
+interface TocEntry {
+  id: string;
+  label: string;
+}
+
+function ReportSidebarNav({ sections }: { sections: TocEntry[] }) {
+  const [activeId, setActiveId] = useState(sections[0]?.id);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          setActiveId(visible[0].target.id);
+        }
+      },
+      { rootMargin: "-96px 0px -70% 0px", threshold: 0 }
+    );
+    sections.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, [sections]);
+
+  return (
+    <nav className="hidden lg:block w-56 flex-shrink-0">
+      <div className="sticky top-24 space-y-0.5">
+        {sections.map(({ id, label }) => (
+          <a
+            key={id}
+            href={`#${id}`}
+            className={`block text-sm px-3 py-1.5 rounded-lg border-l-2 transition-colors ${
+              activeId === id
+                ? "border-brand-600 text-brand-700 bg-brand-50 font-medium"
+                : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+            }`}
+          >
+            {label}
+          </a>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
 function GapSeverityBadge({ severity }: { severity: string }) {
   const colors: Record<string, string> = {
     high: "bg-red-100 text-red-700",
@@ -37,11 +83,11 @@ function PriorityBadge({ priority }: { priority: string }) {
 function SectionHeader({ number, title, badge }: { number: string; title: string; badge?: string }) {
   return (
     <div className="flex items-center gap-3 mb-5">
-      <div className="w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
+      <div className="w-8 h-8 rounded-full bg-brand-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
         {number}
       </div>
       <h2 className="text-xl font-bold text-gray-900">{title}</h2>
-      {badge && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">{badge}</span>}
+      {badge && <span className="text-xs bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full font-semibold">{badge}</span>}
     </div>
   );
 }
@@ -58,7 +104,7 @@ function EvidenceQuotes({ quotes, limit = 2 }: { quotes: string[]; limit?: numbe
         </blockquote>
       ))}
       {quotes.length > limit && (
-        <button onClick={() => setExpanded(!expanded)} className="text-xs text-blue-500 hover:underline">
+        <button onClick={() => setExpanded(!expanded)} className="text-xs text-brand-500 hover:underline">
           {expanded ? "Show less" : `+${quotes.length - limit} more reviews`}
         </button>
       )}
@@ -111,9 +157,9 @@ function ExpectationGapCard({ gap }: { gap: ExpectationGapItem }) {
               <p className="leading-relaxed"><span className="font-medium text-gray-700">Full experience: </span>{gap.actual_experience}</p>
             </div>
           )}
-          <div className="p-3 bg-blue-50 rounded-lg">
-            <p className="text-[10px] font-semibold text-blue-500 uppercase tracking-wider mb-1">Recommended Action</p>
-            <p className="text-sm text-blue-800 leading-relaxed">{gap.recommended_action}</p>
+          <div className="p-3 bg-brand-50 rounded-lg">
+            <p className="text-[10px] font-semibold text-brand-500 uppercase tracking-wider mb-1">Recommended Action</p>
+            <p className="text-sm text-brand-800 leading-relaxed">{gap.recommended_action}</p>
           </div>
           <EvidenceQuotes quotes={gap.supporting_reviews} limit={2} />
         </div>
@@ -121,8 +167,8 @@ function ExpectationGapCard({ gap }: { gap: ExpectationGapItem }) {
 
       {/* Recommended action teaser when collapsed */}
       {!open && (
-        <div className="border-t border-gray-100 px-5 py-2.5 bg-blue-50/50">
-          <p className="text-xs text-blue-700 leading-snug line-clamp-1">
+        <div className="border-t border-gray-100 px-5 py-2.5 bg-brand-50/50">
+          <p className="text-xs text-brand-700 leading-snug line-clamp-1">
             <span className="font-semibold">Action: </span>{firstSentence(gap.recommended_action)}
           </p>
         </div>
@@ -159,7 +205,7 @@ function ContradictionSection({ cases }: { cases: ContradictionCase[] }) {
       {cases.map((c, i) => (
         <div key={i} className="bg-white border border-gray-200 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-3">
-            <div className={`text-xs font-bold px-2 py-0.5 rounded-full ${c.contradiction_type === "type_a" ? "bg-orange-100 text-orange-700" : "bg-purple-100 text-purple-700"}`}>
+            <div className={`text-xs font-bold px-2 py-0.5 rounded-full ${c.contradiction_type === "type_a" ? "bg-orange-100 text-orange-700" : "bg-brand-100 text-brand-700"}`}>
               {c.contradiction_type === "type_a" ? "Type A: Hidden Complaint" : "Type B: Hidden Praise"}
             </div>
             <div className="flex gap-0.5">
@@ -249,9 +295,9 @@ function SegmentInsightCard({ item }: { item: SegmentInsight }) {
             <p className="leading-relaxed"><span className="font-medium text-gray-700">Expectation gap: </span>{item.expectation_gap}</p>
             <p className="leading-relaxed"><span className="font-medium text-gray-700">Business implication: </span>{item.business_implication}</p>
           </div>
-          <div className="p-3 bg-blue-50 rounded-lg">
-            <p className="text-[10px] font-semibold text-blue-500 uppercase tracking-wider mb-1">Recommended Action</p>
-            <p className="text-sm text-blue-800 leading-relaxed">{item.recommended_action}</p>
+          <div className="p-3 bg-brand-50 rounded-lg">
+            <p className="text-[10px] font-semibold text-brand-500 uppercase tracking-wider mb-1">Recommended Action</p>
+            <p className="text-sm text-brand-800 leading-relaxed">{item.recommended_action}</p>
           </div>
           <EvidenceQuotes quotes={item.evidence} limit={2} />
         </div>
@@ -361,7 +407,7 @@ function ExecutiveSummarySection({ summary, insights }: { summary: string; insig
         {paragraphs.length > 2 && (
           <button
             onClick={() => setExpanded(!expanded)}
-            className="mt-3 text-xs text-blue-600 hover:underline"
+            className="mt-3 text-xs text-brand-600 hover:underline"
           >
             {expanded ? "Show less ↑" : `Read full summary (${paragraphs.length - 2} more paragraphs) ↓`}
           </button>
@@ -377,7 +423,7 @@ function ExecutiveSummarySection({ summary, insights }: { summary: string; insig
               const { headline, detail } = parseInsight(raw);
               return (
                 <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                  <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-full bg-brand-600 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                     {i + 1}
                   </span>
                   <div className="min-w-0">
@@ -431,8 +477,8 @@ function parsePositioningPriorities(text: string) {
 const PRIORITY_PALETTE: Record<number, { bg: string; border: string; badge: string; num: string }> = {
   1: { bg: "bg-red-50",    border: "border-red-200",    badge: "bg-red-100 text-red-700",       num: "bg-red-500 text-white" },
   2: { bg: "bg-orange-50", border: "border-orange-200", badge: "bg-orange-100 text-orange-700", num: "bg-orange-500 text-white" },
-  3: { bg: "bg-blue-50",   border: "border-blue-200",   badge: "bg-blue-100 text-blue-700",     num: "bg-blue-500 text-white" },
-  4: { bg: "bg-purple-50", border: "border-purple-200", badge: "bg-purple-100 text-purple-700", num: "bg-purple-500 text-white" },
+  3: { bg: "bg-brand-50",   border: "border-brand-200",   badge: "bg-brand-100 text-brand-700",     num: "bg-brand-500 text-white" },
+  4: { bg: "bg-gray-50",   border: "border-gray-200",   badge: "bg-gray-100 text-gray-700",     num: "bg-gray-500 text-white" },
 };
 
 function PriorityCard({ num, label, topic, body }: { num: string; label: string; topic: string; body: string }) {
@@ -454,7 +500,7 @@ function PriorityCard({ num, label, topic, body }: { num: string; label: string;
       {rest && (
         <>
           {expanded && <p className="text-sm text-gray-600 leading-relaxed pl-9 mt-2">{rest}</p>}
-          <button onClick={() => setExpanded(!expanded)} className="pl-9 mt-1.5 text-xs text-blue-600 hover:underline">
+          <button onClick={() => setExpanded(!expanded)} className="pl-9 mt-1.5 text-xs text-brand-600 hover:underline">
             {expanded ? "Show less ↑" : "Read more ↓"}
           </button>
         </>
@@ -546,11 +592,11 @@ function MarketingSection({ rec }: { rec: import("@/lib/api").MarketingRecommend
         <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Recommended Messages</h3>
         <div className="space-y-2">
           {rec.new_message_proposals.map((msg, i) => (
-            <div key={i} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-              <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div key={i} className="flex items-start gap-3 p-3 bg-brand-50 rounded-lg">
+              <span className="w-5 h-5 rounded-full bg-brand-600 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                 {i + 1}
               </span>
-              <p className="text-sm text-blue-800 italic leading-relaxed">"{msg}"</p>
+              <p className="text-sm text-brand-800 italic leading-relaxed">"{msg}"</p>
             </div>
           ))}
         </div>
@@ -581,7 +627,7 @@ function CompetitorCard({ comp }: { comp: import("@/lib/api").CompetitorData }) 
           <span className="text-sm font-medium text-gray-600 bg-gray-100 px-2.5 py-1 rounded-lg">{comp.price_range}</span>
           <button
             onClick={() => setExpanded(!expanded)}
-            className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+            className="text-xs text-brand-600 hover:text-brand-800 font-medium"
           >
             {expanded ? "Less ↑" : "Details ↓"}
           </button>
@@ -611,9 +657,9 @@ function ReportContent({ result }: { result: VOCResult }) {
   return (
     <div className="space-y-12">
       {/* Overview */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 text-white">
+      <div className="bg-gradient-to-r from-brand-600 to-brand-700 rounded-2xl p-6 text-white">
         <h1 className="text-2xl font-bold mb-1">Samsung TV VOC Intelligence Report</h1>
-        <p className="text-blue-100 text-sm mb-4">{result.model} · {new Date(result.analysis_date).toLocaleDateString()} · {result.total_reviews} reviews</p>
+        <p className="text-brand-100 text-sm mb-4">{result.model} · {new Date(result.analysis_date).toLocaleDateString()} · {result.total_reviews} reviews</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             ["Avg Rating", `${result.avg_rating.toFixed(1)} / 5.0`],
@@ -621,8 +667,8 @@ function ReportContent({ result }: { result: VOCResult }) {
             ["Complaint Issues", result.complaints.length.toString()],
             ["Expectation Gaps", result.expectation_gaps.length.toString()],
           ].map(([label, value]) => (
-            <div key={label} className="bg-blue-500/30 rounded-xl p-3">
-              <p className="text-xs text-blue-200">{label}</p>
+            <div key={label} className="bg-brand-500/30 rounded-xl p-3">
+              <p className="text-xs text-brand-200">{label}</p>
               <p className="text-xl font-bold">{value}</p>
             </div>
           ))}
@@ -630,13 +676,13 @@ function ReportContent({ result }: { result: VOCResult }) {
       </div>
 
       {/* Executive Summary */}
-      <section>
+      <section id="summary" className="scroll-mt-24">
         <SectionHeader number="0" title="Executive Summary" />
         <ExecutiveSummarySection summary={result.executive_summary} insights={result.key_insights} />
       </section>
 
       {/* Sentiment Distribution */}
-      <section>
+      <section id="sentiment" className="scroll-mt-24">
         <SectionHeader number="S" title="Sentiment Overview" />
         <div className="grid sm:grid-cols-2 gap-5">
           <div className="bg-white border border-gray-200 rounded-xl p-5">
@@ -651,7 +697,7 @@ function ReportContent({ result }: { result: VOCResult }) {
       </section>
 
       {/* Task 1: Complaints */}
-      <section>
+      <section id="complaints" className="scroll-mt-24">
         <SectionHeader number="1" title="Top Complaints" />
         <div className="space-y-3">
           {result.complaints.map((c) => (
@@ -676,7 +722,7 @@ function ReportContent({ result }: { result: VOCResult }) {
       </section>
 
       {/* Task 2: Satisfaction Drivers */}
-      <section>
+      <section id="satisfaction" className="scroll-mt-24">
         <SectionHeader number="2" title="Satisfaction Drivers" />
         <div className="space-y-3">
           {result.satisfaction_drivers.map((d) => (
@@ -706,14 +752,14 @@ function ReportContent({ result }: { result: VOCResult }) {
       </section>
 
       {/* Task 3: Improvements */}
-      <section>
+      <section id="improvements" className="scroll-mt-24">
         <SectionHeader number="3" title="Improvement Priorities" />
         <ImprovementSection improvements={result.improvement_points} />
       </section>
 
       {/* Task 9: Segment divergence */}
       {result.segment_divergence_analysis && result.segment_divergence_analysis.segment_insights.length > 0 && (
-        <section>
+        <section id="segment-divergence" className="scroll-mt-24">
           <SectionHeader number="9" title="Segment / Use-Case Divergence" badge="NEW" />
           <SegmentDivergenceSection
             items={result.segment_divergence_analysis.segment_insights}
@@ -726,7 +772,7 @@ function ReportContent({ result }: { result: VOCResult }) {
 
       {/* Task 4: Marketing */}
       {result.marketing_recommendations && (
-        <section>
+        <section id="marketing" className="scroll-mt-24">
           <SectionHeader number="4" title="Marketing Recommendations" />
           <MarketingSection rec={result.marketing_recommendations} />
         </section>
@@ -734,7 +780,7 @@ function ReportContent({ result }: { result: VOCResult }) {
 
       {/* Task 5: Competitive Positioning */}
       {result.positioning_analysis && (
-        <section>
+        <section id="positioning" className="scroll-mt-24">
           <SectionHeader number="5" title="Competitive Positioning" />
           <div className="space-y-5">
             <div className="grid sm:grid-cols-2 gap-4">
@@ -797,9 +843,9 @@ function ReportContent({ result }: { result: VOCResult }) {
                   </div>
                 </div>
               ) : (
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
-                  <h3 className="text-sm font-semibold text-blue-800 mb-2">Positioning Recommendation</h3>
-                  <p className="text-sm text-blue-700 leading-relaxed">{result.positioning_analysis.positioning_recommendation}</p>
+                <div className="bg-brand-50 border border-brand-200 rounded-xl p-5">
+                  <h3 className="text-sm font-semibold text-brand-800 mb-2">Positioning Recommendation</h3>
+                  <p className="text-sm text-brand-700 leading-relaxed">{result.positioning_analysis.positioning_recommendation}</p>
                 </div>
               );
             })()}
@@ -808,13 +854,13 @@ function ReportContent({ result }: { result: VOCResult }) {
       )}
 
       {/* Task 6: Contradictions */}
-      <section>
+      <section id="contradictions" className="scroll-mt-24">
         <SectionHeader number="6" title="Review Contradictions" />
         <ContradictionSection cases={result.contradictions} />
       </section>
 
       {/* Task 7: Importance Matrix */}
-      <section>
+      <section id="importance" className="scroll-mt-24">
         <SectionHeader number="7" title="Importance-Frequency Matrix" />
         <div className="bg-white border border-gray-200 rounded-xl p-5">
           <ImportanceMatrix data={result.importance_matrix} />
@@ -822,7 +868,7 @@ function ReportContent({ result }: { result: VOCResult }) {
       </section>
 
       {/* Task 8: Expectation Gap (핵심) */}
-      <section>
+      <section id="expectation-gaps" className="scroll-mt-24">
         <SectionHeader number="8" title="Customer Expectation Gap Analysis" badge="핵심" />
         <ExpectationGapSection gaps={result.expectation_gaps} />
       </section>
@@ -861,7 +907,7 @@ function ReportPageInner() {
     return (
       <div className="flex items-center justify-center min-h-96">
         <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-10 h-10 border-4 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm text-gray-500">Loading report…</p>
         </div>
       </div>
@@ -872,7 +918,7 @@ function ReportPageInner() {
     return (
       <div className="max-w-lg mx-auto px-4 py-16 text-center">
         <p className="text-red-600 mb-4">{error}</p>
-        <Link href="/analysis" className="text-blue-600 hover:underline text-sm">
+        <Link href="/analysis" className="text-brand-600 hover:underline text-sm">
           ← Run a new analysis
         </Link>
       </div>
@@ -881,22 +927,43 @@ function ReportPageInner() {
 
   if (!result) return null;
 
+  const tocSections: TocEntry[] = [
+    { id: "summary", label: "Executive Summary" },
+    { id: "sentiment", label: "Sentiment Overview" },
+    { id: "complaints", label: "Top Complaints" },
+    { id: "satisfaction", label: "Satisfaction Drivers" },
+    { id: "improvements", label: "Improvement Priorities" },
+    ...(result.segment_divergence_analysis && result.segment_divergence_analysis.segment_insights.length > 0
+      ? [{ id: "segment-divergence", label: "Segment Divergence" }]
+      : []),
+    ...(result.marketing_recommendations ? [{ id: "marketing", label: "Marketing Recommendations" }] : []),
+    ...(result.positioning_analysis ? [{ id: "positioning", label: "Competitive Positioning" }] : []),
+    { id: "contradictions", label: "Review Contradictions" },
+    { id: "importance", label: "Importance-Frequency Matrix" },
+    { id: "expectation-gaps", label: "Expectation Gap Analysis" },
+  ];
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
+    <div className="max-w-6xl mx-auto px-4 py-10">
       <div className="flex items-center justify-between mb-8">
         <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">← Dashboard</Link>
-        <Link href="/analysis" className="text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700">
+        <Link href="/analysis" className="text-sm bg-brand-600 text-white px-3 py-1.5 rounded-lg hover:bg-brand-700">
           New Analysis
         </Link>
       </div>
-      <ReportContent result={result} />
+      <div className="flex gap-10">
+        <ReportSidebarNav sections={tocSections} />
+        <div className="flex-1 min-w-0 max-w-4xl">
+          <ReportContent result={result} />
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function ReportPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-96"><div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /></div>}>
+    <Suspense fallback={<div className="flex items-center justify-center min-h-96"><div className="w-10 h-10 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" /></div>}>
       <ReportPageInner />
     </Suspense>
   );

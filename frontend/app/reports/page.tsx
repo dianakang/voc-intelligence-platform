@@ -31,14 +31,14 @@ export default function ReportsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Saved Reports</h1>
           <p className="text-sm text-gray-500 mt-0.5">Previously generated VOC analysis results</p>
         </div>
-        <Link href="/analysis" className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium">
+        <Link href="/analysis" className="text-sm bg-brand-600 text-white px-4 py-2 rounded-lg hover:bg-brand-700 font-medium">
           + New Analysis
         </Link>
       </div>
 
       {loading && (
         <div className="flex items-center justify-center py-16">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
@@ -48,9 +48,8 @@ export default function ReportsPage() {
 
       {!loading && !error && reports.length === 0 && (
         <div className="text-center py-16 text-gray-400">
-          <p className="text-4xl mb-3">📄</p>
           <p className="font-medium">No reports yet</p>
-          <Link href="/analysis" className="text-blue-600 hover:underline text-sm mt-1 block">
+          <Link href="/analysis" className="text-brand-600 hover:underline text-sm mt-1 block">
             Run your first analysis →
           </Link>
         </div>
@@ -61,7 +60,7 @@ export default function ReportsPage() {
           <Link
             key={r.filename}
             href={`/report?filename=${encodeURIComponent(r.filename)}`}
-            className="block bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-sm transition-all"
+            className="block bg-white border border-gray-200 rounded-xl p-5 hover:border-brand-300 hover:shadow-sm transition-all"
           >
             <div className="flex items-start justify-between gap-2">
               <div>
@@ -75,7 +74,7 @@ export default function ReportsPage() {
                   <span className="text-yellow-400 text-sm">★</span>
                   <span className="font-bold text-gray-800">{r.avg_rating.toFixed(1)}</span>
                 </div>
-                <p className="text-xs text-blue-600 mt-1">View report →</p>
+                <p className="text-xs text-brand-600 mt-1">View report →</p>
               </div>
             </div>
           </Link>

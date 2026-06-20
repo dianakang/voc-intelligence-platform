@@ -10,6 +10,18 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Samsung brand blue (#1428A0) as the single accent color */
+  --color-brand-50: #eef0fb;
+  --color-brand-100: #d9def5;
+  --color-brand-200: #b3bdeb;
+  --color-brand-300: #8c9be1;
+  --color-brand-400: #5567c8;
+  --color-brand-500: #2c3fae;
+  --color-brand-600: #1428a0;
+  --color-brand-700: #101f7d;
+  --color-brand-800: #0b1659;
+  --color-brand-900: #070e3d;
 }
 
 @media (prefers-color-scheme: dark) {

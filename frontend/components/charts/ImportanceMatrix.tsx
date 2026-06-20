@@ -20,7 +20,7 @@ export function ImportanceMatrix({ data }: Props) {
     y: item.impact === "high" ? 8 + Math.random() * 2 : 2 + Math.random() * 3,
     name: item.issue,
     category: item.category,
-    fill: CATEGORY_COLORS[item.category] || "#6366f1",
+    fill: CATEGORY_COLORS[item.category] || "#1428a0",
   }));
 
   return (
@@ -53,8 +53,8 @@ export function ImportanceMatrix({ data }: Props) {
               return null;
             }}
           />
-          <ReferenceLine x={5} stroke="#6366f1" strokeDasharray="4 4" label={{ value: "Freq threshold", fontSize: 9 }} />
-          <ReferenceLine y={5} stroke="#6366f1" strokeDasharray="4 4" label={{ value: "Impact threshold", fontSize: 9 }} />
+          <ReferenceLine x={5} stroke="#1428a0" strokeDasharray="4 4" label={{ value: "Freq threshold", fontSize: 9 }} />
+          <ReferenceLine y={5} stroke="#1428a0" strokeDasharray="4 4" label={{ value: "Impact threshold", fontSize: 9 }} />
           {scatterData.map((d, i) => (
             <Scatter key={i} data={[d]} fill={d.fill} />
           ))}
