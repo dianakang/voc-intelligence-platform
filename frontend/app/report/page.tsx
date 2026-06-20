@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { api, VOCResult, ExpectationGapItem, ContradictionCase, ImprovementPoint } from "@/lib/api";
+import { api, VOCResult, ExpectationGapItem, ContradictionCase, ImprovementPoint, SegmentInsight } from "@/lib/api";
 import { SentimentPieChart } from "@/components/charts/SentimentPieChart";
 import { AspectBarChart } from "@/components/charts/AspectBarChart";
 import { ImportanceMatrix } from "@/components/charts/ImportanceMatrix";
@@ -211,6 +211,104 @@ function ImprovementSection({ improvements }: { improvements: ImprovementPoint[]
           <EvidenceQuotes quotes={imp.supporting_evidence} />
         </div>
       ))}
+    </div>
+  );
+}
+
+function SegmentInsightCard({ item }: { item: SegmentInsight }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+      >
+        <div>
+          <h3 className="font-semibold text-gray-900 text-sm">{item.segment}</h3>
+          <p className="text-xs text-gray-500 mt-1">Size estimate: {item.size_estimate}</p>
+        </div>
+        <span className="text-xs text-gray-400 flex-shrink-0">{open ? "↑" : "↓"}</span>
+      </button>
+      <div className="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 border-t border-gray-100">
+        <div className="px-5 py-3">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Positive Factors</p>
+          <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+            {item.key_positive_factors.slice(0, 3).map((factor, idx) => <li key={idx}>{factor}</li>)}
+          </ul>
+        </div>
+        <div className="px-5 py-3 bg-red-50/40">
+          <p className="text-[10px] font-semibold text-red-400 uppercase tracking-wider mb-1">Pain Points</p>
+          <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+            {item.key_pain_points.slice(0, 3).map((point, idx) => <li key={idx}>{point}</li>)}
+          </ul>
+        </div>
+      </div>
+      {open && (
+        <div className="border-t border-gray-100 px-5 py-4 space-y-3">
+          <div className="grid sm:grid-cols-2 gap-3 text-xs text-gray-600">
+            <p className="leading-relaxed"><span className="font-medium text-gray-700">Expectation gap: </span>{item.expectation_gap}</p>
+            <p className="leading-relaxed"><span className="font-medium text-gray-700">Business implication: </span>{item.business_implication}</p>
+          </div>
+          <div className="p-3 bg-blue-50 rounded-lg">
+            <p className="text-[10px] font-semibold text-blue-500 uppercase tracking-wider mb-1">Recommended Action</p>
+            <p className="text-sm text-blue-800 leading-relaxed">{item.recommended_action}</p>
+          </div>
+          <EvidenceQuotes quotes={item.evidence} limit={2} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SegmentDivergenceSection({
+  items,
+  risks,
+  opportunities,
+  actions,
+}: {
+  items: SegmentInsight[];
+  risks: string[];
+  opportunities: string[];
+  actions: string[];
+}) {
+  if (items.length === 0) {
+    return (
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center text-gray-400 text-sm">
+        No segment divergence data in this report.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {items.map((item, i) => <SegmentInsightCard key={i} item={item} />)}
+
+      {risks.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <h3 className="font-semibold text-gray-900 mb-3">Emerging Risks</h3>
+          <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+            {risks.map((risk, i) => <li key={i}>{risk}</li>)}
+          </ul>
+        </div>
+      )}
+
+      {opportunities.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <h3 className="font-semibold text-gray-900 mb-3">Emerging Opportunities</h3>
+          <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+            {opportunities.map((opportunity, i) => <li key={i}>{opportunity}</li>)}
+          </ul>
+        </div>
+      )}
+
+      {actions.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <h3 className="font-semibold text-gray-900 mb-3">Priority Actions</h3>
+          <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+            {actions.map((action, i) => <li key={i}>{action}</li>)}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
@@ -612,6 +710,19 @@ function ReportContent({ result }: { result: VOCResult }) {
         <SectionHeader number="3" title="Improvement Priorities" />
         <ImprovementSection improvements={result.improvement_points} />
       </section>
+
+      {/* Task 9: Segment divergence */}
+      {result.segment_divergence_analysis && result.segment_divergence_analysis.segment_insights.length > 0 && (
+        <section>
+          <SectionHeader number="9" title="Segment / Use-Case Divergence" badge="NEW" />
+          <SegmentDivergenceSection
+            items={result.segment_divergence_analysis.segment_insights}
+            risks={result.segment_divergence_analysis.emerging_risks}
+            opportunities={result.segment_divergence_analysis.emerging_opportunities}
+            actions={result.segment_divergence_analysis.priority_actions}
+          />
+        </section>
+      )}
 
       {/* Task 4: Marketing */}
       {result.marketing_recommendations && (

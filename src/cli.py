@@ -94,6 +94,16 @@ def _print_summary(result) -> None:
             g.add_row(gap.dimension, f"[{color}]{gap.gap_severity}[/{color}]", gap.gap_description[:80] + "…")
         console.print(g)
 
+    if getattr(result, "segment_divergence_analysis", None):
+        console.print()
+        s = Table(title="Segment Divergence", show_header=True, header_style="bold magenta")
+        s.add_column("Segment")
+        s.add_column("Size", justify="right")
+        s.add_column("Implication")
+        for item in result.segment_divergence_analysis.segment_insights[:5]:
+            s.add_row(item.segment, str(item.size_estimate), item.business_implication[:80] + "…")
+        console.print(s)
+
     # Key insights
     if result.key_insights:
         console.print()

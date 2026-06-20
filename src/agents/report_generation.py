@@ -76,6 +76,13 @@ class ReportGenerationAgent(BaseAgent):
             f"- [{i.priority.upper()}] {i.area}: {i.expected_effect}"
             for i in sorted(result.improvement_points, key=lambda x: x.impact_score, reverse=True)[:5]
         )
+        segment_note = ""
+        if result.segment_divergence_analysis:
+            top_segment = result.segment_divergence_analysis.segment_insights[:2]
+            segment_note = "\n".join(
+                f"- {s.segment}: {s.business_implication}"
+                for s in top_segment
+            )
         contradiction_summary = (
             f"{len(result.contradictions)} contradictions detected "
             f"({sum(1 for c in result.contradictions if c.contradiction_type == 'type_a')} Type A, "
@@ -106,6 +113,9 @@ EXPECTATION GAPS:
 
 PRODUCT IMPROVEMENT PRIORITIES:
 {top_improvements}
+
+SEGMENT / USE-CASE DIVERGENCE:
+{segment_note}
 
 CONTRADICTION ANALYSIS:
 {contradiction_summary}

@@ -166,6 +166,25 @@ class MarketingRecommendation(BaseModel):
     evidence: list[str]
 
 
+class SegmentInsight(BaseModel):
+    segment: str
+    size_estimate: int
+    key_positive_factors: list[str]
+    key_pain_points: list[str]
+    expectation_gap: str
+    business_implication: str
+    recommended_action: str
+    evidence: list[str]
+
+
+class SegmentDivergenceAnalysis(BaseModel):
+    segment_insights: list[SegmentInsight]
+    emerging_risks: list[str]
+    emerging_opportunities: list[str]
+    priority_actions: list[str]
+    marketing_message_by_segment: list[str]
+
+
 class VOCAnalysisResult(BaseModel):
     product_id: str
     model: str
@@ -179,6 +198,7 @@ class VOCAnalysisResult(BaseModel):
     improvement_points: list[ImprovementPoint] = Field(default_factory=list)
     marketing_recommendations: Optional[MarketingRecommendation] = None
     positioning_analysis: Optional[PositioningAnalysis] = None
+    segment_divergence_analysis: Optional[SegmentDivergenceAnalysis] = None
     contradictions: list[ContradictionCase] = Field(default_factory=list)
     importance_matrix: list[ImportanceItem] = Field(default_factory=list)
     expectation_gaps: list[ExpectationGapItem] = Field(default_factory=list)

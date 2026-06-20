@@ -29,6 +29,7 @@ from src.agents.contradiction_analysis import ContradictionAnalysisAgent
 from src.agents.importance_analysis import ImportanceAnalysisAgent
 from src.agents.competitive_positioning import CompetitivePositioningAgent
 from src.agents.expectation_gap import ExpectationGapAgent
+from src.agents.segment_divergence import SegmentDivergenceAnalysisAgent
 from src.agents.report_generation import ReportGenerationAgent
 
 console = Console()
@@ -209,11 +210,18 @@ def run_parallel_analysis(state: VOCWorkflowState) -> dict:
     result = gap_agent.analyze(reviews, retriever, result)
     _tick("ExpectationGapAgent", "Expectation gap analysis complete", 85)
 
+    # Task 10: Segment divergence
+    agent_statuses["SegmentDivergenceAnalysisAgent"] = "running"
+    push_progress(agent_statuses=dict(agent_statuses), current_step="Segment divergence analysis", progress_pct=86)
+    segment_agent = SegmentDivergenceAnalysisAgent()
+    result = segment_agent.analyze(reviews, retriever, result)
+    _tick("SegmentDivergenceAnalysisAgent", "Segment divergence analysis complete", 88)
+
     return {
         "result": result,
         "agent_statuses": agent_statuses,
         "current_step": "Analysis complete",
-        "progress_pct": 85,
+        "progress_pct": 88,
     }
 
 
@@ -290,6 +298,7 @@ def run_voc_pipeline(model_code: str, max_reviews: int = 200) -> VOCWorkflowStat
             "ContradictionAgent": "pending",
             "ImportanceAnalysisAgent": "pending",
             "ExpectationGapAgent": "pending",
+            "SegmentDivergenceAnalysisAgent": "pending",
             "ReportGenerationAgent": "pending",
         },
         "errors": [],

@@ -150,6 +150,27 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Segment Divergence preview */}
+      {result.segment_divergence_analysis && result.segment_divergence_analysis.segment_insights.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Segment Divergence</h2>
+            <span className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded font-medium">NEW</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {result.segment_divergence_analysis.segment_insights.slice(0, 2).map((item, i) => (
+              <div key={i} className="rounded-lg border border-purple-100 bg-purple-50/50 p-4">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <h3 className="text-sm font-semibold text-gray-900">{item.segment}</h3>
+                  <span className="text-xs text-gray-500">{item.size_estimate} mentions</span>
+                </div>
+                <p className="text-sm text-gray-700 line-clamp-3">{item.business_implication}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Expectation Gaps preview */}
       {result.expectation_gaps.length > 0 && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">

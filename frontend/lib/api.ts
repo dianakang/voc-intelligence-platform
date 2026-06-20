@@ -20,6 +20,7 @@ export interface VOCResult {
   improvement_points: ImprovementPoint[];
   marketing_recommendations: MarketingRecommendation | null;
   positioning_analysis: PositioningAnalysis | null;
+  segment_divergence_analysis: SegmentDivergenceAnalysis | null;
   contradictions: ContradictionCase[];
   importance_matrix: ImportanceItem[];
   expectation_gaps: ExpectationGapItem[];
@@ -114,6 +115,25 @@ export interface ExpectationGapItem {
   gap_description: string;
   recommended_action: string;
   supporting_reviews: string[];
+}
+
+export interface SegmentInsight {
+  segment: string;
+  size_estimate: number;
+  key_positive_factors: string[];
+  key_pain_points: string[];
+  expectation_gap: string;
+  business_implication: string;
+  recommended_action: string;
+  evidence: string[];
+}
+
+export interface SegmentDivergenceAnalysis {
+  segment_insights: SegmentInsight[];
+  emerging_risks: string[];
+  emerging_opportunities: string[];
+  priority_actions: string[];
+  marketing_message_by_segment: string[];
 }
 
 export interface AspectSentiment {
