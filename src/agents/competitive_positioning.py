@@ -3,20 +3,33 @@ from __future__ import annotations
 
 from src.agents.base import BaseAgent
 from src.config import settings
-from src.data.models import CompetitorData, PositioningAnalysis, Review, VOCAnalysisResult
+from src.data.models import CompetitorData, PositioningAnalysis, PositioningAttribute, Review, VOCAnalysisResult
 from src.data.spec_extractor import COMPETITOR_SPECS, SAMSUNG_U7900F_SPEC
 from src.rag.retriever import ReviewRetriever
 
-SYSTEM_PROMPT = """You are a competitive intelligence analyst for Samsung's TV business.
-You analyze Samsung TV customer reviews and compare them against competitor product specifications
-and known market positioning to generate strategic competitive insights.
+SYSTEM_PROMPT = """You are a competitive intelligence analyst for an internal Marketing, Product
+Marketing, CX, and Product team — not an outside reviewer. Your job is to turn raw customer voice
+into prioritization and decision support, not just observations.
 
-Base your analysis on:
-1. Actual customer review evidence (what customers say)
-2. Product specification comparisons (factual capability differences)
-3. Market positioning and brand perception
+A flat list like "Tizen ads are annoying" is not useful on its own. For every attribute you assess,
+you must answer:
+1. How many customers mention it (mention_volume: high/medium/low) — ground this in the real
+   frequency_pct / positive_rate numbers provided below, don't invent percentages.
+2. How strongly do they feel about it (sentiment_score: -1.0 to +1.0, not just direction)?
+3. How does Samsung compare to competitors on this specific attribute (samsung_assessment:
+   win/lose/mixed/neutral, plus a one-line vs_competitor_note)?
+4. Does this attribute actually drive or block purchase decisions, or is it just mentioned
+   (business_impact: purchase_driver/purchase_barrier/upsell_opportunity/trust_risk/neutral)?
+   A complaint mentioned often but never tied to returns/regret is not the same as one customers
+   say almost made them return the product.
 
-Provide actionable competitive strategy recommendations.
+Then roll everything up into 4 executive boxes — the format Product Marketing, CX, and leadership
+actually consume:
+- Defend: attributes Samsung already wins on and should protect/keep messaging
+- Differentiate: attributes Samsung wins on that aren't yet leveraged in marketing
+- Fix: attributes Samsung loses on that are purchase barriers or trust risks
+- Monitor: lower-volume but high-severity risks worth watching, not yet acting on
+
 Return structured JSON only."""
 
 
@@ -49,10 +62,12 @@ class CompetitivePositioningAgent(BaseAgent):
         comp_specs = COMPETITOR_SPECS
 
         complaints_summary = "\n".join(
-            f"- {c.category}: {c.root_cause}" for c in result.complaints[:6]
+            f"- {c.category} ({c.frequency_pct:.0f}% of negative reviews, issue_type={c.issue_type}): {c.root_cause}"
+            for c in result.complaints[:8]
         )
         strengths_summary = "\n".join(
-            f"- {s.factor}" for s in result.satisfaction_drivers[:4]
+            f"- {s.factor} ({s.positive_rate:.0f}% positive, {s.mention_count} mentions)"
+            for s in result.satisfaction_drivers[:6]
         )
 
         prompt = f"""Analyze Samsung 50" Crystal UHD U7900F competitive positioning vs. TCL Q6, Hisense A7, LG UT70.
@@ -71,16 +86,18 @@ TCL Q6: ${comp_specs['TCL Q6']['price_usd']}, QLED, Google TV, Dolby Vision+Atmo
 Hisense A7: ${comp_specs['Hisense A7']['price_usd']}, ULED, Dolby Vision+Atmos, VIDAA OS
 LG UT70: ${comp_specs['LG UT70']['price_usd']}, IPS panel, webOS, ~9ms input lag, FreeSync
 
-SAMSUNG CUSTOMER STRENGTHS (from VOC):
+SAMSUNG CUSTOMER STRENGTHS (real mention/sentiment numbers from VOC pipeline — use these, don't invent new ones):
 {strengths_summary}
 
-SAMSUNG CUSTOMER COMPLAINTS (from VOC):
+SAMSUNG CUSTOMER COMPLAINTS (real frequency numbers from VOC pipeline — use these, don't invent new ones):
 {complaints_summary}
 
 CUSTOMER COMPARISON MENTIONS:
 {context}
 
-Generate strategic positioning analysis:
+Generate strategic positioning analysis. Use the real frequency_pct/positive_rate numbers above to
+set mention_volume ("high" if roughly >=25%, "medium" if 10-25%, "low" if <10%) and sentiment_score
+for each attribute in attribute_map — do not output a flat strengths/weaknesses list without these.
 {{
   "samsung_strengths": ["strength 1", "strength 2", ...],
   "samsung_weaknesses": ["weakness 1", "weakness 2", ...],
@@ -99,11 +116,25 @@ Generate strategic positioning analysis:
       "weaknesses": ["vs Samsung weakness"]
     }}
   ],
+  "attribute_map": [
+    {{
+      "attribute": "Picture Quality",
+      "samsung_assessment": "win|lose|mixed|neutral",
+      "mention_volume": "high|medium|low",
+      "sentiment_score": 0.82,
+      "business_impact": "purchase_driver|purchase_barrier|upsell_opportunity|trust_risk|neutral",
+      "vs_competitor_note": "one-line comparison vs TCL/Hisense/LG on this specific attribute"
+    }}
+  ],
+  "defend": ["attribute Samsung already wins on and should protect"],
+  "differentiate": ["attribute Samsung wins on but underleverages in marketing"],
+  "fix": ["attribute Samsung loses on that is a purchase barrier or trust risk"],
+  "monitor": ["lower-volume but high-severity risk worth watching"],
   "positioning_recommendation": "strategic recommendation for Samsung marketing and product team"
 }}"""
 
         try:
-            data = self.call_json(prompt, max_tokens=4096)
+            data = self.call_json(prompt, max_tokens=8192)
 
             competitors = []
             for comp in data.get("competitors", []):
@@ -121,6 +152,18 @@ Generate strategic positioning analysis:
                     )
                 )
 
+            attribute_map = [
+                PositioningAttribute(
+                    attribute=a.get("attribute", ""),
+                    samsung_assessment=a.get("samsung_assessment", "neutral"),
+                    mention_volume=a.get("mention_volume", "low"),
+                    sentiment_score=float(a.get("sentiment_score", 0.0)),
+                    business_impact=a.get("business_impact", "neutral"),
+                    vs_competitor_note=a.get("vs_competitor_note", ""),
+                )
+                for a in data.get("attribute_map", [])
+            ]
+
             result.positioning_analysis = PositioningAnalysis(
                 samsung_strengths=data.get("samsung_strengths", []),
                 samsung_weaknesses=data.get("samsung_weaknesses", []),
@@ -128,8 +171,16 @@ Generate strategic positioning analysis:
                 competitive_threats=data.get("competitive_threats", []),
                 competitors=competitors,
                 positioning_recommendation=data.get("positioning_recommendation", ""),
+                attribute_map=attribute_map,
+                defend=data.get("defend", []),
+                differentiate=data.get("differentiate", []),
+                fix=data.get("fix", []),
+                monitor=data.get("monitor", []),
             )
-            self.log(f"Competitive analysis complete: {len(competitors)} competitors analyzed")
+            self.log(
+                f"Competitive analysis complete: {len(competitors)} competitors, "
+                f"{len(attribute_map)} attributes mapped"
+            )
         except Exception as e:
             self.log(f"[red]Competitive analysis failed: {e}")
 

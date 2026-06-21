@@ -196,6 +196,88 @@ function ExpectationGapSection({ gaps }: { gaps: ExpectationGapItem[] }) {
   );
 }
 
+const QUADRANT_BOXES: { key: "defend" | "differentiate" | "fix" | "monitor"; label: string; hint: string }[] = [
+  { key: "defend", label: "Defend", hint: "Already winning — protect it" },
+  { key: "differentiate", label: "Differentiate", hint: "Winning, underleveraged in marketing" },
+  { key: "fix", label: "Fix", hint: "Losing — purchase barrier or trust risk" },
+  { key: "monitor", label: "Monitor", hint: "Lower volume, high severity — watch" },
+];
+
+function ExecutiveQuadrant({ analysis }: { analysis: import("@/lib/api").PositioningAnalysis }) {
+  return (
+    <div>
+      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Executive Summary</h3>
+      <div className="grid sm:grid-cols-2 gap-3">
+        {QUADRANT_BOXES.map(({ key, label, hint }) => {
+          const items = analysis[key];
+          return (
+            <div key={key} className="bg-white border border-brand-200 rounded-xl p-4">
+              <p className="text-sm font-semibold text-brand-800">{label}</p>
+              <p className="text-[11px] text-gray-400 mb-2">{hint}</p>
+              {items.length > 0 ? (
+                <ul className="space-y-1">
+                  {items.map((item, i) => (
+                    <li key={i} className="text-xs text-gray-700 pl-2 border-l-2 border-brand-100">{item}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-xs text-gray-300">—</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+const ASSESSMENT_STYLES: Record<string, string> = {
+  win: "bg-green-100 text-green-700",
+  lose: "bg-red-100 text-red-700",
+  mixed: "bg-yellow-100 text-yellow-700",
+  neutral: "bg-gray-100 text-gray-500",
+};
+
+function PositioningMapTable({ attributes }: { attributes: import("@/lib/api").PositioningAttribute[] }) {
+  return (
+    <div>
+      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Customer Voice Positioning Map</h3>
+      <div className="overflow-x-auto bg-white border border-gray-200 rounded-xl">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-gray-200 text-left text-gray-400">
+              <th className="px-3 py-2 font-medium">Attribute</th>
+              <th className="px-3 py-2 font-medium">Samsung</th>
+              <th className="px-3 py-2 font-medium">Volume</th>
+              <th className="px-3 py-2 font-medium">Sentiment</th>
+              <th className="px-3 py-2 font-medium">Business Impact</th>
+              <th className="px-3 py-2 font-medium">vs. Competitors</th>
+            </tr>
+          </thead>
+          <tbody>
+            {attributes.map((a, i) => (
+              <tr key={i} className="border-b border-gray-100 last:border-0">
+                <td className="px-3 py-2 font-medium text-gray-900">{a.attribute}</td>
+                <td className="px-3 py-2">
+                  <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${ASSESSMENT_STYLES[a.samsung_assessment] ?? ASSESSMENT_STYLES.neutral}`}>
+                    {a.samsung_assessment.toUpperCase()}
+                  </span>
+                </td>
+                <td className="px-3 py-2 text-gray-600 capitalize">{a.mention_volume}</td>
+                <td className={`px-3 py-2 font-medium ${a.sentiment_score >= 0 ? "text-green-600" : "text-red-600"}`}>
+                  {a.sentiment_score >= 0 ? "+" : ""}{a.sentiment_score.toFixed(2)}
+                </td>
+                <td className="px-3 py-2 text-gray-600">{a.business_impact.replace(/_/g, " ")}</td>
+                <td className="px-3 py-2 text-gray-500">{a.vs_competitor_note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 function ContradictionSection({ cases }: { cases: ContradictionCase[] }) {
   if (cases.length === 0) {
     return <p className="text-sm text-gray-400">No contradictions detected.</p>;
@@ -233,6 +315,12 @@ function ContradictionSection({ cases }: { cases: ContradictionCase[] }) {
           </div>
           {c.implication && (
             <p className="text-xs text-gray-500 mt-3 italic">{c.implication}</p>
+          )}
+          {c.suggested_public_response && (
+            <div className="mt-3 bg-brand-50 border border-brand-100 rounded-lg p-3">
+              <p className="text-[11px] font-semibold text-brand-700 uppercase tracking-wide mb-1">Suggested public response</p>
+              <p className="text-xs text-gray-700 leading-relaxed">{c.suggested_public_response}</p>
+            </div>
           )}
         </div>
       ))}
@@ -716,7 +804,12 @@ function ReportContent({ result }: { result: VOCResult }) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             ["Avg Rating", `${result.avg_rating.toFixed(1)} / 5.0`],
-            ["Total Reviews", result.total_reviews.toLocaleString()],
+            [
+              "Total Reviews",
+              result.total_reviews_available > result.total_reviews
+                ? `${result.total_reviews.toLocaleString()} of ${result.total_reviews_available.toLocaleString()}`
+                : result.total_reviews.toLocaleString(),
+            ],
             ["Complaint Issues", result.complaints.length.toString()],
             ["Expectation Gaps", result.expectation_gaps.length.toString()],
           ].map(([label, value]) => (
@@ -847,6 +940,12 @@ function ReportContent({ result }: { result: VOCResult }) {
         <section id="positioning" className="scroll-mt-24">
           <SectionHeader number="5" title="Competitive Positioning" />
           <div className="space-y-5">
+            {result.positioning_analysis.attribute_map.length > 0 && (
+              <>
+                <ExecutiveQuadrant analysis={result.positioning_analysis} />
+                <PositioningMapTable attributes={result.positioning_analysis.attribute_map} />
+              </>
+            )}
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="bg-white border border-green-200 rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-4">

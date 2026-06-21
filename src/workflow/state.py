@@ -13,11 +13,14 @@ class VOCWorkflowState(TypedDict):
     # Input
     model_code: str
     max_reviews: int
+    skip_if_cached: bool  # opt-in dev replay cache — see src/workflow/cache.py
 
     # Data collection outputs
     reviews: list[Review]
+    total_reviews_available: int  # real population size discovered during scraping
     product_spec: Optional[ProductSpec]
     competitor_specs: dict[str, dict]
+    input_hash: str  # computed in collect_data, used to detect a cache hit
 
     # Processing outputs
     cleaned_reviews: list[Review]

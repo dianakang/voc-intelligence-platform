@@ -34,7 +34,7 @@ REPORT_TEMPLATE = """# Samsung TV VOC Intelligence Report
 
 ## VOC Dashboard
 
-**Total Reviews:** {{ result.total_reviews }}
+**Total Reviews:** {{ result.total_reviews }}{% if result.total_reviews_available > result.total_reviews %} (sampled from {{ result.total_reviews_available }} available){% endif %}
 **Average Rating:** {{ "%.1f"|format(result.avg_rating) }}/5
 **Analysis Date:** {{ result.analysis_date }}
 
@@ -114,6 +114,22 @@ REPORT_TEMPLATE = """# Samsung TV VOC Intelligence Report
 ## Task 5: Competitive Positioning
 
 {% if result.positioning_analysis %}
+{% if result.positioning_analysis.attribute_map %}
+### Customer Voice Positioning Map
+
+| Attribute | Samsung | Volume | Sentiment | Business Impact | vs. Competitors |
+|---|---|---|---|---|---|
+{% for a in result.positioning_analysis.attribute_map -%}
+| {{ a.attribute }} | **{{ a.samsung_assessment|upper }}** | {{ a.mention_volume }} | {{ "%.2f"|format(a.sentiment_score) }} | {{ a.business_impact|replace('_', ' ') }} | {{ a.vs_competitor_note }} |
+{% endfor %}
+
+### Executive Summary
+
+| Defend | Differentiate | Fix | Monitor |
+|---|---|---|---|
+| {{ result.positioning_analysis.defend|join('<br>') }} | {{ result.positioning_analysis.differentiate|join('<br>') }} | {{ result.positioning_analysis.fix|join('<br>') }} | {{ result.positioning_analysis.monitor|join('<br>') }} |
+
+{% endif %}
 ### Samsung Strengths
 {% for s in result.positioning_analysis.samsung_strengths %}
 - ✅ {{ s }}
@@ -165,6 +181,9 @@ REPORT_TEMPLATE = """# Samsung TV VOC Intelligence Report
 **Positive:** {{ c.positive_elements|join(', ') }}
 **Negative:** {{ c.negative_elements|join(', ') }}
 **Implication:** {{ c.implication }}
+{% if c.suggested_public_response %}
+**Suggested public response:** {{ c.suggested_public_response }}
+{% endif %}
 
 {% endfor %}
 

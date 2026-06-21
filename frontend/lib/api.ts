@@ -14,6 +14,7 @@ export interface VOCResult {
   model: string;
   analysis_date: string;
   total_reviews: number;
+  total_reviews_available: number;
   avg_rating: number;
   complaints: Complaint[];
   satisfaction_drivers: SatisfactionDriver[];
@@ -77,6 +78,15 @@ export interface MarketingRecommendation {
   evidence: string[];
 }
 
+export interface PositioningAttribute {
+  attribute: string;
+  samsung_assessment: "win" | "lose" | "mixed" | "neutral";
+  mention_volume: "high" | "medium" | "low";
+  sentiment_score: number;
+  business_impact: "purchase_driver" | "purchase_barrier" | "upsell_opportunity" | "trust_risk" | "neutral";
+  vs_competitor_note: string;
+}
+
 export interface PositioningAnalysis {
   samsung_strengths: string[];
   samsung_weaknesses: string[];
@@ -84,6 +94,11 @@ export interface PositioningAnalysis {
   competitive_threats: string[];
   competitors: CompetitorData[];
   positioning_recommendation: string;
+  attribute_map: PositioningAttribute[];
+  defend: string[];
+  differentiate: string[];
+  fix: string[];
+  monitor: string[];
 }
 
 export interface CompetitorData {
@@ -106,6 +121,7 @@ export interface ContradictionCase {
   negative_elements: string[];
   review_text: string;
   implication: string;
+  suggested_public_response: string;
 }
 
 export interface ImportanceItem {

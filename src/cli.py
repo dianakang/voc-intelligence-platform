@@ -1,4 +1,3 @@
-import asyncio
 import json
 from pathlib import Path
 from typing import Optional
@@ -25,6 +24,12 @@ def run(
     output_dir: Optional[Path] = typer.Option(None, "--output", "-o", help="Output directory"),
     json_output: bool = typer.Option(False, "--json", help="Also save JSON report"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose agent output"),
+    skip_if_cached: bool = typer.Option(
+        False,
+        "--skip-if-cached",
+        help="Skip all LLM analysis and reload the last saved result if reviews, "
+        "model_code, max_reviews, and spec are unchanged since the last full run.",
+    ),
 ):
     """Run VOC analysis pipeline for a Samsung TV model."""
     console.print(Panel.fit(
@@ -47,7 +52,8 @@ def run(
     console.print(f"\n[dim]Running pipeline…[/dim]\n")
 
     try:
-        result = asyncio.run(run_voc_pipeline(model_code, max_reviews))
+        final_state = run_voc_pipeline(model_code, max_reviews, skip_if_cached=skip_if_cached)
+        result = final_state["result"]
     except Exception as e:
         console.print(f"\n[red]Pipeline failed:[/red] {e}")
         if verbose:
@@ -67,7 +73,12 @@ def run(
 
 
 def _print_summary(result) -> None:
-    console.print(f"\n[bold]Analysis Complete[/bold] — {result.total_reviews} reviews analyzed\n")
+    population_note = (
+        f" (sampled from {result.total_reviews_available} available)"
+        if result.total_reviews_available > result.total_reviews
+        else ""
+    )
+    console.print(f"\n[bold]Analysis Complete[/bold] — {result.total_reviews} reviews analyzed{population_note}\n")
 
     # Top complaints table
     t = Table(title="Top Complaints", show_header=True, header_style="bold red")
@@ -112,25 +123,28 @@ def _print_summary(result) -> None:
 def spec(
     model_code: str = typer.Argument("UN50U7900FFXZA", help="Samsung TV model code"),
 ):
-    """Show product specs for a Samsung TV model."""
-    from src.data.spec_extractor import SAMSUNG_U7900F_SPEC, COMPETITOR_SPECS
+    """Show product specs for a Samsung TV model (live-scraped from the product page)."""
+    from src.data.spec_extractor import get_samsung_spec, get_competitor_specs
 
-    specs = {
-        "UN50U7900FFXZA": SAMSUNG_U7900F_SPEC,
-        **COMPETITOR_SPECS,
-    }
+    competitor_specs = get_competitor_specs()
+    if model_code in competitor_specs:
+        spec_data = competitor_specs[model_code]
+        t = Table(title=f"Spec: {model_code} (hardcoded competitor data)")
+        t.add_column("Field")
+        t.add_column("Value")
+        for k, v in spec_data.items():
+            t.add_row(str(k), str(v))
+        console.print(t)
+        return
 
-    if model_code not in specs:
-        console.print(f"[red]Unknown model:[/red] {model_code}")
-        console.print(f"Available: {', '.join(specs.keys())}")
-        raise typer.Exit(1)
-
-    spec_data = specs[model_code]
-    t = Table(title=f"Spec: {model_code}")
+    product_spec = get_samsung_spec(model_code)
+    t = Table(title=f"Spec: {model_code}  (source: {product_spec.spec_source})")
     t.add_column("Field")
     t.add_column("Value")
-    for k, v in spec_data.items():
-        t.add_row(str(k), str(v))
+    for k, v in product_spec.model_dump().items():
+        if k == "raw_spec_groups":
+            continue
+        t.add_row(str(k), str(v)[:200])
     console.print(t)
 
 

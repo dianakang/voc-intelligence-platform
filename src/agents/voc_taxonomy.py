@@ -43,7 +43,7 @@ class VOCTaxonomyAgent(BaseAgent):
             temperature=0.1,
         )
 
-    def classify_reviews(self, reviews: list[Review], batch_size: int = 10) -> list[Review]:
+    def classify_reviews(self, reviews: list[Review], batch_size: int = settings.batch_size) -> list[Review]:
         self.log(f"Classifying aspects for {len(reviews)} reviews...")
         substantive = [r for r in reviews if not r.is_duplicate and not r.is_short]
 

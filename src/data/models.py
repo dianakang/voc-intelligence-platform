@@ -61,6 +61,11 @@ class Review(BaseModel):
         use_enum_values = True
 
 
+class SpecGroup(BaseModel):
+    group_name: str
+    items: dict[str, str] = Field(default_factory=dict)
+
+
 class ProductSpec(BaseModel):
     product_name: str
     model: str
@@ -77,6 +82,22 @@ class ProductSpec(BaseModel):
     design: dict = Field(default_factory=dict)
     energy: dict = Field(default_factory=dict)
     other: dict = Field(default_factory=dict)
+
+    # Full-fidelity data straight from the live product page, for grounding
+    # LLM prompts without lossy remapping into the category dicts above.
+    raw_spec_groups: list[SpecGroup] = Field(default_factory=list)
+    spec_highlights: list[str] = Field(default_factory=list)
+    spec_source: str = "hardcoded_fallback"  # "live_scrape" | "cache" | "hardcoded_fallback"
+
+
+class PageSnapshot(BaseModel):
+    url: str
+    fetched_at: str
+    status_code: int
+    html_path: str
+    title: Optional[str] = None
+    model_code: str
+    spec_source: str = "live_scrape"
 
 
 class ComplaintItem(BaseModel):
@@ -116,6 +137,10 @@ class ContradictionCase(BaseModel):
     negative_elements: list[str]
     review_text: str
     implication: str
+    # Ready-to-post public reply that acknowledges the rating/text mismatch rather
+    # than reacting to the star rating alone (e.g. not "thanks for 5 stars" on a
+    # review that's actually a complaint).
+    suggested_public_response: str = ""
 
 
 class ImportanceItem(BaseModel):
@@ -140,6 +165,15 @@ class CompetitorData(BaseModel):
     weaknesses: list[str]
 
 
+class PositioningAttribute(BaseModel):
+    attribute: str
+    samsung_assessment: str  # "win" | "lose" | "mixed" | "neutral"
+    mention_volume: str  # "high" | "medium" | "low"
+    sentiment_score: float  # -1.0 (very negative) to 1.0 (very positive)
+    business_impact: str  # "purchase_driver" | "purchase_barrier" | "upsell_opportunity" | "trust_risk" | "neutral"
+    vs_competitor_note: str
+
+
 class PositioningAnalysis(BaseModel):
     samsung_strengths: list[str]
     samsung_weaknesses: list[str]
@@ -147,6 +181,14 @@ class PositioningAnalysis(BaseModel):
     competitive_threats: list[str]
     competitors: list[CompetitorData]
     positioning_recommendation: str
+
+    # Quantified positioning map (volume/sentiment/gap/business impact per attribute)
+    # and the 4-box executive summary, instead of a flat strengths/weaknesses list.
+    attribute_map: list[PositioningAttribute] = Field(default_factory=list)
+    defend: list[str] = Field(default_factory=list)
+    differentiate: list[str] = Field(default_factory=list)
+    fix: list[str] = Field(default_factory=list)
+    monitor: list[str] = Field(default_factory=list)
 
 
 class ExpectationGapItem(BaseModel):
@@ -199,7 +241,8 @@ class VOCAnalysisResult(BaseModel):
     product_id: str
     model: str
     analysis_date: str
-    total_reviews: int
+    total_reviews: int  # size of the sample actually analyzed
+    total_reviews_available: int = 0  # real population size discovered during scraping (0 = unknown)
     avg_rating: float
 
     # Task outputs

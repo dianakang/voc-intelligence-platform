@@ -1,9 +1,11 @@
 """Task 4: Marketing Message Improvement Analysis."""
 from __future__ import annotations
 
+from typing import Optional
+
 from src.agents.base import BaseAgent
 from src.config import settings
-from src.data.models import MarketingRecommendation, Review, VOCAnalysisResult
+from src.data.models import MarketingRecommendation, ProductSpec, Review, VOCAnalysisResult
 from src.rag.retriever import ReviewRetriever
 
 SYSTEM_PROMPT = """You are a marketing strategist with expertise in consumer electronics branding.
@@ -11,7 +13,8 @@ You analyze the gap between what brands promise and what customers actually expe
 then generate authentic marketing messages grounded in real customer voice.
 Return structured JSON only."""
 
-SAMSUNG_CURRENT_MESSAGING = """Samsung Crystal UHD U7900F current marketing messages:
+# Used only if no live-scraped product_spec is available.
+FALLBACK_MESSAGING = """Samsung Crystal UHD U7900F current marketing messages:
 - "Crystal Processor 4K" - AI-powered upscaling for stunning 4K
 - "Crystal Clear Picture" - Purify every pixel
 - "100% Color Volume" - Billions of colors
@@ -19,6 +22,20 @@ SAMSUNG_CURRENT_MESSAGING = """Samsung Crystal UHD U7900F current marketing mess
 - "SmartThings ecosystem" - All your devices connected
 - "Samsung Gaming Hub" - Cloud gaming ready
 - "Bixby + Alexa + Google" - Triple voice assistant support"""
+
+
+def _build_current_messaging(product_spec: Optional[ProductSpec]) -> str:
+    """Build the 'current marketing messages' block from the live-scraped PDP, not a hand-typed guess."""
+    if not product_spec or not (product_spec.spec_highlights or product_spec.other.get("marketing_highlights")):
+        return FALLBACK_MESSAGING
+
+    lines = [f"{product_spec.product_name} current marketing messages (scraped from the live product page):"]
+    for h in product_spec.other.get("marketing_highlights", []) or product_spec.spec_highlights:
+        lines.append(f'- "{h}"')
+    price = product_spec.other.get("price_usd")
+    if price:
+        lines.append(f"- Priced at ${price} (MSRP ${product_spec.other.get('msrp_usd', price)})")
+    return "\n".join(lines)
 
 
 class MarketingAnalysisAgent(BaseAgent):
@@ -35,6 +52,7 @@ class MarketingAnalysisAgent(BaseAgent):
         reviews: list[Review],
         retriever: ReviewRetriever,
         result: VOCAnalysisResult,
+        product_spec: Optional[ProductSpec] = None,
     ) -> VOCAnalysisResult:
         self.log("Analyzing marketing message alignment (Task 4)...")
 
@@ -62,7 +80,7 @@ class MarketingAnalysisAgent(BaseAgent):
 
         prompt = f"""Analyze the gap between Samsung's marketing messages and actual customer experience.
 
-{SAMSUNG_CURRENT_MESSAGING}
+{_build_current_messaging(product_spec)}
 
 WHAT CUSTOMERS ACTUALLY VALUE (from VOC):
 {satisfaction_summary}

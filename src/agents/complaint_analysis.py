@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from typing import Optional
 
 from src.agents.base import BaseAgent
 from src.config import settings
-from src.data.models import ComplaintItem, Review, VOCAnalysisResult
+from src.data.models import ComplaintItem, ProductSpec, Review, VOCAnalysisResult
 from src.rag.retriever import ReviewRetriever
 
 SYSTEM_PROMPT = """You are a customer experience analyst specializing in identifying and analyzing
@@ -34,11 +35,30 @@ class ComplaintAnalysisAgent(BaseAgent):
             temperature=0.2,
         )
 
+    def _build_product_context(self, product_spec: Optional[ProductSpec]) -> str:
+        """Ground issue_type classification in real account/delivery facts from the product page."""
+        if not product_spec:
+            return ""
+        account = product_spec.smart_tv.get("account_requirement")
+        delivery = product_spec.other.get("delivery_availability")
+        stock = product_spec.other.get("stock_status")
+        if not (account or delivery or stock):
+            return ""
+        lines = ["\nPRODUCT PAGE FACTS (from the live product page, source: " + product_spec.spec_source + "):"]
+        if account:
+            lines.append(f"- Account requirement: {account}")
+        if stock:
+            lines.append(f"- Stock status: {stock}")
+        if delivery:
+            lines.append(f"- Delivery/pickup: {delivery}")
+        return "\n".join(lines)
+
     def analyze(
         self,
         reviews: list[Review],
         retriever: ReviewRetriever,
         result: VOCAnalysisResult,
+        product_spec: Optional[ProductSpec] = None,
     ) -> VOCAnalysisResult:
         self.log("Analyzing customer complaints (Task 1)...")
 
@@ -56,6 +76,7 @@ class ComplaintAnalysisAgent(BaseAgent):
         complaint_pool = list({r.review_id: r for r in negative_reviews + rag_complaints}.values())
 
         context = retriever.format_for_context(complaint_pool[:25], max_chars=8000)
+        product_context = self._build_product_context(product_spec)
 
         prompt = f"""Analyze the following Samsung TV reviews to identify the top customer complaints.
 
@@ -64,6 +85,11 @@ Reviews (total pool: {len(complaint_pool)} negative/neutral reviews):
 
 Product: Samsung 50" Crystal UHD U7900F (UN50U7900FFXZA)
 Total reviews analyzed: {len([r for r in reviews if not r.is_duplicate])}
+{product_context}
+
+Use the PRODUCT PAGE FACTS above to correctly separate product_defect from purchase_experience —
+e.g. a complaint about needing an account/login, delivery delays, or stock/availability is a
+purchase_experience issue regardless of how it's phrased, not a defect in the TV itself.
 
 Identify the TOP 8 complaint categories. For each, provide:
 {{

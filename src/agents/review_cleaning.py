@@ -45,7 +45,7 @@ class ReviewCleaningAgent(BaseAgent):
         substantive = [r for r in reviews if not r.is_duplicate and not r.is_short]
         self.log(f"LLM cleaning {len(substantive)} substantive reviews in batches...")
 
-        batch_size = 10
+        batch_size = settings.batch_size
         for i in range(0, len(substantive), batch_size):
             batch = substantive[i : i + batch_size]
             cleaned = self._llm_clean_batch(batch)

@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -12,7 +14,7 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from src.config import settings
-from src.data.models import Review
+from src.data.models import PageSnapshot, Review
 
 console = Console()
 
@@ -45,6 +47,34 @@ class SamsungReviewScraper:
     async def __aexit__(self, *args):
         await self.client.aclose()
 
+    async def fetch_page_html(self, url: str) -> tuple[str, int]:
+        """Fetch the full product page HTML (generic — works for any product URL)."""
+        response = await self.client.get(url, headers={"Accept": "text/html"})
+        return response.text, response.status_code
+
+    def save_page_snapshot(self, html: str, model_code: str, url: str, status_code: int) -> PageSnapshot:
+        """Persist the raw page HTML + metadata under data/raw/{model_code}/."""
+        out_dir = settings.raw_product_dir(model_code)
+        html_path = out_dir / "page.html"
+        html_path.write_text(html, encoding="utf-8")
+
+        title_match = re.search(r"<title[^>]*>(.*?)</title>", html, re.DOTALL | re.IGNORECASE)
+        title = title_match.group(1).strip() if title_match else None
+
+        snapshot = PageSnapshot(
+            url=url,
+            fetched_at=datetime.now().isoformat(),
+            status_code=status_code,
+            html_path=str(html_path),
+            title=title,
+            model_code=model_code,
+        )
+        (out_dir / "page_meta.json").write_text(
+            json.dumps(snapshot.model_dump(), indent=2), encoding="utf-8"
+        )
+        console.print(f"[green]Saved page snapshot: {html_path} ({len(html):,} bytes)")
+        return snapshot
+
     async def fetch_reviews_bv(
         self,
         product_id: str,
@@ -66,6 +96,82 @@ class SamsungReviewScraper:
         response = await self.client.get(BV_API_BASE, params=params)
         response.raise_for_status()
         return response.json()
+
+    async def fetch_reviews_bv_bfd(
+        self,
+        model_code: str,
+        max_reviews: Optional[int] = None,
+        product_url: Optional[str] = None,
+    ) -> list[dict]:
+        """Fetch real reviews from BazaarVoice's current gateway (apps.bazaarvoice.com/bfd/...).
+
+        The classic passkey-based BV_API_BASE endpoint above is dead (expired passkey),
+        and this newer gateway returns 401 to plain HTTP requests even with identical
+        headers — it requires a real browser context (cookies/TLS fingerprint). Confirmed
+        working by sniffing the live page's own network requests and replaying the exact
+        fetch() call from inside a Playwright-controlled page.
+
+        max_reviews=None (default) paginates until BazaarVoice's own TotalResults is
+        exhausted — i.e. fetches every real review, not a capped sample. Pass an explicit
+        cap only if you deliberately want fewer than the full population.
+        """
+        from playwright.async_api import async_playwright
+
+        target_url = product_url or settings.samsung_product_url
+        fetch_ceiling = max_reviews if max_reviews is not None else 10_000  # safety ceiling, not a sample cap
+        limit = 100
+        offset = 0
+        all_results: list[dict] = []
+
+        async with async_playwright() as p:
+            browser = await p.chromium.launch()
+            try:
+                page = await browser.new_page(
+                    user_agent=(
+                        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+                    )
+                )
+                await page.goto(target_url, wait_until="load", timeout=45000)
+                await page.wait_for_timeout(1000)
+
+                while len(all_results) < fetch_ceiling:
+                    batch_limit = min(limit, fetch_ceiling - len(all_results))
+                    url = (
+                        "https://apps.bazaarvoice.com/bfd/v1/clients/Samsung/api-products/cv2"
+                        "/resources/data/reviews.json?resource=reviews&action=REVIEWS_N_STATS"
+                        f"&filter=productid:eq:{model_code}"
+                        "&filter=contentlocale:eq:en_US,en_US&filter=isratingsonly:eq:false"
+                        "&filter_reviews=contentlocale:eq:en_US,en_US&include=authors,products,comments"
+                        f"&filteredstats=reviews&Stats=Reviews&limit={batch_limit}&offset={offset}"
+                        "&limit_comments=3&sort=submissiontime:desc&apiversion=5.5"
+                        "&displaycode=20545-en_us"
+                    )
+                    data = await page.evaluate(
+                        """async (params) => {
+                            const resp = await fetch(params.url, {
+                                headers: {"bv-bfd-token": "20545,main_site,en_US"}
+                            });
+                            return await resp.json();
+                        }""",
+                        {"url": url},
+                    )
+                    resp = data.get("response", {})
+                    results = resp.get("Results", [])
+                    if not results:
+                        break
+                    all_results.extend(results)
+
+                    total = resp.get("TotalResults", 0)
+                    console.print(f"[dim]Fetched {len(all_results)}/{total} reviews...")
+                    if offset + batch_limit >= total:
+                        break
+                    offset += batch_limit
+                    await asyncio.sleep(0.3)  # polite delay
+            finally:
+                await browser.close()
+
+        return all_results[:fetch_ceiling]
 
     async def fetch_reviews_samsung_api(
         self,
@@ -117,7 +223,35 @@ class SamsungReviewScraper:
         model_code: str = SAMSUNG_BV_PRODUCT_ID,
         max_reviews: int = 500,
         passkey: str = SAMSUNG_BV_PASSKEY,
-    ) -> list[Review]:
+    ) -> tuple[list[Review], list[Review]]:
+        """Returns (reviews_to_analyze, all_reviews_fetched).
+
+        Fetches the FULL real review population from BazaarVoice, then — if it's
+        larger than max_reviews — draws a sample stratified by rating so the
+        analyzed subset's rating distribution matches the true population
+        (rather than being biased toward whatever order pagination returned).
+        all_reviews_fetched is the complete set discovered during fetch (the raw
+        evidence to cache); for the legacy/sample fallback paths the two lists
+        are identical since those paths can't discover a larger population.
+        """
+        # Primary: BazaarVoice's current gateway, via a real browser context. Fetches
+        # every real review (uncapped) — sampling down to max_reviews happens below.
+        try:
+            raw_results = await self.fetch_reviews_bv_bfd(model_code, max_reviews=None)
+            if raw_results:
+                all_reviews = [self._parse_bv_review(r, model_code) for r in raw_results]
+                console.print(f"[green]Fetched {len(all_reviews)} real reviews via BazaarVoice (browser gateway)")
+                sampled = sample_reviews_stratified(all_reviews, max_reviews)
+                if len(sampled) < len(all_reviews):
+                    console.print(
+                        f"[cyan]Sampled {len(sampled)} reviews (stratified by rating) "
+                        f"for analysis out of {len(all_reviews)} available"
+                    )
+                return sampled, all_reviews
+            console.print("[yellow]BazaarVoice browser gateway returned no reviews, trying legacy API...")
+        except Exception as e:
+            console.print(f"[yellow]BazaarVoice browser gateway failed ({e}), trying legacy API...")
+
         reviews: list[Review] = []
         offset = 0
         batch = 100
@@ -169,7 +303,9 @@ class SamsungReviewScraper:
             console.print("[yellow]Live scraping unavailable. Loading from cache or using sample data.")
             reviews = await self._load_cached_or_sample(model_code)
 
-        return reviews[:max_reviews]
+        # Legacy paths don't reveal the true population size beyond what they fetched.
+        sampled = reviews[:max_reviews]
+        return sampled, reviews
 
     async def _fallback_samsung_api(self, model_code: str, max_reviews: int) -> list[Review]:
         reviews = []
@@ -193,7 +329,7 @@ class SamsungReviewScraper:
         return reviews
 
     async def _load_cached_or_sample(self, model_code: str) -> list[Review]:
-        cache_path = settings.raw_data_path / f"{model_code}_reviews.json"
+        cache_path = settings.raw_product_dir(model_code) / "reviews.json"
         if cache_path.exists():
             console.print(f"[green]Loading cached reviews from {cache_path}")
             with open(cache_path) as f:
@@ -204,11 +340,46 @@ class SamsungReviewScraper:
         return _generate_sample_reviews(model_code, count=100)
 
     def save_raw(self, reviews: list[Review], model_code: str) -> Path:
-        out = settings.raw_data_path / f"{model_code}_reviews.json"
+        out = settings.raw_product_dir(model_code) / "reviews.json"
         with open(out, "w") as f:
             json.dump([r.model_dump() for r in reviews], f, indent=2, default=str)
         console.print(f"[green]Saved {len(reviews)} reviews to {out}")
         return out
+
+
+def sample_reviews_stratified(reviews: list[Review], sample_size: int, seed: int = 42) -> list[Review]:
+    """Draw a sample whose rating distribution matches the full population's.
+
+    Plain "most recent N" or random-N sampling can skew the analyzed subset (e.g.
+    incentivized review campaigns cluster in time and tend to skew positive).
+    Stratifying by rating keeps the analyzed sample's sentiment mix representative
+    of the true population regardless of fetch order. Deterministic (fixed seed)
+    so the same input review set always produces the same sample.
+    """
+    if len(reviews) <= sample_size:
+        return reviews
+
+    import random
+
+    rng = random.Random(seed)
+    by_rating: dict[float, list[Review]] = {}
+    for r in reviews:
+        by_rating.setdefault(r.rating, []).append(r)
+
+    total = len(reviews)
+    sampled: list[Review] = []
+    for group in by_rating.values():
+        quota = round(sample_size * len(group) / total)
+        sampled.extend(rng.sample(group, min(quota, len(group))))
+
+    # Rounding can drift slightly off sample_size; correct by trimming or topping up.
+    if len(sampled) > sample_size:
+        sampled = rng.sample(sampled, sample_size)
+    elif len(sampled) < sample_size:
+        remaining = [r for r in reviews if r not in sampled]
+        sampled.extend(rng.sample(remaining, min(sample_size - len(sampled), len(remaining))))
+
+    return sampled
 
 
 def _generate_sample_reviews(model_code: str, count: int = 100) -> list[Review]:

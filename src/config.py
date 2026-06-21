@@ -41,9 +41,19 @@ class Settings(BaseSettings):
     model_opus: str = Field(default="claude-opus-4-8")
     embedding_model: str = Field(default="text-embedding-3-large")
 
+    # OpenAI equivalents, used as an automatic cross-provider fallback when the
+    # primary provider's call fails (credit exhaustion, outage, rate limit) —
+    # and vice versa, for any agent configured with provider="openai" as primary.
+    openai_model_haiku: str = Field(default="gpt-4o-mini")
+    openai_model_sonnet: str = Field(default="gpt-4o")
+    openai_model_opus: str = Field(default="gpt-4.1")
+
     # Pipeline
     max_reviews: int = Field(default=500)
-    batch_size: int = Field(default=20)
+    # Reviews per LLM call in ReviewCleaningAgent/VOCTaxonomyAgent batching. 25 is sized
+    # against taxonomy's heavier output payload (~150 tokens/item) within max_tokens=4096 —
+    # re-check that budget before raising this further.
+    batch_size: int = Field(default=25)
     enable_rag: bool = Field(default=True)
     output_dir: str = Field(default="data/reports")
 
@@ -56,6 +66,12 @@ class Settings(BaseSettings):
     @property
     def raw_data_path(self) -> Path:
         p = ROOT_DIR / "data" / "raw"
+        p.mkdir(parents=True, exist_ok=True)
+        return p
+
+    def raw_product_dir(self, model_code: str) -> Path:
+        """Per-product raw-asset directory: page.html, page_meta.json, spec.json, reviews.json."""
+        p = self.raw_data_path / model_code
         p.mkdir(parents=True, exist_ok=True)
         return p
 

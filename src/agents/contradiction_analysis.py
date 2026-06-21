@@ -19,6 +19,16 @@ the dissatisfaction is directed at non-product factors (shipping, warranty, sell
 These contradictions reveal important insights about customer psychology, satisfaction thresholds,
 and product vs. service quality gaps.
 
+For each case, also draft a ready-to-post public reply that acknowledges the mismatch instead of
+reacting to the star rating alone:
+- Type A (high rating, hidden complaint): respond to the complaint itself, not the stars — do not
+  thank the customer for "5 stars" when the text describes a real problem.
+- Type B (low rating, hidden praise): thank the customer for the positive feedback, note that the
+  rating shown is low, and invite them to update it if that was a mistake — this both surfaces the
+  mismatch to other shoppers and gives the reviewer a path to correct it.
+Internally, both types should be tagged for human investigation of the mismatch rather than taken
+at face value — trust the review text for operational decisions, the star rating may be accidental.
+
 Return structured JSON only."""
 
 
@@ -65,7 +75,8 @@ For each contradiction, provide deep analysis. Return:
       "positive_elements": ["element praised in text"],
       "negative_elements": ["complaint buried in text"],
       "review_text": "brief quote from review",
-      "implication": "what this reveals about customer psychology or product/service gap"
+      "implication": "what this reveals about customer psychology or product/service gap",
+      "suggested_public_response": "ready-to-post company reply, 2-3 sentences, addressing the mismatch per the rules above"
     }}
   ],
   "type_a_pattern": "common pattern in 5-star reviews with hidden complaints",
@@ -74,7 +85,7 @@ For each contradiction, provide deep analysis. Return:
 }}"""
 
         try:
-            data = self.call_json(prompt, max_tokens=3000)
+            data = self.call_json(prompt, max_tokens=5000)
             contradictions_raw = data.get("contradictions", []) if isinstance(data, dict) else []
 
             for item in contradictions_raw:
@@ -87,6 +98,7 @@ For each contradiction, provide deep analysis. Return:
                         negative_elements=item.get("negative_elements", []),
                         review_text=item.get("review_text", ""),
                         implication=item.get("implication", ""),
+                        suggested_public_response=item.get("suggested_public_response", ""),
                     )
                 )
 

@@ -16,6 +16,7 @@ from src.data.spec_extractor import get_samsung_spec, get_competitor_specs
 from src.rag.chunker import chunk_reviews
 from src.rag.vector_store import VectorStore
 from src.rag.retriever import ReviewRetriever
+from src.workflow.cache import compute_input_hash, is_cache_hit, save_manifest
 from src.workflow.state import VOCWorkflowState
 
 # Agents
@@ -55,24 +56,62 @@ def collect_data(state: VOCWorkflowState) -> dict:
     # Fetch reviews synchronously (run async in sync context)
     async def _fetch():
         async with SamsungReviewScraper() as scraper:
-            reviews = await scraper.collect_all_reviews(model_code, max_reviews)
-            scraper.save_raw(reviews, model_code)
-            return reviews
+            sampled, all_reviews = await scraper.collect_all_reviews(model_code, max_reviews)
+            scraper.save_raw(all_reviews, model_code)  # cache the full real population, not just the sample
+            return sampled, all_reviews
 
-    reviews = asyncio.run(_fetch())
+    reviews, all_reviews = asyncio.run(_fetch())
+    total_reviews_available = len(all_reviews)
     spec = get_samsung_spec(model_code)
     competitor_specs = get_competitor_specs()
+    # Hash the full fetched population (not just the sample) so a source-data change
+    # is never masked by sampling happening to draw an identical-looking subset.
+    input_hash = compute_input_hash(all_reviews, model_code, max_reviews, spec)
 
-    console.print(f"[green]Collected {len(reviews)} reviews, spec loaded")
+    console.print(
+        f"[green]Collected {len(reviews)} reviews for analysis "
+        f"(out of {total_reviews_available} available), spec loaded (source: {spec.spec_source})"
+    )
     update["agent_statuses"]["DataCollectionAgent"] = "done"
     push_progress(agent_statuses=update["agent_statuses"], current_step="Reviews collected", progress_pct=15)
     return {
         **update,
         "reviews": reviews,
+        "total_reviews_available": total_reviews_available,
         "product_spec": spec,
         "competitor_specs": competitor_specs,
+        "input_hash": input_hash,
         "progress_pct": 15,
     }
+
+
+def load_cached_result(state: VOCWorkflowState) -> dict:
+    """Cache hit (--skip-if-cached): skip all LLM agents, reload the previously saved result."""
+    console.rule("[bold cyan]Cache hit — skipping LLM agents, reloading saved result")
+    model_code = state["model_code"]
+    out_path = settings.output_path / f"{model_code}_voc_result.json"
+
+    import json
+    with open(out_path) as f:
+        data = json.load(f)
+    result = VOCAnalysisResult(**data)
+
+    statuses = {k: "done" for k in state.get("agent_statuses", {})}
+    push_progress(agent_statuses=statuses, current_step="Loaded cached result", progress_pct=100)
+    return {
+        "result": result,
+        "agent_statuses": statuses,
+        "current_step": "Loaded cached result (--skip-if-cached)",
+        "progress_pct": 100,
+    }
+
+
+def _route_after_collect(state: VOCWorkflowState) -> str:
+    if not state.get("skip_if_cached"):
+        return "clean_reviews"
+    if is_cache_hit(state["model_code"], state["input_hash"]):
+        return "load_cached_result"
+    return "clean_reviews"
 
 
 def clean_reviews(state: VOCWorkflowState) -> dict:
@@ -125,6 +164,7 @@ def run_parallel_analysis(state: VOCWorkflowState) -> dict:
 
     reviews = state["cleaned_reviews"]
     reviews_by_id = state["reviews_by_id"]
+    product_spec = state.get("product_spec")
 
     # Rebuild vector store connection (stateless between nodes)
     vector_store = VectorStore()
@@ -138,6 +178,7 @@ def run_parallel_analysis(state: VOCWorkflowState) -> dict:
         model=state["model_code"],
         analysis_date=datetime.now().strftime("%Y-%m-%d %H:%M"),
         total_reviews=len(reviews),
+        total_reviews_available=state.get("total_reviews_available", 0),
         avg_rating=round(avg_rating, 2),
     )
 
@@ -159,7 +200,7 @@ def run_parallel_analysis(state: VOCWorkflowState) -> dict:
     agent_statuses["ComplaintAnalysisAgent"] = "running"
     push_progress(agent_statuses=dict(agent_statuses), current_step="Complaint analysis", progress_pct=53)
     complaint_agent = ComplaintAnalysisAgent()
-    result = complaint_agent.analyze(reviews, retriever, result)
+    result = complaint_agent.analyze(reviews, retriever, result, product_spec=product_spec)
     _tick("ComplaintAnalysisAgent", "Complaint analysis complete", 57)
 
     # Task 3: Satisfaction
@@ -180,7 +221,7 @@ def run_parallel_analysis(state: VOCWorkflowState) -> dict:
     agent_statuses["MarketingAnalysisAgent"] = "running"
     push_progress(agent_statuses=dict(agent_statuses), current_step="Marketing analysis", progress_pct=68)
     marketing_agent = MarketingAnalysisAgent()
-    result = marketing_agent.analyze(reviews, retriever, result)
+    result = marketing_agent.analyze(reviews, retriever, result, product_spec=product_spec)
     _tick("MarketingAnalysisAgent", "Marketing analysis complete", 72)
 
     # Task 6: Competitive
@@ -247,6 +288,7 @@ def generate_report(state: VOCWorkflowState) -> dict:
     with open(out_path, "w") as f:
         json.dump(result.model_dump(), f, indent=2, default=str)
     console.print(f"[green]Results saved to {out_path}")
+    save_manifest(state["model_code"], state["input_hash"])
 
     update["agent_statuses"]["ReportGenerationAgent"] = "done"
     push_progress(agent_statuses=update["agent_statuses"], current_step="Complete", progress_pct=100)
@@ -264,30 +306,39 @@ def build_voc_graph() -> StateGraph:
     graph = StateGraph(VOCWorkflowState)
 
     graph.add_node("collect_data", collect_data)
+    graph.add_node("load_cached_result", load_cached_result)
     graph.add_node("clean_reviews", clean_reviews)
     graph.add_node("build_taxonomy", build_taxonomy)
     graph.add_node("run_analysis", run_parallel_analysis)
     graph.add_node("generate_report", generate_report)
 
     graph.set_entry_point("collect_data")
-    graph.add_edge("collect_data", "clean_reviews")
+    graph.add_conditional_edges(
+        "collect_data",
+        _route_after_collect,
+        {"clean_reviews": "clean_reviews", "load_cached_result": "load_cached_result"},
+    )
     graph.add_edge("clean_reviews", "build_taxonomy")
     graph.add_edge("build_taxonomy", "run_analysis")
     graph.add_edge("run_analysis", "generate_report")
     graph.add_edge("generate_report", END)
+    graph.add_edge("load_cached_result", END)
 
     return graph.compile()
 
 
-def run_voc_pipeline(model_code: str, max_reviews: int = 200) -> VOCWorkflowState:
+def run_voc_pipeline(model_code: str, max_reviews: int = 200, skip_if_cached: bool = False) -> VOCWorkflowState:
     """Run the full VOC pipeline and return final state."""
     graph = build_voc_graph()
     initial_state: VOCWorkflowState = {
         "model_code": model_code,
         "max_reviews": max_reviews,
+        "skip_if_cached": skip_if_cached,
         "reviews": [],
+        "total_reviews_available": 0,
         "product_spec": None,
         "competitor_specs": {},
+        "input_hash": "",
         "cleaned_reviews": [],
         "reviews_by_id": {},
         "rag_built": False,

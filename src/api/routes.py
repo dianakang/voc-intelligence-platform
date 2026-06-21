@@ -21,6 +21,7 @@ router = APIRouter()
 class RunAnalysisRequest(BaseModel):
     model_code: str = "UN50U7900FFXZA"
     max_reviews: int = 200
+    skip_if_cached: bool = False
 
 
 class JobStatus(BaseModel):
@@ -32,7 +33,7 @@ class JobStatus(BaseModel):
     error: Optional[str] = None
 
 
-def _run_pipeline(job_id: str, model_code: str, max_reviews: int):
+def _run_pipeline(job_id: str, model_code: str, max_reviews: int, skip_if_cached: bool = False):
     """Background task: run the full pipeline and store result."""
     try:
         from src.workflow.graph import run_voc_pipeline
@@ -40,7 +41,9 @@ def _run_pipeline(job_id: str, model_code: str, max_reviews: int):
         _jobs[job_id]["status"] = "running"
         set_current_job_id(job_id)
 
-        final_state = run_voc_pipeline(model_code=model_code, max_reviews=max_reviews)
+        final_state = run_voc_pipeline(
+            model_code=model_code, max_reviews=max_reviews, skip_if_cached=skip_if_cached
+        )
 
         _jobs[job_id]["status"] = "done"
         _jobs[job_id]["progress_pct"] = 100
@@ -102,7 +105,7 @@ async def start_analysis(req: RunAnalysisRequest, background_tasks: BackgroundTa
         "model_code": req.model_code,
     }
 
-    background_tasks.add_task(_run_pipeline, job_id, req.model_code, req.max_reviews)
+    background_tasks.add_task(_run_pipeline, job_id, req.model_code, req.max_reviews, req.skip_if_cached)
     return {"job_id": job_id, "status": "pending"}
 
 
