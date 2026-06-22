@@ -33,10 +33,10 @@ What happens, step by step, when you run an analysis for a TV model:
 
 ```mermaid
 flowchart TD
-    A[Collect reviews + spec] --> R{Same data as last run?}
-    R -->|no| C[Clean reviews]
-    R -->|yes| B[Reuse saved report]
-    C --> D[Sort into topics] --> E[Run 11 analysis agents] --> F[Generate report] --> G([Done])
+    A["Collect reviews<br/>+ spec"] --> R{"Same data as<br/>last run?"}
+    R -->|no| C["Clean<br/>reviews"]
+    R -->|yes| B["Reuse saved<br/>report"]
+    C --> D["Sort into<br/>topics"] --> E["Run 11<br/>analysis agents"] --> F["Generate<br/>report"] --> G([Done])
     B --> G
 ```
 
@@ -48,11 +48,11 @@ Reviews live on a third-party review platform (BazaarVoice) embedded in Samsung'
 
 ```mermaid
 flowchart TD
-    A[Open a real browser, fetch live reviews] -->|works| E[Full set cached + sampled]
-    A -->|fails| B[Try Samsung's own review API]
-    B -->|fails| C{Reviews cached from before?}
+    A["Open a real browser,<br/>fetch live reviews"] -->|works| E["Full set<br/>cached + sampled"]
+    A -->|fails| B["Try Samsung's<br/>own review API"]
+    B -->|fails| C{"Reviews cached<br/>from before?"}
     C -->|yes| E
-    C -->|no| D[Use placeholder sample reviews]
+    C -->|no| D["Use placeholder<br/>sample reviews"]
     D --> E
 ```
 
@@ -89,10 +89,10 @@ The 11 analyses above map 1:1 to agent classes (`SentimentAnalysisAgent`, `Compl
 
 ```mermaid
 flowchart TD
-    C2[Complaints #2] --> CX[CX Actions #10]
-    C2 --> EG[Expectation Gap #8]
-    S3[Satisfaction #3] --> EG
-    C2 --> IM[Importance #11]
+    C2["Complaints<br/>#2"] --> CX["CX Actions<br/>#10"]
+    C2 --> EG["Expectation<br/>Gap #8"]
+    S3["Satisfaction<br/>#3"] --> EG
+    C2 --> IM["Importance<br/>#11"]
     EG --> IM
     CX --> IM
 ```
@@ -185,8 +185,8 @@ Full reference in `.env.example`. Key settings:
 
 ```mermaid
 flowchart TD
-    A[Call preferred provider] -->|ok| R[Result]
-    A -->|fails| B[Retry on other provider] --> R
+    A["Call preferred<br/>provider"] -->|ok| R[Result]
+    A -->|fails| B["Retry on other<br/>provider"] --> R
 ```
 
 A call "fails" on a rate limit, outage, or credit exhaustion — the retry uses the equivalent tier on the other provider (e.g. Sonnet retries as GPT-4o).
