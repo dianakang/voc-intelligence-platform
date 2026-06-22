@@ -8,42 +8,65 @@ Every analysis is grounded in both the review text **and** the product spec/PDP 
 
 ## Architecture
 
+What happens, step by step, when you run an analysis for a TV model:
+
+1. **Collect the data** — Pull every customer review for that TV, plus its official product spec (price, features, delivery options). If the exact same data was already analyzed in a prior run, skip straight to step 5 and reuse that saved report instead of redoing all the AI analysis.
+2. **Clean the reviews** — Remove duplicates and have AI lightly tidy up messy review text.
+3. **Sort into topics** — AI groups every review into topics (picture quality, sound, smart TV features, delivery, etc.) so later steps can pull up "everything customers said about X."
+4. **Run the analysis** — 11 specialized AI agents each study the reviews from a different angle:
+
+   | # | Analysis | What it produces |
+   |---|---|---|
+   | 1 | Sentiment | Overall sentiment + breakdown by aspect (picture, sound, etc.) |
+   | 2 | Complaints | Ranked complaint categories, split into product defects vs. purchase/delivery issues |
+   | 3 | Satisfaction | What's driving positive reviews |
+   | 4 | Improvement | What customers want changed |
+   | 5 | Marketing | Messaging recommendations grounded in real customer language |
+   | 6 | Competitive positioning | How this TV stacks up vs. TCL Q6, Hisense A7, LG UT70 |
+   | 7 | Contradictions | Reviews where the star rating and the text disagree (e.g. a 1★ review that praises the product) |
+   | 8 | Expectation gaps | Where reality fell short of what customers expected |
+   | 9 | Segment differences | How different customer groups experience the product differently |
+   | 10 | CX actions | Ready-to-use FAQ entries, support scripts, proactive notices |
+   | 11 | Priority ranking | A frequency/impact matrix ranking every issue found above |
+
+5. **Generate the report** — Combine every agent's findings into one executive-ready report (Markdown + JSON).
+
 ```mermaid
 flowchart TD
-    A[collect_data] --> R{cached?}
-    R -->|no| C[clean_reviews]
-    R -->|yes| H{hash match?}
-    H -->|yes| B[load cached result]
-    H -->|no| C
-    C --> D[build_taxonomy] --> E[run_analysis] --> F[generate_report] --> G([END])
+    A[Collect reviews + spec] --> R{Same data as last run?}
+    R -->|no| C[Clean reviews]
+    R -->|yes| B[Reuse saved report]
+    C --> D[Sort into topics] --> E[Run 11 analysis agents] --> F[Generate report] --> G([Done])
     B --> G
 ```
 
-- `cached?` only checked if `--skip-if-cached` was passed
-- `hash match?` compares a hash of reviews + model_code + max_reviews + spec against the last saved manifest
-- `run_analysis` runs the 11 agents below
-- `generate_report` writes Markdown + JSON, then the manifest for next run's cache check
+*(The "same data as last run?" check only runs if you pass `--skip-if-cached`; it compares a hash of the fetched reviews, model, sample size, and spec against the last saved run.)*
 
-### Data collection
+### How reviews get collected
+
+Reviews live on a third-party review platform (BazaarVoice) embedded in Samsung's site, which blocks plain automated requests. So the platform opens a real, automated web browser to visit the product page and pull reviews the way a person's browser would — grabbing the *entire* review set (currently ~2,800 reviews) in one run, not just a sample.
 
 ```mermaid
 flowchart TD
-    A[BazaarVoice browser gateway] -->|ok| E[Cached + sampled]
-    A -->|fails| B[Samsung internal API]
-    B -->|fails| C{reviews.json cached?}
+    A[Open a real browser, fetch live reviews] -->|works| E[Full set cached + sampled]
+    A -->|fails| B[Try Samsung's own review API]
+    B -->|fails| C{Reviews cached from before?}
     C -->|yes| E
-    C -->|no| D[Synthetic sample data]
+    C -->|no| D[Use placeholder sample reviews]
     D --> E
 ```
 
-- Only the **browser gateway** (Playwright-driven, since plain HTTP gets a 401) is confirmed working — it fetches the entire population in one run (~2,800 reviews)
-- Samsung's internal API fallback is best-effort and unverified
-- Whichever stage produces the final list gets cached to `data/raw/{model_code}/reviews.json` — including synthetic data, if every live source fails with no prior cache
-- A sample (`--max-reviews`, default 200) is drawn for LLM analysis, stratified by rating so its sentiment mix matches the full population
+If the live browser fetch fails, it falls back in order to: Samsung's own internal review API (best-effort, unconfirmed), then whatever was cached from a previous successful run, then — only if nothing else exists — made-up placeholder reviews, just so a demo never breaks with zero data.
 
-**Product spec** is a merge, not a fallback: the assignment's spec PDF is authoritative for static fields (display/audio/design/gaming); a live scrape adds only commerce fields (price/stock/delivery). `spec_source` shows what contributed: `pdf+live_scrape`, `pdf+cache`, or `pdf_only`.
+Once collected, only a subset is actually sent to the AI for analysis (`--max-reviews`, default 200) — to control cost and speed. That subset is picked so its mix of star ratings matches the full set (e.g. if 30% of all reviews are 5-star, ~30% of the analyzed subset is too), so the analysis isn't skewed by which reviews happened to load first.
 
-**Competitor specs** are a hardcoded dict, optionally refreshed via `voc refresh-competitors` — never automatic, since released hardware specs don't change.
+**Product spec** combines two sources: the official spec sheet (display, audio, design, gaming — things that don't change) and a live page scrape (price, stock, delivery — things that do).
+
+**Competitor specs** (TCL, Hisense, LG) are a fixed reference, only updated by hand via `voc refresh-competitors` — competitor TV hardware doesn't change once it ships, so there's no need to refresh it automatically.
+
+---
+
+*The rest of this section is implementation detail for contributors — skip to [Prerequisites](#prerequisites) if you just want to run it.*
 
 ### Components
 
@@ -62,21 +85,7 @@ flowchart TD
 
 ### Analysis agents (`src/agents/`, execution order)
 
-Each agent shares one accumulating `VOCAnalysisResult`; later agents can read earlier output.
-
-| # | Agent | Key output |
-|---|---|---|
-| 1 | `SentimentAnalysisAgent` | Sentiment distribution + per-aspect breakdown |
-| 2 | `ComplaintAnalysisAgent` | Ranked complaints, tagged `product_defect` vs `purchase_experience` |
-| 3 | `SatisfactionAnalysisAgent` | Satisfaction drivers |
-| 4 | `ImprovementAnalysisAgent` | Improvement points |
-| 5 | `MarketingAnalysisAgent` | Messaging recommendations |
-| 6 | `CompetitivePositioningAgent` | Positioning vs. TCL Q6, Hisense A7, LG UT70 (Defend/Differentiate/Fix/Monitor) |
-| 7 | `ContradictionAnalysisAgent` | Paradox reviews, rating/text mismatches |
-| 8 | `ExpectationGapAgent` | Expectation-vs-reality gaps |
-| 9 | `SegmentDivergenceAnalysisAgent` | Segment-level insights |
-| 10 | `CXActionAgent` | FAQ entries, support scripts, proactive notices |
-| 11 | `ImportanceAnalysisAgent` | Frequency/impact matrix with `recommended_action` + `priority_rank` |
+The 11 analyses above map 1:1 to agent classes (`SentimentAnalysisAgent`, `ComplaintAnalysisAgent`, ... `ImportanceAnalysisAgent`, in that numeric order). Each shares one accumulating `VOCAnalysisResult`; later agents can read earlier output — 4 of them do:
 
 ```mermaid
 flowchart TD
