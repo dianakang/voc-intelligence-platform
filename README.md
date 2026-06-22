@@ -39,13 +39,18 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    R1["BazaarVoice<br/>browser gateway"] -->|success| R5["Full population<br/>cached + sampled"]
-    R1 -->|fails| R2["Legacy passkey<br/>API"]
-    R2 -->|fails| R3["Samsung native<br/>API"]
-    R3 -->|fails| R4["Cached snapshot<br/>or sample data"]
+    R1["BazaarVoice browser<br/>gateway (Playwright)"] -->|success| R6["Full population<br/>cached + sampled"]
+    R1 -->|fails or empty| R2["Legacy passkey API<br/>(expired - always fails)"]
+    R2 -->|fails| R3["Samsung internal<br/>review API (unconfirmed)"]
+    R3 -->|fails| R4{"reviews.json cached<br/>from a prior run?"}
+    R4 -->|yes| R6
+    R4 -->|no| R5["Generate synthetic<br/>sample reviews"]
+    R5 --> R6
 ```
 
-On success, the entire fetched set (e.g. ~2,700 reviews) is cached to disk, then a stratified-by-rating sample is drawn for analysis (`--max-reviews`, default 200).
+Only stage 1 is known to work today. Stage 2 (`fetch_reviews_bv`, the classic passkey-based `api.bazaarvoice.com` endpoint) is retained in code as a defensive fallback, but `SAMSUNG_BV_PASSKEY` is expired — BazaarVoice rejects it on every call, so this stage fails unconditionally and has never produced real data. Stage 3 (`fetch_reviews_samsung_api`, Samsung's own internal review endpoint) is a best-effort attempt against an undocumented API and is similarly unverified; it's cheap to try once 1 and 2 have failed, but isn't a confirmed working path.
+
+If stage 1 succeeds, the entire fetched population (e.g. ~2,700 reviews) is what gets cached and sampled. But regardless of *which* stage produces the final review list — including the stage-4/5 fallback — `collect_data` (`src/workflow/graph.py`) calls `scraper.save_raw()` unconditionally on whatever list it got back, overwriting `data/raw/{model_code}/reviews.json`. That means if every live source fails on a run where no prior cache existed, the synthetic sample data generated in stage 5 gets written to that same cache file — so a later run that also fails live will load that synthetic data back in stage 4 rather than regenerating it. Either way, a stratified-by-rating sample is then drawn from whatever was collected for the LLM analysis stage (`--max-reviews`, default 200).
 
 The product spec is a merge, not a fallback chain: the assignment-provided spec PDF (`data/raw/{model_code}/spec.pdf`) is authoritative for static fields (display, audio, design, gaming, etc), since it doesn't change and is the literal source the assignment names. A live page scrape always also runs, contributing only the commerce-dynamic fields the PDF doesn't have (price, stock, delivery/pickup, account requirement). `spec_source` reflects what actually contributed: `pdf+live_scrape`, `pdf+cache` (scrape failed, used the last cached snapshot instead), or `pdf_only` (both failed). If the PDF file itself is missing, falls back to today's scrape-only behavior: live scrape → cached `spec.json` → hardcoded dict.
 
@@ -53,26 +58,23 @@ Competitor TV specs (`COMPETITOR_SPECS`, used by the competitive-positioning tas
 
 ### Components
 
-| Path | Responsibility |
-|---|---|
-| `src/data/scraper.py` | Fetches reviews from BazaarVoice's current gateway via a Playwright-driven browser context |
-| `src/data/spec_extractor.py` | Parses the assignment-provided spec PDF (authoritative for static fields), merges in live-scraped commerce data (price, stock, delivery, account requirement), and serves competitor specs |
-| `src/data/competitor_spec_fetcher.py` | Manual, out-of-band live competitor-spec fetch via a search-grounded OpenRouter call (`voc refresh-competitors`) |
-| `src/rag/` | Chunking, embedding, and retrieval (Qdrant preferred, Pinecone fallback) |
-| `src/agents/` | One agent per analysis task, see table below |
-| `src/workflow/graph.py` | LangGraph state machine that orchestrates the nodes above end to end |
-| `src/reports/generator.py` | Renders the final `VOCAnalysisResult` into Markdown/JSON |
-| `src/api/` | FastAPI app exposing the pipeline as an async job (`main.py` is the entrypoint) |
-| `src/cli.py` | Typer CLI for running the pipeline from the terminal |
-| `frontend/` | Next.js dashboard that triggers a run and visualizes progress/results |
+| Path | Responsibility | Mechanism / interacts with |
+|---|---|---|
+| `src/data/scraper.py` | Fetches the full review population for a product model | Launches headless Chromium via Playwright, loads the real Samsung product page so cookies/session are set, then calls BazaarVoice's `apps.bazaarvoice.com/bfd` gateway from inside that browser context (plain `httpx` requests get a 401). Falls back through the chain above; called from `collect_data` in `src/workflow/graph.py` |
+| `src/data/spec_extractor.py` | Builds the merged `ProductSpec` (static spec + commerce data) consumed by every analysis agent | Parses the assignment-provided spec PDF with PyMuPDF (`fitz`) for static fields (display/audio/design/gaming); separately calls Samsung's `gapi/v1/bridge/cacheable/bridge-data` endpoint over plain `httpx` (no browser needed here) for commerce fields (price, stock, delivery, account requirement); merges the two, caching the live half to `data/raw/{model_code}/spec.json` |
+| `src/data/competitor_spec_fetcher.py` | Manual, out-of-band refresh of competitor TV specs (`voc refresh-competitors`) | Calls OpenRouter's chat-completions API directly via the `openai` SDK pointed at `https://openrouter.ai/api/v1`, using a `:online`-suffixed model for web-search grounding. Deliberately not a `BaseAgent` subclass, so it can't affect the retry/fallback logic shared by the 11 production agents. Writes to `data/raw/competitors/{name}/spec.json`, read back by `spec_extractor.py` |
+| `src/rag/` | Chunks reviews, embeds them, and retrieves the most relevant ones per analysis query | `chunker.py` turns each review into one chunk with metadata (rating, date, verified purchase); `embedder.py` calls OpenAI's `text-embedding-3-large`; `vector_store.py` tries Qdrant, then Pinecone, then falls back to an in-process Python list shared across the run if neither is configured/reachable; `retriever.py` wraps the store with a per-run query cache and is what agents call through `src/workflow/graph.py` |
+| `src/agents/` | One agent class per analysis task (table below) | Each extends `BaseAgent` (`src/agents/base.py`): calls its preferred provider (Anthropic by default) with `tenacity`-driven retries (3 attempts, exponential backoff), then automatically retries on the other provider's equivalent model tier (e.g. Sonnet → GPT-4o) if every attempt on the primary fails |
+| `src/workflow/graph.py` | Orchestrates `collect_data → clean_reviews → build_taxonomy → run_analysis → generate_report`, sharing one accumulating `VOCAnalysisResult` across nodes | A LangGraph `StateGraph`; also implements the opt-in dev replay cache (`skip_if_cached`) and pushes live per-node progress into the shared in-memory job store (`src/api/state.py`) so the API/frontend can poll it mid-run |
+| `src/reports/generator.py` | Renders the final `VOCAnalysisResult` | A Jinja2 template renders Markdown; a parallel JSON dump is also written. Both land in `data/reports/` |
+| `src/api/` | Exposes the pipeline as a pollable async job | FastAPI (`routes.py`) launches the LangGraph run via `BackgroundTasks` so the HTTP request returns immediately; `state.py` holds the thread-local, in-memory job store that both the background task and the polling endpoints read/write; `main.py` is the ASGI entrypoint (run with `uvicorn`) |
+| `src/cli.py` | Runs the pipeline synchronously from the terminal | Typer app that calls `run_voc_pipeline()` directly in-process (no job queue/background task) and prints Rich-formatted progress as each node completes |
+| `frontend/` | Triggers a run and visualizes progress/results | Next.js app that calls the FastAPI endpoints above, polls job status while a run is in progress, then renders the report, with cross-referenced sections (Paradox Reviews, Importance-Frequency Matrix, Expectation Gaps, CX Action Toolkit) linking to each other's fix detail instead of repeating it |
 
-Notes on the components above:
+Two cross-cutting notes not obvious from the table:
 
-- **Scraper**: the classic passkey-based BazaarVoice API is dead, and the current gateway blocks plain HTTP, hence the Playwright browser context. Every run fetches and caches the entire real review population (e.g. ~2,700 reviews), then draws an analysis sample stratified by rating (`--max-reviews`, default 200) so the analyzed subset's sentiment mix matches the true population. Falls back to a legacy API attempt, then cached/sample data, only if the live fetch fails.
-- **Spec extractor**: saves a raw snapshot under `data/raw/{model_code}/` (`page.html`, `page_meta.json`, `spec.json`, `reviews.json`, `spec.pdf`) on every run, so spec and reviews are always compared against one source of truth. The spec PDF and the live scrape are merged (not a fallback chain), see below.
-- **RAG**: includes a per-run retrieval cache to avoid duplicate embedding calls across agents.
-- **Workflow graph**: also implements the opt-in dev replay cache (`skip_if_cached`).
-- **Frontend**: cross-referenced sections (Paradox Reviews, Importance-Frequency Matrix, Expectation Gaps, CX Action Toolkit) link to each other's fix detail instead of repeating it.
+- **Raw snapshot directory**: every `collect_data` run writes its evidence to `data/raw/{model_code}/` (`page.html`, `page_meta.json`, `spec.json`, `reviews.json`, `spec.pdf`) regardless of which fallback stage produced it, so spec and reviews are always compared against the same on-disk source of truth for that run.
+- **Provider fallback is bidirectional**: the same retry-then-switch-provider logic in `src/agents/base.py` applies whichever provider is configured as primary, not just Anthropic → OpenAI (see the "every agent call" diagram further down).
 
 ### Analysis agents (`src/agents/`, execution order)
 
