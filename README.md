@@ -14,9 +14,9 @@ Every analysis is grounded jointly in the review text **and** the product spec/P
 
 ```mermaid
 flowchart TD
-    A[collect_data] --> R{skip_if_cached?}
+    A[collect_data] --> R{cached?}
     R -->|no| C[clean_reviews]
-    R -->|yes| H{input hash matches manifest?}
+    R -->|yes| H{hash match?}
     H -->|yes| B[load_cached_result]
     H -->|no| C
     C --> D[build_taxonomy]
@@ -27,7 +27,8 @@ flowchart TD
 ```
 
 - **`collect_data`**: live product-page scrape plus a full review-population fetch (see the fallback chain below)
-- **`skip_if_cached?` / `input hash matches manifest?`**: the opt-in dev replay cache. `--skip-if-cached` only checks the manifest if passed; the hash covers reviews, model code, max_reviews, and the live spec, so any change forces a full run
+- **`cached?`**: only checked at all if `--skip-if-cached` was passed; otherwise always goes straight to `clean_reviews`
+- **`hash match?`**: compares a hash of the fetched reviews, model code, max_reviews, and live spec against the saved manifest. Any change forces a full run
 - **`load_cached_result`**: reloads the last saved `VOCAnalysisResult` from disk, skipping every LLM agent
 - **`clean_reviews`**: dedup + LLM cleaning
 - **`build_taxonomy`**: taxonomy classification + RAG indexing
@@ -38,11 +39,13 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    R1[BazaarVoice browser gateway] -->|success| R5[Cache full population, draw stratified sample]
-    R1 -->|fails or empty| R2[Legacy passkey API]
+    R1[BazaarVoice browser gateway] -->|success| R5[Full population cached + sampled]
+    R1 -->|fails| R2[Legacy passkey API]
     R2 -->|fails| R3[Samsung native API]
-    R3 -->|fails| R4[Cached snapshot, else synthetic sample]
+    R3 -->|fails| R4[Cached snapshot or synthetic data]
 ```
+
+"Full population cached + sampled" means the entire fetched set (e.g. ~2,700 reviews) is cached to disk, then a stratified-by-rating sample is drawn for analysis (`--max-reviews`, default 200).
 
 The product spec follows a shorter chain: live page scrape, falling back to the last cached `spec.json`, falling back to a hardcoded dict, only if each prior step fails.
 
@@ -192,8 +195,10 @@ Full reference in `.env.example`. Key settings:
 Every agent call follows the same fallback, in either direction depending on which provider it prefers:
 
 ```mermaid
-flowchart LR
-    A[Agent calls preferred provider] -->|success| R[Parsed result]
-    A -->|fails: rate limit, outage, credit exhaustion| B[Retry on the other provider, equivalent model tier]
+flowchart TD
+    A[Call preferred provider] -->|success| R[Parsed result]
+    A -->|fails| B[Retry on other provider]
     B --> R
 ```
+
+A call "fails" on a rate limit, an outage, or credit exhaustion. The retry uses the equivalent model tier on the other provider (e.g. Sonnet retries as GPT-4o).
