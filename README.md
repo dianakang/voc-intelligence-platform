@@ -2,7 +2,7 @@
 
 AI-powered Voice of Customer (VOC) analysis for Samsung TVs. Scrapes reviews, cleans and classifies them, runs LLM analysis agents, and produces a Markdown/JSON report. Accessible via CLI, REST API, or a Next.js dashboard.
 
-**Primary users:** in-house marketers (PDP copy, ad messaging), CX/support (FAQ updates, response scripts) — designed to extend to product/PM and sales enablement.
+**Primary users:** in-house marketers (PDP copy, ad messaging), CX/support (FAQ updates, response scripts); designed to extend to product/PM and sales enablement.
 
 Every analysis is grounded in both the review text **and** the product spec/PDP (price, account requirements, delivery status), so a genuine **product issue** can be separated from a **purchase-experience issue** (delivery, setup, installation).
 
@@ -10,10 +10,10 @@ Every analysis is grounded in both the review text **and** the product spec/PDP 
 
 What happens, step by step, when you run an analysis for a TV model:
 
-1. **Collect the data** — Pull every customer review for that TV, plus its official product spec (price, features, delivery options). If the exact same data was already analyzed in a prior run, skip straight to step 5 and reuse that saved report instead of redoing all the AI analysis.
-2. **Clean the reviews** — Remove duplicates and have AI lightly tidy up messy review text.
-3. **Sort into topics** — AI groups every review into topics (picture quality, sound, smart TV features, delivery, etc.) so later steps can pull up "everything customers said about X."
-4. **Run the analysis** — 11 specialized AI agents each study the reviews from a different angle:
+1. **Collect the data:** Pull every customer review for that TV, plus its official product spec (price, features, delivery options). If the exact same data was already analyzed in a prior run, skip straight to step 5 and reuse that saved report instead of redoing all the AI analysis.
+2. **Clean the reviews:** Remove duplicates and have AI lightly tidy up messy review text.
+3. **Sort into topics:** AI groups every review into topics (picture quality, sound, smart TV features, delivery, etc.) so later steps can pull up "everything customers said about X."
+4. **Run the analysis:** 11 specialized AI agents each study the reviews from a different angle:
 
    | # | Analysis | What it produces |
    |---|---|---|
@@ -29,7 +29,7 @@ What happens, step by step, when you run an analysis for a TV model:
    | 10 | CX actions | Ready-to-use FAQ entries, support scripts, proactive notices |
    | 11 | Priority ranking | A frequency/impact matrix ranking every issue found above |
 
-5. **Generate the report** — Combine every agent's findings into one executive-ready report (Markdown + JSON).
+5. **Generate the report:** Combine every agent's findings into one executive-ready report (Markdown + JSON).
 
 ```mermaid
 flowchart TD
@@ -44,7 +44,7 @@ flowchart TD
 
 ### How reviews get collected
 
-Reviews live on a third-party review platform (BazaarVoice) embedded in Samsung's site, which blocks plain automated requests. So the platform opens a real, automated web browser to visit the product page and pull reviews the way a person's browser would — grabbing the *entire* review set (currently ~2,800 reviews) in one run, not just a sample.
+Reviews live on a third-party review platform (BazaarVoice) embedded in Samsung's site, which blocks plain automated requests. So the platform opens a real, automated web browser to visit the product page and pull reviews the way a person's browser would, grabbing the *entire* review set (currently ~2,800 reviews) in one run, not just a sample.
 
 ```mermaid
 flowchart TD
@@ -56,17 +56,17 @@ flowchart TD
     D --> E
 ```
 
-If the live browser fetch fails, it falls back in order to: Samsung's own internal review API (best-effort, unconfirmed), then whatever was cached from a previous successful run, then — only if nothing else exists — made-up placeholder reviews, just so a demo never breaks with zero data.
+If the live browser fetch fails, it falls back in order to: Samsung's own internal review API (best-effort, unconfirmed), then whatever was cached from a previous successful run, then, only if nothing else exists, made-up placeholder reviews, just so a demo never breaks with zero data.
 
-Once collected, only a subset is actually sent to the AI for analysis (`--max-reviews`, default 200) — to control cost and speed. That subset is picked so its mix of star ratings matches the full set (e.g. if 30% of all reviews are 5-star, ~30% of the analyzed subset is too), so the analysis isn't skewed by which reviews happened to load first.
+Once collected, only a subset is actually sent to the AI for analysis (`--max-reviews`, default 200), to control cost and speed. That subset is picked so its mix of star ratings matches the full set (e.g. if 30% of all reviews are 5-star, ~30% of the analyzed subset is too), so the analysis isn't skewed by which reviews happened to load first.
 
-**Product spec** combines two sources: the official spec sheet (display, audio, design, gaming — things that don't change) and a live page scrape (price, stock, delivery — things that do).
+**Product spec** combines two sources: the official spec sheet (display, audio, design, gaming, things that don't change) and a live page scrape (price, stock, delivery, things that do).
 
-**Competitor specs** (TCL, Hisense, LG) are a fixed reference, only updated by hand via `voc refresh-competitors` — competitor TV hardware doesn't change once it ships, so there's no need to refresh it automatically.
+**Competitor specs** (TCL, Hisense, LG) are a fixed reference, only updated by hand via `voc refresh-competitors`. Competitor TV hardware doesn't change once it ships, so there's no need to refresh it automatically.
 
 ---
 
-*The rest of this section is implementation detail for contributors — skip to [Prerequisites](#prerequisites) if you just want to run it.*
+*The rest of this section is implementation detail for contributors. Skip to [Prerequisites](#prerequisites) if you just want to run it.*
 
 ### Components
 
@@ -85,7 +85,7 @@ Once collected, only a subset is actually sent to the AI for analysis (`--max-re
 
 ### Analysis agents (`src/agents/`, execution order)
 
-The 11 analyses above map 1:1 to agent classes (`SentimentAnalysisAgent`, `ComplaintAnalysisAgent`, ... `ImportanceAnalysisAgent`, in that numeric order). Each shares one accumulating `VOCAnalysisResult`; later agents can read earlier output — 4 of them do:
+The 11 analyses above map 1:1 to agent classes (`SentimentAnalysisAgent`, `ComplaintAnalysisAgent`, ... `ImportanceAnalysisAgent`, in that numeric order). Each shares one accumulating `VOCAnalysisResult`; later agents can read earlier output. 4 of them do:
 
 ```mermaid
 flowchart TD
@@ -97,7 +97,7 @@ flowchart TD
     CX --> IM
 ```
 
-- **#7 Contradiction** scans the *full* population, not just the sample — catches rare cases like a 1★ review that praises the product
+- **#7 Contradiction** scans the *full* population, not just the sample, catching rare cases like a 1★ review that praises the product
 - **#8 Expectation Gap** runs on Claude Opus for higher-quality gap reasoning
 - **#11 Importance** runs last, deliberately, so it can reference complaints/gaps/CX actions from earlier agents
 
@@ -189,4 +189,4 @@ flowchart TD
     A -->|fails| B["Retry on other<br/>provider"] --> R
 ```
 
-A call "fails" on a rate limit, outage, or credit exhaustion — the retry uses the equivalent tier on the other provider (e.g. Sonnet retries as GPT-4o).
+A call "fails" on a rate limit, outage, or credit exhaustion. The retry uses the equivalent tier on the other provider (e.g. Sonnet retries as GPT-4o).
