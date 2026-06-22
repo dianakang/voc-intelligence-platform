@@ -17,7 +17,7 @@ flowchart TD
     A[collect_data] --> R{cached?}
     R -->|no| C[clean_reviews]
     R -->|yes| H{hash match?}
-    H -->|yes| B[load_cached_result]
+    H -->|yes| B["load cached<br/>result"]
     H -->|no| C
     C --> D[build_taxonomy]
     D --> E[run_analysis]
@@ -39,13 +39,13 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    R1[BazaarVoice browser gateway] -->|success| R5[Full population cached + sampled]
-    R1 -->|fails| R2[Legacy passkey API]
-    R2 -->|fails| R3[Samsung native API]
-    R3 -->|fails| R4[Cached snapshot or synthetic data]
+    R1["BazaarVoice<br/>browser gateway"] -->|success| R5["Full population<br/>cached + sampled"]
+    R1 -->|fails| R2["Legacy passkey<br/>API"]
+    R2 -->|fails| R3["Samsung native<br/>API"]
+    R3 -->|fails| R4["Cached snapshot<br/>or sample data"]
 ```
 
-"Full population cached + sampled" means the entire fetched set (e.g. ~2,700 reviews) is cached to disk, then a stratified-by-rating sample is drawn for analysis (`--max-reviews`, default 200).
+On success, the entire fetched set (e.g. ~2,700 reviews) is cached to disk, then a stratified-by-rating sample is drawn for analysis (`--max-reviews`, default 200).
 
 The product spec follows a shorter chain: live page scrape, falling back to the last cached `spec.json`, falling back to a hardcoded dict, only if each prior step fails.
 
@@ -94,7 +94,7 @@ Most agents only read `reviews`/`retriever`. Four read another agent's output di
 ```mermaid
 flowchart TD
     Complaints["#2 Complaints"] --> CXActions["#10 CX Actions"]
-    Complaints --> ExpectationGap["#8 Expectation Gap"]
+    Complaints --> ExpectationGap["#8 Expectation<br/>Gap"]
     Satisfaction["#3 Satisfaction"] --> ExpectationGap
     Complaints --> Importance["#11 Importance"]
     ExpectationGap --> Importance
@@ -196,8 +196,8 @@ Every agent call follows the same fallback, in either direction depending on whi
 
 ```mermaid
 flowchart TD
-    A[Call preferred provider] -->|success| R[Parsed result]
-    A -->|fails| B[Retry on other provider]
+    A["Call preferred<br/>provider"] -->|success| R[Parsed result]
+    A -->|fails| B["Retry on other<br/>provider"]
     B --> R
 ```
 
