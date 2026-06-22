@@ -33,7 +33,6 @@ class Settings(BaseSettings):
     )
     samsung_model_code: str = Field(default="UN50U7900FFXZA")
     samsung_product_id: str = Field(default="UN50U7900FFXZA")
-    bv_passkey: str = Field(default="")
 
     # Models (support both direct Anthropic and OpenRouter)
     model_haiku: str = Field(default="claude-haiku-4-5-20251001")

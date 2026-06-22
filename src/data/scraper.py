@@ -1,29 +1,23 @@
-"""Samsung.com review scraper using BazaarVoice API and Playwright fallback."""
+"""Samsung.com review scraper using BazaarVoice's browser-gated gateway, with
+a Samsung-native-API and cached/sample fallback if that gateway is unreachable."""
 from __future__ import annotations
 
 import asyncio
 import json
 import re
-import time
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
 import httpx
 from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from src.config import settings
 from src.data.models import PageSnapshot, Review
 
 console = Console()
 
-# Samsung uses BazaarVoice for reviews. This passkey is the public display key
-# embedded in Samsung.com's page source (not a secret - used only for read access).
-SAMSUNG_BV_PASSKEY = "caV4EnxNNNLxZIiJCfFxFsrIjIkfvAUqKGnMPsHjFuCGMQN5qIAEGnFAlLUWbRPQ"
 SAMSUNG_BV_PRODUCT_ID = "UN50U7900FFXZA"
-
-BV_API_BASE = "https://api.bazaarvoice.com/data/reviews.json"
 SAMSUNG_REVIEWS_API = "https://www.samsung.com/us/api/v2/review/product/{model_code}"
 
 
@@ -75,28 +69,6 @@ class SamsungReviewScraper:
         console.print(f"[green]Saved page snapshot: {html_path} ({len(html):,} bytes)")
         return snapshot
 
-    async def fetch_reviews_bv(
-        self,
-        product_id: str,
-        passkey: str,
-        limit: int = 100,
-        offset: int = 0,
-    ) -> dict:
-        """Fetch reviews from BazaarVoice API."""
-        params = {
-            "apiversion": "5.4",
-            "passkey": passkey,
-            "Filter": f"ProductId:{product_id}",
-            "Include": "Products",
-            "Stats": "Reviews",
-            "Limit": limit,
-            "Offset": offset,
-            "Sort": "SubmissionTime:desc",
-        }
-        response = await self.client.get(BV_API_BASE, params=params)
-        response.raise_for_status()
-        return response.json()
-
     async def fetch_reviews_bv_bfd(
         self,
         model_code: str,
@@ -105,10 +77,9 @@ class SamsungReviewScraper:
     ) -> list[dict]:
         """Fetch real reviews from BazaarVoice's current gateway (apps.bazaarvoice.com/bfd/...).
 
-        The classic passkey-based BV_API_BASE endpoint above is dead (expired passkey),
-        and this newer gateway returns 401 to plain HTTP requests even with identical
-        headers — it requires a real browser context (cookies/TLS fingerprint). Confirmed
-        working by sniffing the live page's own network requests and replaying the exact
+        This gateway returns 401 to plain HTTP requests even with identical headers —
+        it requires a real browser context (cookies/TLS fingerprint). Confirmed working
+        by sniffing the live page's own network requests and replaying the exact
         fetch() call from inside a Playwright-controlled page.
 
         max_reviews=None (default) paginates until BazaarVoice's own TotalResults is
@@ -222,7 +193,6 @@ class SamsungReviewScraper:
         self,
         model_code: str = SAMSUNG_BV_PRODUCT_ID,
         max_reviews: int = 500,
-        passkey: str = SAMSUNG_BV_PASSKEY,
     ) -> tuple[list[Review], list[Review]]:
         """Returns (reviews_to_analyze, all_reviews_fetched).
 
@@ -231,8 +201,8 @@ class SamsungReviewScraper:
         analyzed subset's rating distribution matches the true population
         (rather than being biased toward whatever order pagination returned).
         all_reviews_fetched is the complete set discovered during fetch (the raw
-        evidence to cache); for the legacy/sample fallback paths the two lists
-        are identical since those paths can't discover a larger population.
+        evidence to cache); for the fallback paths the two lists are identical
+        since those paths can't discover a larger population.
         """
         # Primary: BazaarVoice's current gateway, via a real browser context. Fetches
         # every real review (uncapped) — sampling down to max_reviews happens below.
@@ -248,62 +218,17 @@ class SamsungReviewScraper:
                         f"for analysis out of {len(all_reviews)} available"
                     )
                 return sampled, all_reviews
-            console.print("[yellow]BazaarVoice browser gateway returned no reviews, trying legacy API...")
+            console.print("[yellow]BazaarVoice browser gateway returned no reviews, trying Samsung's native API...")
         except Exception as e:
-            console.print(f"[yellow]BazaarVoice browser gateway failed ({e}), trying legacy API...")
+            console.print(f"[yellow]BazaarVoice browser gateway failed ({e}), trying Samsung's native API...")
 
-        reviews: list[Review] = []
-        offset = 0
-        batch = 100
-
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console,
-        ) as progress:
-            task = progress.add_task(
-                f"[cyan]Fetching Samsung reviews for {model_code}...", total=max_reviews
-            )
-
-            while len(reviews) < max_reviews:
-                try:
-                    data = await self.fetch_reviews_bv(
-                        product_id=model_code,
-                        passkey=passkey,
-                        limit=min(batch, max_reviews - len(reviews)),
-                        offset=offset,
-                    )
-                    results = data.get("Results", [])
-                    if not results:
-                        break
-
-                    for raw in results:
-                        reviews.append(self._parse_bv_review(raw, model_code))
-
-                    total_results = data.get("TotalResults", 0)
-                    progress.update(task, completed=len(reviews), total=min(max_reviews, total_results))
-
-                    if offset + batch >= total_results:
-                        break
-                    offset += batch
-                    await asyncio.sleep(0.5)  # polite delay
-
-                except httpx.HTTPStatusError as e:
-                    console.print(f"[yellow]BazaarVoice API error {e.response.status_code}, trying Samsung API...")
-                    break
-                except Exception as e:
-                    console.print(f"[red]Error fetching reviews: {e}")
-                    break
-
-        if not reviews:
-            # Fallback: try Samsung's own API
-            reviews = await self._fallback_samsung_api(model_code, max_reviews)
+        reviews = await self._fallback_samsung_api(model_code, max_reviews)
 
         if not reviews:
             console.print("[yellow]Live scraping unavailable. Loading from cache or using sample data.")
             reviews = await self._load_cached_or_sample(model_code)
 
-        # Legacy paths don't reveal the true population size beyond what they fetched.
+        # Fallback paths don't reveal the true population size beyond what they fetched.
         sampled = reviews[:max_reviews]
         return sampled, reviews
 

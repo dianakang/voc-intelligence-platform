@@ -39,18 +39,17 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    R1["BazaarVoice browser<br/>gateway (Playwright)"] -->|success| R6["Full population<br/>cached + sampled"]
-    R1 -->|fails or empty| R2["Legacy passkey API<br/>(expired - always fails)"]
-    R2 -->|fails| R3["Samsung internal<br/>review API (unconfirmed)"]
-    R3 -->|fails| R4{"reviews.json cached<br/>from a prior run?"}
-    R4 -->|yes| R6
-    R4 -->|no| R5["Generate synthetic<br/>sample reviews"]
-    R5 --> R6
+    R1["BazaarVoice browser<br/>gateway (Playwright)"] -->|success| R5["Full population<br/>cached + sampled"]
+    R1 -->|fails or empty| R2["Samsung internal<br/>review API (unconfirmed)"]
+    R2 -->|fails| R3{"reviews.json cached<br/>from a prior run?"}
+    R3 -->|yes| R5
+    R3 -->|no| R4["Generate synthetic<br/>sample reviews"]
+    R4 --> R5
 ```
 
-Only stage 1 is known to work today. Stage 2 (`fetch_reviews_bv`, the classic passkey-based `api.bazaarvoice.com` endpoint) is retained in code as a defensive fallback, but `SAMSUNG_BV_PASSKEY` is expired — BazaarVoice rejects it on every call, so this stage fails unconditionally and has never produced real data. Stage 3 (`fetch_reviews_samsung_api`, Samsung's own internal review endpoint) is a best-effort attempt against an undocumented API and is similarly unverified; it's cheap to try once 1 and 2 have failed, but isn't a confirmed working path.
+Only stage 1 is known to work today. Stage 2 (`fetch_reviews_samsung_api`, Samsung's own internal review endpoint) is a best-effort attempt against an undocumented API and is unverified; it's cheap to try once stage 1 has failed, but isn't a confirmed working path. (A classic passkey-based BazaarVoice REST endpoint used to sit between these two stages — it's gone now, since the passkey it relied on was expired and it could never actually succeed.)
 
-If stage 1 succeeds, the entire fetched population (e.g. ~2,700 reviews) is what gets cached and sampled. But regardless of *which* stage produces the final review list — including the stage-4/5 fallback — `collect_data` (`src/workflow/graph.py`) calls `scraper.save_raw()` unconditionally on whatever list it got back, overwriting `data/raw/{model_code}/reviews.json`. That means if every live source fails on a run where no prior cache existed, the synthetic sample data generated in stage 5 gets written to that same cache file — so a later run that also fails live will load that synthetic data back in stage 4 rather than regenerating it. Either way, a stratified-by-rating sample is then drawn from whatever was collected for the LLM analysis stage (`--max-reviews`, default 200).
+If stage 1 succeeds, the entire fetched population (e.g. ~2,700 reviews) is what gets cached and sampled. But regardless of *which* stage produces the final review list — including the stage-3/4 fallback — `collect_data` (`src/workflow/graph.py`) calls `scraper.save_raw()` unconditionally on whatever list it got back, overwriting `data/raw/{model_code}/reviews.json`. That means if every live source fails on a run where no prior cache existed, the synthetic sample data generated in stage 4 gets written to that same cache file — so a later run that also fails live will load that synthetic data back in stage 3 rather than regenerating it. Either way, a stratified-by-rating sample is then drawn from whatever was collected for the LLM analysis stage (`--max-reviews`, default 200). The default of 200 itself isn't derived from any formula — it's a fixed, arbitrary cap chosen as a cost/latency-vs-coverage tradeoff (more reviews means more LLM calls in the cleaning/taxonomy/analysis stages). *Which* 200 are picked is the deliberate part: `sample_reviews_stratified()` groups the full fetched population by exact star rating, takes a proportional, randomly-seeded slice from each rating group, then corrects any rounding drift — so the analyzed sample's rating distribution mirrors the true population instead of being skewed by fetch order or review-campaign clustering.
 
 The product spec is a merge, not a fallback chain: the assignment-provided spec PDF (`data/raw/{model_code}/spec.pdf`) is authoritative for static fields (display, audio, design, gaming, etc), since it doesn't change and is the literal source the assignment names. A live page scrape always also runs, contributing only the commerce-dynamic fields the PDF doesn't have (price, stock, delivery/pickup, account requirement). `spec_source` reflects what actually contributed: `pdf+live_scrape`, `pdf+cache` (scrape failed, used the last cached snapshot instead), or `pdf_only` (both failed). If the PDF file itself is missing, falls back to today's scrape-only behavior: live scrape → cached `spec.json` → hardcoded dict.
 
