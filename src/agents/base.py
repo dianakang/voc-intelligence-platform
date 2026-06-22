@@ -128,21 +128,28 @@ class BaseAgent:
 
     def call_json(self, user_message: str, max_tokens: int = 4096) -> Any:
         raw = self.call(user_message, max_tokens=max_tokens, json_mode=True).strip()
-        # Strip markdown fences
-        if raw.startswith("```"):
-            raw = raw[raw.find("\n") + 1:]
-            if "```" in raw:
-                raw = raw[: raw.rfind("```")]
-        parsed = json.loads(raw.strip())
-
-        # OpenAI's JSON mode requires a top-level object, so a prompt asking for a
-        # bare JSON array sometimes comes back wrapped as e.g. {"reviews": [...]}.
-        # Unwrap that so callers expecting a bare array still get one.
-        if isinstance(parsed, dict) and len(parsed) == 1:
-            only_value = next(iter(parsed.values()))
-            if isinstance(only_value, list):
-                return only_value
-        return parsed
+        return parse_json_response(raw)
 
     def log(self, message: str) -> None:
         console.print(f"[bold blue][{self.name}][/bold blue] {message}")
+
+
+def parse_json_response(raw: str) -> Any:
+    """Repair and parse an LLM's JSON-mode response. Shared by BaseAgent.call_json
+    and any standalone (non-agent) call to a JSON-mode model."""
+    raw = raw.strip()
+    # Strip markdown fences
+    if raw.startswith("```"):
+        raw = raw[raw.find("\n") + 1:]
+        if "```" in raw:
+            raw = raw[: raw.rfind("```")]
+    parsed = json.loads(raw.strip())
+
+    # OpenAI's JSON mode requires a top-level object, so a prompt asking for a
+    # bare JSON array sometimes comes back wrapped as e.g. {"reviews": [...]}.
+    # Unwrap that so callers expecting a bare array still get one.
+    if isinstance(parsed, dict) and len(parsed) == 1:
+        only_value = next(iter(parsed.values()))
+        if isinstance(only_value, list):
+            return only_value
+    return parsed

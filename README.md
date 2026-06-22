@@ -47,14 +47,17 @@ flowchart TD
 
 On success, the entire fetched set (e.g. ~2,700 reviews) is cached to disk, then a stratified-by-rating sample is drawn for analysis (`--max-reviews`, default 200).
 
-The product spec follows a shorter chain: live page scrape, falling back to the last cached `spec.json`, falling back to a hardcoded dict, only if each prior step fails.
+The product spec is a merge, not a fallback chain: the assignment-provided spec PDF (`data/raw/{model_code}/spec.pdf`) is authoritative for static fields (display, audio, design, gaming, etc), since it doesn't change and is the literal source the assignment names. A live page scrape always also runs, contributing only the commerce-dynamic fields the PDF doesn't have (price, stock, delivery/pickup, account requirement). `spec_source` reflects what actually contributed: `pdf+live_scrape`, `pdf+cache` (scrape failed, used the last cached snapshot instead), or `pdf_only` (both failed). If the PDF file itself is missing, falls back to today's scrape-only behavior: live scrape → cached `spec.json` → hardcoded dict.
+
+Competitor TV specs (`COMPETITOR_SPECS`, used by the competitive-positioning task) follow a separate, much simpler path: a hardcoded dict, optionally overridden per-competitor by a manually-triggered live fetch (`voc refresh-competitors`, see below) cached to `data/raw/competitors/{name}/spec.json`. This is never run automatically — hardware specs for an already-released TV don't change, so refetching on every pipeline run would only add cost, latency, and non-determinism for static data.
 
 ### Components
 
 | Path | Responsibility |
 |---|---|
 | `src/data/scraper.py` | Fetches reviews from BazaarVoice's current gateway via a Playwright-driven browser context |
-| `src/data/spec_extractor.py` | Live-scrapes the current Samsung product page and parses spec, account requirements, and delivery/pickup availability |
+| `src/data/spec_extractor.py` | Parses the assignment-provided spec PDF (authoritative for static fields), merges in live-scraped commerce data (price, stock, delivery, account requirement), and serves competitor specs |
+| `src/data/competitor_spec_fetcher.py` | Manual, out-of-band live competitor-spec fetch via a search-grounded OpenRouter call (`voc refresh-competitors`) |
 | `src/rag/` | Chunking, embedding, and retrieval (Qdrant preferred, Pinecone fallback) |
 | `src/agents/` | One agent per analysis task, see table below |
 | `src/workflow/graph.py` | LangGraph state machine that orchestrates the nodes above end to end |
@@ -66,7 +69,7 @@ The product spec follows a shorter chain: live page scrape, falling back to the 
 Notes on the components above:
 
 - **Scraper**: the classic passkey-based BazaarVoice API is dead, and the current gateway blocks plain HTTP, hence the Playwright browser context. Every run fetches and caches the entire real review population (e.g. ~2,700 reviews), then draws an analysis sample stratified by rating (`--max-reviews`, default 200) so the analyzed subset's sentiment mix matches the true population. Falls back to a legacy API attempt, then cached/sample data, only if the live fetch fails.
-- **Spec extractor**: saves a raw snapshot under `data/raw/{model_code}/` (`page.html`, `page_meta.json`, `spec.json`, `reviews.json`) on every run, so spec and reviews are always compared against one source of truth. Falls back to a cached snapshot, then a hardcoded dict, only if the live scrape fails.
+- **Spec extractor**: saves a raw snapshot under `data/raw/{model_code}/` (`page.html`, `page_meta.json`, `spec.json`, `reviews.json`, `spec.pdf`) on every run, so spec and reviews are always compared against one source of truth. The spec PDF and the live scrape are merged (not a fallback chain), see below.
 - **RAG**: includes a per-run retrieval cache to avoid duplicate embedding calls across agents.
 - **Workflow graph**: also implements the opt-in dev replay cache (`skip_if_cached`).
 - **Frontend**: cross-referenced sections (Paradox Reviews, Importance-Frequency Matrix, Expectation Gaps, CX Action Toolkit) link to each other's fix detail instead of repeating it.
@@ -145,7 +148,8 @@ OPENAI_API_KEY=...         # required for embeddings
 |---|---|
 | `voc run UN50U7900FFXZA --max-reviews 200 --json` | Run the full pipeline, write Markdown + JSON reports to `data/reports/` |
 | `voc run UN50U7900FFXZA --skip-if-cached` | Skip all LLM analysis and reload the last saved result if reviews/spec are unchanged since the last full run |
-| `voc spec UN50U7900FFXZA` | Show the live-scraped product spec |
+| `voc spec UN50U7900FFXZA` | Show the merged product spec (PDF + live scrape) and its `spec_source` |
+| `voc refresh-competitors` | Manually refresh competitor TV specs via a search-grounded OpenRouter call; review the printed sources before trusting it (requires `OPENROUTER_API_KEY`) |
 | `voc sample UN50U7900FFXZA -n 5` | Preview sample reviews |
 
 ### API server
@@ -191,6 +195,8 @@ Full reference in `.env.example`. Key settings:
 | `BATCH_SIZE` | Reviews per LLM call in cleaning/taxonomy batching, sized against a `max_tokens=4096` ceiling; re-check that budget before raising |
 | `ENABLE_RAG` | Toggle RAG retrieval |
 | `QDRANT_URL` / `PINECONE_API_KEY` | Vector DB choice (Qdrant preferred, Pinecone fallback) |
+| `OPENROUTER_API_KEY` | Required only for `voc refresh-competitors`; also usable as an Anthropic-compatible fallback if `ANTHROPIC_API_KEY` is unset |
+| `COMPETITOR_SEARCH_MODEL` | Model used by `voc refresh-competitors`, default `anthropic/claude-sonnet-4-6:online` (the `:online` suffix enables OpenRouter's web-search grounding on any model, billed at a premium) |
 
 Every agent call follows the same fallback, in either direction depending on which provider it prefers:
 

@@ -44,7 +44,7 @@ class ComplaintAnalysisAgent(BaseAgent):
         stock = product_spec.other.get("stock_status")
         if not (account or delivery or stock):
             return ""
-        lines = ["\nPRODUCT PAGE FACTS (from the live product page, source: " + product_spec.spec_source + "):"]
+        lines = ["\nPRODUCT PAGE FACTS (verified product data, source: " + product_spec.spec_source + "):"]
         if account:
             lines.append(f"- Account requirement: {account}")
         if stock:

@@ -1,0 +1,46 @@
+{
+  "model": "TCL 55Q650G",
+  "price_usd": 369.99,
+  "display_type": "Direct LED with Quantum Dots (QLED)",
+  "panel": "VA",
+  "refresh_rate": "60Hz native (Motion Rate 240 with MEMC)",
+  "local_dimming": "None",
+  "hdr": [
+    "Dolby Vision",
+    "HDR10+",
+    "HDR10",
+    "HLG"
+  ],
+  "audio_power": "10W + 10W",
+  "dolby_atmos": true,
+  "os": "Google TV",
+  "hdmi": "3x HDMI 2.0 (1x eARC)",
+  "vrr": "Yes, up to 120Hz VRR (AMD FreeSync, resolution drops to 3840x1080 at 120Hz)",
+  "gaming_input_lag": "N/A",
+  "wifi": "Dual-Band 802.11ac (Wi-Fi 5)",
+  "strengths": [
+    "QLED Quantum Dot color with wide DCI-P3 color gamut (~93%)",
+    "Supports all major HDR formats including Dolby Vision and HDR10+",
+    "Google TV smart OS with Google Assistant and Chromecast built-in",
+    "AMD FreeSync and ALLM for gaming",
+    "Dolby Atmos audio support",
+    "Adjustable-width stand design",
+    "Apple AirPlay and HomeKit support",
+    "Relatively affordable price point"
+  ],
+  "weaknesses": [
+    "No local dimming zones, limiting contrast control",
+    "Native 60Hz panel (not true 4K@120Hz gaming)",
+    "VRR at 120Hz requires resolution drop to 1080p",
+    "Only 3 HDMI inputs vs 4 on many competitors",
+    "Limited HDR highlight brightness (~457 nits)",
+    "No HDMI 2.1"
+  ],
+  "sources": [
+    "https://www.tcl.com/ca/en/products/home-theater/q6-class/55-class-4k-qled-hdr-google-tv-55q650g-ca",
+    "https://www.bestbuy.com/site/tcl-55-class-q6-q-class-4k-qled-hdr-smart-tv-with-google-tv/6538125.p?skuId=6538125",
+    "https://www.pcvarge.com/tcl-55q650g-tv-review/",
+    "https://www.consumerreports.org/electronics-computers/tvs/tcl-55q650g/m410182/"
+  ],
+  "fetched_at": "2026-06-22T19:17:18.074202+00:00"
+}

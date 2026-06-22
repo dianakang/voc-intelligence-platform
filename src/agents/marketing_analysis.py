@@ -25,11 +25,11 @@ FALLBACK_MESSAGING = """Samsung Crystal UHD U7900F current marketing messages:
 
 
 def _build_current_messaging(product_spec: Optional[ProductSpec]) -> str:
-    """Build the 'current marketing messages' block from the live-scraped PDP, not a hand-typed guess."""
+    """Build the 'current marketing messages' block from verified product data, not a hand-typed guess."""
     if not product_spec or not (product_spec.spec_highlights or product_spec.other.get("marketing_highlights")):
         return FALLBACK_MESSAGING
 
-    lines = [f"{product_spec.product_name} current marketing messages (scraped from the live product page):"]
+    lines = [f"{product_spec.product_name} current marketing messages (source: {product_spec.spec_source}):"]
     for h in product_spec.other.get("marketing_highlights", []) or product_spec.spec_highlights:
         lines.append(f'- "{h}"')
     price = product_spec.other.get("price_usd")

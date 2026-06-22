@@ -4,7 +4,7 @@ from __future__ import annotations
 from src.agents.base import BaseAgent
 from src.config import settings
 from src.data.models import CompetitorData, PositioningAnalysis, PositioningAttribute, Review, VOCAnalysisResult
-from src.data.spec_extractor import COMPETITOR_SPECS, SAMSUNG_U7900F_SPEC
+from src.data.spec_extractor import SAMSUNG_U7900F_SPEC, get_competitor_specs
 from src.rag.retriever import ReviewRetriever
 
 SYSTEM_PROMPT = """You are a competitive intelligence analyst for an internal Marketing, Product
@@ -33,6 +33,19 @@ actually consume:
 Return structured JSON only."""
 
 
+def _describe_competitor(spec: dict) -> str:
+    """Render a competitor's spec dict (hardcoded fallback or live-fetched, same
+    shape either way — see CompetitorSpec) into the prompt's one-line summary."""
+    hdr = ", ".join(spec.get("hdr", [])) or "N/A"
+    atmos = "Dolby Atmos" if spec.get("dolby_atmos") else "no Dolby Atmos"
+    panel = spec.get("panel") or spec.get("display_type", "N/A")
+    return (
+        f"${spec.get('price_usd', 'N/A')}, {panel} panel, {spec.get('os', 'N/A')}, "
+        f"HDR: {hdr}, {atmos}, VRR: {spec.get('vrr', 'N/A')}, "
+        f"input lag {spec.get('gaming_input_lag', 'N/A')}, {spec.get('wifi', 'N/A')}"
+    )
+
+
 class CompetitivePositioningAgent(BaseAgent):
     def __init__(self):
         super().__init__(
@@ -59,7 +72,7 @@ class CompetitivePositioningAgent(BaseAgent):
         context = retriever.format_for_context(pool, max_chars=5000)
 
         samsung_spec = SAMSUNG_U7900F_SPEC
-        comp_specs = COMPETITOR_SPECS
+        comp_specs = get_competitor_specs()  # live-fetched data if `voc refresh-competitors` has run, else hardcoded
 
         complaints_summary = "\n".join(
             f"- {c.category} ({c.frequency_pct:.0f}% of negative reviews, issue_type={c.issue_type}): {c.root_cause}"
@@ -82,9 +95,7 @@ SAMSUNG PRODUCT SPECS:
 - WiFi: {samsung_spec['connectivity']['wifi']}
 
 COMPETITOR OVERVIEW:
-TCL Q6: ${comp_specs['TCL Q6']['price_usd']}, QLED, Google TV, Dolby Vision+Atmos, Full Array LD, WiFi 6
-Hisense A7: ${comp_specs['Hisense A7']['price_usd']}, ULED, Dolby Vision+Atmos, VIDAA OS
-LG UT70: ${comp_specs['LG UT70']['price_usd']}, IPS panel, webOS, ~9ms input lag, FreeSync
+{chr(10).join(f"{name}: {_describe_competitor(spec)}" for name, spec in comp_specs.items())}
 
 SAMSUNG CUSTOMER STRENGTHS (real mention/sentiment numbers from VOC pipeline — use these, don't invent new ones):
 {strengths_summary}

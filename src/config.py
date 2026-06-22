@@ -41,6 +41,12 @@ class Settings(BaseSettings):
     model_opus: str = Field(default="claude-opus-4-8")
     embedding_model: str = Field(default="text-embedding-3-large")
 
+    # Used only by `voc refresh-competitors` (src/data/competitor_spec_fetcher.py),
+    # routed through OpenRouter directly (not via BaseAgent). The `:online` suffix
+    # enables OpenRouter's web-search grounding on any model and is billed at a
+    # premium by OpenRouter relative to a normal completion.
+    competitor_search_model: str = Field(default="anthropic/claude-sonnet-4-6:online")
+
     # OpenAI equivalents, used as an automatic cross-provider fallback when the
     # primary provider's call fails (credit exhaustion, outage, rate limit) —
     # and vice versa, for any agent configured with provider="openai" as primary.
@@ -74,6 +80,11 @@ class Settings(BaseSettings):
         p = self.raw_data_path / model_code
         p.mkdir(parents=True, exist_ok=True)
         return p
+
+    @property
+    def samsung_spec_pdf_path(self) -> Path:
+        """Assignment-provided spec PDF, authoritative for static spec fields (see get_samsung_spec)."""
+        return self.raw_product_dir(self.samsung_model_code) / "spec.pdf"
 
     @property
     def processed_data_path(self) -> Path:

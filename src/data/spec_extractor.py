@@ -1,10 +1,12 @@
-"""Extract product specifications by live-scraping the Samsung product page.
+"""Extract product specifications from the assignment-provided spec PDF,
+merged with a live scrape of the Samsung product page.
 
-The product page itself fetches its full spec table from a JSON API
-(`bridge-data`) after the initial page load; we call that same API directly
-instead of rendering the page in a browser. Priority order for grounding
-data: live scrape (__NEXT_DATA__ + spec API) -> cached snapshot -> hardcoded
-fallback dict below (used only if both the network and the cache fail).
+The PDF (parsed by parse_u7900f_spec_pdf) is authoritative for static spec
+fields (display/audio/design/gaming/etc) since it's the assignment's source
+of truth and doesn't change. It has no price/stock/delivery/account data, so
+a live scrape always also runs and contributes only those commerce-dynamic
+fields on top of the PDF data. If the PDF file is missing, falls back to
+live-scrape-only -> cached snapshot -> hardcoded dict below.
 """
 from __future__ import annotations
 
@@ -391,45 +393,317 @@ async def fetch_spec_from_web(model_code: str, url: Optional[str] = None) -> Pro
     return ProductSpec(**spec_dict)
 
 
-def load_spec_from_pdf(pdf_path: Path) -> dict:
-    """Extract spec data from a product PDF."""
-    try:
-        import fitz  # pymupdf
+# U7900F spec-PDF label -> ProductSpec category dict. Tailored to this exact
+# document; anything not listed here is dropped (not folded into "other") since
+# an unrecognized label here is more likely a parsing artifact than real data.
+PDF_LABEL_TO_FIELD: dict[str, str] = {
+    # PICTURE (PROCESSING)
+    "Processor": "display", "Upscaling": "resolution",
+    "Variable Refresh Rate (VRR)": "display", "Motion Handling": "display",
+    "Contrast Enhancer": "display", "Object Motion Enhancing": "display", "Color": "display",
+    "HDR (High Dynamic Range)": "hdr", "HDR10+": "hdr", "Auto HDR Remastering": "hdr",
+    "Adaptive Picture": "hdr", "Supersize Picture Enhancer": "hdr",
+    # PICTURE (PANEL)
+    "Display Type": "display", "Refresh Rate": "display", "Lighting Technology": "display",
+    "Display Resolution": "resolution", "Anti Reflection": "display",
+    "Viewing Angle": "display", "Dimming Technology": "display",
+    # TV ART FEATURES
+    "Art Mode": "other", "Art Store": "other",
+    # SECURITY
+    "Knox Vault": "other", "Knox Security": "other",
+    # SMART TV FEATURES
+    "Operating System": "smart_tv", "AI TV": "smart_tv", "Free Ad Supported TV": "smart_tv",
+    "Smart Home Connectivity": "smart_tv", "Smart Assistants (Built-In)": "smart_tv",
+    "Smart Assistants (Works with)": "smart_tv", "Far-Field Voice Interactions": "smart_tv",
+    "Web Browser": "smart_tv", "SmartThings Hub": "smart_tv", "Samsung Health": "smart_tv",
+    "Multi Device Experience": "smart_tv", "Multi-View": "smart_tv", "Ambient Mode": "smart_tv",
+    "Buds Auto Switch": "smart_tv", "Works with Apple Airplay": "smart_tv",
+    "Works with Google Cast": "smart_tv", "Daily+": "smart_tv", "Daily Board": "smart_tv",
+    "Workout Tracker": "smart_tv", "Karaoke Mic": "smart_tv", "Multi-Control": "smart_tv",
+    "ConnecTime": "smart_tv", "Screen Vitals": "smart_tv", "Storage Share": "smart_tv",
+    # AUDIO
+    "Speaker Type": "audio", "Output Power": "audio", "Dolby Atmos": "audio",
+    "Object Tracking Sound (OTS)": "audio", "Q-Symphony": "audio",
+    "Active Voice Amplifier (AVA)": "audio", "Adaptive Sound": "audio",
+    "Bluetooth Audio": "audio", "360 Audio": "audio",
+    # CONNECTIVITY
+    "Wi-Fi": "connectivity", "Bluetooth": "connectivity", "One Connect Box": "connectivity",
+    "HDMI Input": "connectivity", "HDMI Maximum Input Rate": "connectivity",
+    "HDMI Audio Return Channel": "connectivity", "HDMI-CEC": "connectivity",
+    "USB Ports": "connectivity", "Ethernet (LAN)": "connectivity",
+    "Digital Audio Out (Optical)": "connectivity", "RF Connection": "connectivity",
+    "RS-232C Input": "connectivity",
+    # DESIGN
+    "TV Design": "design", "Bezel Type": "design", "Front Color": "design",
+    "Stand Type": "design", "Stand Color": "design", "Adjustable Stand": "design",
+    # SAMSUNG VISION AI
+    "Live Translate": "other", "Click to Search": "other", "Generative Wallpaper": "other",
+    "Pet & Family Care": "other", "Home Insight": "other",
+    "Universal Gestures/Quick Control": "other",
+    # GAMING
+    "Gaming Hub": "gaming", "Cloud Gaming": "gaming", "AI Auto Game Mode": "gaming",
+    "ALLM (Auto Low Latency Mode)": "gaming", "Game Motion Plus": "gaming",
+    "Super Ultra Wide Game View": "gaming", "Game Bar": "gaming", "Mini Map Zoom": "gaming",
+    "VRR Standard": "gaming", "HGiG": "gaming", "Hue Sync": "gaming",
+    # POWER
+    "Power Supply (V)": "energy", "Standby Power Consumption (W)": "energy",
+    "Typical Power Consumption (W)": "energy", "Max Power Consumption (W)": "energy",
+    # INCLUDED ACCESSORIES
+    "Remote Control": "other", "Power Cable": "other",
+}
 
-        doc = fitz.open(str(pdf_path))
-        text = ""
-        for page in doc:
-            text += page.get_text()
-        return {"raw_text": text}
-    except Exception as e:
-        console.print(f"[yellow]PDF extraction failed: {e}")
-        return {}
+# All-caps lines that are section headers, not "Label: Value" data. The PDF's
+# multi-column layout means PyMuPDF extracts these out of order relative to
+# their items (sometimes trailing, sometimes leading, sometimes neither), so
+# headers are only used to reset continuation-line tracking, not to group items.
+PDF_SECTION_HEADERS = {
+    "PICTURE (PANEL)", "PICTURE (PROCESSING)", "AUDIO", "DESIGN", "CONNECTIVITY",
+    "SAMSUNG VISION AI", "TV ART FEATURES", "SMART TV FEATURES1", "SMART TV FEATURES",
+    "GAMING", "SECURITY", "POWER", "INCLUDED ACCESSORIES", "CLASS HIERARCHY",
+    "SIZE CLASS", "TOP  10 KEY FEATURES", "MODELS",
+}
+
+_FOOTNOTE_SUFFIX_RE = re.compile(r"(?<=[a-zA-Z\)%])\d+$")
+_LABEL_VALUE_RE = re.compile(r"^([A-Za-z0-9][\w \(\)/.,+'’&-]*):\s*(.*)$")
+_FEATURE_LINE_RE = re.compile(r"^\d+\.\s*(.+)$")
+_SIZE_VALUE_RE = re.compile(r'^(\d+)[”"]?:\s*(.+)$')
+
+
+def _strip_footnote(text: str) -> str:
+    """Drop a trailing footnote-reference digit, e.g. 'Samsung TV Plus1' -> 'Samsung TV Plus'."""
+    return _FOOTNOTE_SUFFIX_RE.sub("", text).strip()
+
+
+def parse_u7900f_spec_pdf(pdf_path: Path) -> dict:
+    """Parse the assignment-provided U7900F spec PDF into a ProductSpec-shaped dict.
+
+    Tailored to this exact document, not a generic PDF-spec parser (single
+    product/PDF, per the assignment's stated scope). Labels are matched
+    individually via PDF_LABEL_TO_FIELD rather than grouped by their section
+    header, since the header-to-item association breaks under this PDF's
+    multi-column layout once PyMuPDF flattens it to plain text.
+    """
+    import fitz  # pymupdf
+
+    doc = fitz.open(str(pdf_path))
+    page1_lines = [ln.strip() for ln in doc[0].get_text().split("\n") if ln.strip()]
+    page2_text = doc[1].get_text() if doc.page_count > 1 else ""
+    warranty_links = {
+        m.group(1).upper(): link["uri"]
+        for page in doc
+        for link in page.get_links()
+        if link.get("uri") and (m := re.search(r"modelCode=([A-Z0-9]+)", link["uri"], re.I))
+    }
+    doc.close()
+
+    categories: dict[str, dict] = {
+        "display": {}, "resolution": {}, "hdr": {}, "smart_tv": {}, "gaming": {},
+        "audio": {}, "connectivity": {}, "design": {}, "energy": {}, "other": {},
+    }
+    spec_highlights: list[str] = []
+
+    i = 0
+    in_features = False
+    last_label, last_field = None, None
+    while i < len(page1_lines):
+        line = page1_lines[i]
+
+        if line == "TOP  10 KEY FEATURES":
+            in_features = True
+            i += 1
+            continue
+        if in_features:
+            m = _FEATURE_LINE_RE.match(line)
+            if m:
+                spec_highlights.append(_strip_footnote(m.group(1)))
+                i += 1
+                continue
+            in_features = False  # fall through and re-process this line normally
+
+        if line in PDF_SECTION_HEADERS:
+            last_label = None
+            i += 1
+            continue
+
+        m = _LABEL_VALUE_RE.match(line)
+        if m:
+            label, value = _strip_footnote(m.group(1)), _strip_footnote(m.group(2))
+            field = PDF_LABEL_TO_FIELD.get(label)
+            if field is None:
+                last_label = None
+                i += 1
+                continue
+            if not value:
+                # Multi-line per-size value, e.g. "Typical Power Consumption (W):"
+                # followed by "55<quote>: 97W" / "50<quote>: 89W".
+                parts, j = [], i + 1
+                while j < len(page1_lines):
+                    sm = _SIZE_VALUE_RE.match(page1_lines[j])
+                    if not sm:
+                        break
+                    parts.append(f'{sm.group(1)}": {sm.group(2)}')
+                    j += 1
+                if parts:
+                    categories[field][label] = ", ".join(parts)
+                    i, last_label = j, None
+                    continue
+            categories[field][label] = value
+            last_label, last_field = label, field
+            i += 1
+            continue
+
+        # Continuation of the previous label's value (line-wrapped, no own colon)
+        if last_label and last_field:
+            categories[last_field][last_label] = f"{categories[last_field][last_label]} {line}".strip()
+        i += 1
+
+    # MODELS page: 50" is this pipeline's target model; the 55" block only
+    # contributes a cheap "also available in" note (see Section 9(d) of the plan).
+    sizes: dict[str, dict] = {}
+    for block in re.split(r"(?=MODEL: UN\d+U7900F\b)", page2_text):
+        order_m = re.search(r"ORDER CODE:\s*(\S+)", block)
+        if not order_m:
+            continue
+        order_code = order_m.group(1).strip()
+        size_m = re.search(r"SCREEN SIZE CLASS:\s*(\d+)", block)
+        upc_m = re.search(r"UPC CODE:\s*(\S+)", block)
+        weight_m = re.search(r"TV WITH STAND:\s*([\d.]+)", block)
+        dims_m = re.search(r"TV WITHOUT STAND:\s*([\d.]+ X [\d.]+ X [\d.]+)", block)
+        vesa_m = re.search(r"VESA SUPPORT:\s*(.+)", block)
+        sizes[order_code] = {
+            "screen_size": f'{size_m.group(1)}"' if size_m else "",
+            "upc_code": upc_m.group(1) if upc_m else "",
+            "weight_with_stand_lb": weight_m.group(1) if weight_m else "",
+            "dimensions_without_stand_in": dims_m.group(1) if dims_m else "",
+            "vesa_support": vesa_m.group(1).strip() if vesa_m else "",
+            "warranty_url": warranty_links.get(order_code.upper(), ""),
+        }
+
+    target = sizes.get("UN50U7900FFXZA", {})
+    other_model = next((code for code in sizes if code != "UN50U7900FFXZA"), None)
+
+    if target.get("upc_code"):
+        categories["other"]["UPC Code"] = target["upc_code"]
+    if target.get("weight_with_stand_lb"):
+        categories["other"]["Weight (TV with Stand, lb)"] = target["weight_with_stand_lb"]
+    if target.get("dimensions_without_stand_in"):
+        categories["other"]["Dimensions without Stand (W x H x D, in)"] = target["dimensions_without_stand_in"]
+    if target.get("vesa_support"):
+        categories["design"]["VESA Support"] = target["vesa_support"]
+    if target.get("warranty_url"):
+        categories["other"]["Warranty"] = target["warranty_url"]
+    if other_model and sizes[other_model].get("screen_size"):
+        categories["other"]["available_sizes"] = (
+            f'Also available in {sizes[other_model]["screen_size"]} ({other_model}); '
+            "identical spec except dimensions/weight/UPC"
+        )
+
+    raw_groups = [
+        SpecGroup(group_name=field, items=items).model_dump()
+        for field, items in categories.items() if items
+    ]
+
+    return {
+        "product_name": '50" Class Crystal UHD U7900F 4K Smart TV',
+        "model": "UN50U7900FFXZA",
+        "category": "TV",
+        "screen_size": '50"',
+        "series": "U7900F Crystal UHD",
+        **categories,
+        "raw_spec_groups": raw_groups,
+        "spec_highlights": spec_highlights,
+        "spec_source": "pdf",
+    }
+
+
+# Commerce-dynamic fields the PDF never has (it's a static spec sheet); these
+# only ever come from a live scrape or its cached snapshot, and get merged
+# on top of the PDF-derived dict without touching its static spec fields.
+_COMMERCE_OTHER_KEYS = ("price_usd", "msrp_usd", "stock_status", "delivery_availability")
 
 
 def get_samsung_spec(model_code: str) -> ProductSpec:
-    """Live-scrape the current product page for spec data; fall back to the
-    last cached snapshot, then to the hardcoded dict, only if scraping fails."""
+    """Build the product spec from the assignment-provided PDF (authoritative
+    for static spec fields) merged with a live scrape or cached snapshot
+    (the only source for commerce-dynamic fields: price, stock, delivery,
+    account requirement). Falls back to live-scrape-only, then hardcoded,
+    if the PDF file isn't present."""
     spec_path = settings.raw_product_dir(model_code) / "spec.json"
+    pdf_path = settings.samsung_spec_pdf_path
 
+    pdf_dict: Optional[dict] = None
+    if pdf_path.exists():
+        try:
+            pdf_dict = parse_u7900f_spec_pdf(pdf_path)
+            console.print(f"[green]Parsed spec PDF for {model_code} ({pdf_path.name})")
+        except Exception as e:
+            console.print(f"[yellow]PDF spec parse failed ({e}); falling back to live-scrape-only behavior")
+
+    commerce: Optional[dict] = None
+    commerce_source = None
     try:
-        spec = asyncio.run(fetch_spec_from_web(model_code))
-        spec_path.write_text(json.dumps(spec.model_dump(), indent=2, default=str), encoding="utf-8")
-        console.print(f"[green]Live-scraped spec for {model_code} (source: live_scrape)")
-        return spec
+        live_spec = asyncio.run(fetch_spec_from_web(model_code))
+        spec_path.write_text(json.dumps(live_spec.model_dump(), indent=2, default=str), encoding="utf-8")
+        commerce = live_spec.model_dump()
+        commerce_source = "live_scrape"
     except Exception as e:
-        console.print(f"[yellow]Live spec scrape failed ({e}); falling back to cache/hardcoded data")
+        console.print(f"[yellow]Live spec scrape failed ({e}); falling back to cache for commerce fields")
+        if spec_path.exists():
+            with open(spec_path) as f:
+                commerce = json.load(f)
+            commerce_source = "cache"
 
-    if spec_path.exists():
-        with open(spec_path) as f:
-            data = json.load(f)
-        data["spec_source"] = "cache"
-        console.print(f"[yellow]Using cached spec for {model_code} (source: cache)")
-        return ProductSpec(**data)
+    if pdf_dict is not None:
+        if commerce is not None:
+            for key in _COMMERCE_OTHER_KEYS:
+                if commerce.get("other", {}).get(key) is not None:
+                    pdf_dict["other"][key] = commerce["other"][key]
+            account_req = commerce.get("smart_tv", {}).get("account_requirement")
+            if account_req:
+                pdf_dict["smart_tv"]["account_requirement"] = account_req
+            pdf_dict["spec_source"] = f"pdf+{commerce_source}"
+        else:
+            pdf_dict["spec_source"] = "pdf_only"
+        return ProductSpec(**pdf_dict)
 
-    console.print(f"[red]No live or cached spec available for {model_code}; using hardcoded fallback")
+    if commerce is not None:
+        commerce["spec_source"] = commerce_source
+        return ProductSpec(**commerce)
+
+    console.print(f"[red]No PDF, live, or cached spec available for {model_code}; using hardcoded fallback")
     spec_data = {**SAMSUNG_U7900F_SPEC, "spec_source": "hardcoded_fallback"}
     return ProductSpec(**spec_data)
 
 
+_COMPETITOR_STALENESS_DAYS = 90
+
+
+def _safe_competitor_name(name: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
+
+
 def get_competitor_specs() -> dict[str, dict]:
-    return COMPETITOR_SPECS
+    """Per competitor, prefer a live-fetched cache (data/raw/competitors/{name}/spec.json,
+    written by `voc refresh-competitors`) over the hardcoded COMPETITOR_SPECS fallback."""
+    from datetime import datetime, timezone
+
+    result: dict[str, dict] = {}
+    for name, fallback in COMPETITOR_SPECS.items():
+        cache_path = settings.raw_data_path / "competitors" / _safe_competitor_name(name) / "spec.json"
+        if cache_path.exists():
+            try:
+                data = json.loads(cache_path.read_text(encoding="utf-8"))
+                fetched_at = data.get("fetched_at")
+                if fetched_at:
+                    age_days = (datetime.now(timezone.utc) - datetime.fromisoformat(fetched_at)).days
+                    if age_days > _COMPETITOR_STALENESS_DAYS:
+                        console.print(
+                            f"[yellow]Cached competitor spec for {name} is {age_days} days old; "
+                            f"consider running `voc refresh-competitors`"
+                        )
+                result[name] = data
+                continue
+            except (json.JSONDecodeError, ValueError) as e:
+                console.print(f"[yellow]Failed to read cached competitor spec for {name} ({e}); using fallback")
+        result[name] = fallback
+    return result

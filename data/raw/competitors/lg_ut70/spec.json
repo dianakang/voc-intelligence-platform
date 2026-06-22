@@ -1,0 +1,44 @@
+{
+  "model": "LG 50UT7050PSA",
+  "price_usd": 349.0,
+  "display_type": "LED-LCD (Direct Lit)",
+  "panel": "VA",
+  "refresh_rate": "60Hz native",
+  "local_dimming": "No",
+  "hdr": [
+    "HDR10",
+    "HLG"
+  ],
+  "audio_power": "20W (2.0 channel)",
+  "dolby_atmos": false,
+  "os": "webOS 24",
+  "hdmi": "3x HDMI (with eARC on HDMI 2, ALLM supported)",
+  "vrr": "No",
+  "gaming_input_lag": "N/A",
+  "wifi": "Wi-Fi 5",
+  "strengths": [
+    "4K UHD resolution",
+    "Solid webOS smart platform with wide app support",
+    "Filmmaker Mode",
+    "Game Optimizer with Game Dashboard",
+    "AI Sound Virtual 5.1 Up-Mix",
+    "webOS Re:New program ensures software updates until 2029",
+    "Good viewing angles for an LED-LCD",
+    "Affordable price point"
+  ],
+  "weaknesses": [
+    "No local dimming, limiting HDR impact",
+    "60Hz panel with no VRR support",
+    "Older \u03b15 AI Processor Gen7 (not the latest)",
+    "Basic 2.0 speaker system, no Dolby Atmos",
+    "Not as bright as competing LED TVs",
+    "No Dolby Vision HDR support"
+  ],
+  "sources": [
+    "https://www.bestbuy.com/site/questions/lg-43-class-ut70-series-led-4k-uhd-smart-webos-tv-2024/6593577/question/f37b90a9-7141-3422-82f1-38d6ce22c3b4",
+    "https://www.digitaltrends.com/home-theater/best-4k-tvs-under-500/",
+    "https://www.slashgear.com/2001392/best-worst-lg-tvs-consumer-reports/",
+    "https://fullspecs.net/smart-tv/lg/50ut7000pua-specifications/"
+  ],
+  "fetched_at": "2026-06-22T19:17:59.451469+00:00"
+}

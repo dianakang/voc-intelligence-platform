@@ -66,6 +66,32 @@ class SpecGroup(BaseModel):
     items: dict[str, str] = Field(default_factory=dict)
 
 
+class CompetitorSpec(BaseModel):
+    """Schema for both the hardcoded COMPETITOR_SPECS fallback and a live,
+    search-grounded fetch (see src/data/competitor_spec_fetcher.py) — kept as
+    a single source of truth so the prompt, the LLM-response validator, and
+    the on-disk cache file all agree on the same shape."""
+
+    model: str
+    price_usd: float
+    display_type: str
+    panel: str
+    refresh_rate: str
+    local_dimming: str
+    hdr: list[str] = Field(default_factory=list)
+    audio_power: str
+    dolby_atmos: bool
+    os: str
+    hdmi: str
+    vrr: str
+    gaming_input_lag: str
+    wifi: str
+    strengths: list[str] = Field(default_factory=list)
+    weaknesses: list[str] = Field(default_factory=list)
+    sources: list[str] = Field(default_factory=list)
+    fetched_at: str = ""
+
+
 class ProductSpec(BaseModel):
     product_name: str
     model: str
@@ -83,11 +109,12 @@ class ProductSpec(BaseModel):
     energy: dict = Field(default_factory=dict)
     other: dict = Field(default_factory=dict)
 
-    # Full-fidelity data straight from the live product page, for grounding
+    # Full-fidelity data straight from the spec source(s) below, for grounding
     # LLM prompts without lossy remapping into the category dicts above.
     raw_spec_groups: list[SpecGroup] = Field(default_factory=list)
     spec_highlights: list[str] = Field(default_factory=list)
-    spec_source: str = "hardcoded_fallback"  # "live_scrape" | "cache" | "hardcoded_fallback"
+    # "pdf+live_scrape" | "pdf+cache" | "pdf_only" | "live_scrape" | "cache" | "hardcoded_fallback"
+    spec_source: str = "hardcoded_fallback"
 
 
 class PageSnapshot(BaseModel):

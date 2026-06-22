@@ -148,6 +148,40 @@ def spec(
     console.print(t)
 
 
+@app.command(name="refresh-competitors")
+def refresh_competitors():
+    """Manually refresh competitor TV specs via a search-grounded OpenRouter call.
+
+    Not run automatically by `voc run` — competitor hardware specs don't change
+    once a model ships, so this is a manual, human-reviewed step. Review the
+    sources/fields printed below before trusting the result."""
+    if not settings.openrouter_api_key:
+        rprint("[red]OPENROUTER_API_KEY is not set. Set it in .env to use this command.[/red]")
+        raise typer.Exit(code=1)
+
+    from src.data.competitor_spec_fetcher import refresh_all_competitors
+
+    results = refresh_all_competitors()
+
+    t = Table(title="Competitor spec refresh")
+    t.add_column("Competitor")
+    t.add_column("Status")
+    t.add_column("Price")
+    t.add_column("OS")
+    t.add_column("Sources")
+    for name, r in results.items():
+        if r["ok"]:
+            spec = r["spec"]
+            t.add_row(name, "[green]OK[/green]", f"${spec.price_usd}", spec.os, str(len(spec.sources)))
+        else:
+            t.add_row(name, "[red]FAILED[/red]", "-", "-", r["error"][:60])
+    console.print(t)
+
+    failed = [name for name, r in results.items() if not r["ok"]]
+    if failed:
+        rprint(f"[yellow]Kept the existing hardcoded entry for: {', '.join(failed)}[/yellow]")
+
+
 @app.command()
 def sample(
     model_code: str = typer.Argument("UN50U7900FFXZA"),
