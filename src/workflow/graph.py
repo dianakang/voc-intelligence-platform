@@ -77,6 +77,7 @@ def collect_data(state: VOCWorkflowState) -> dict:
     return {
         **update,
         "reviews": reviews,
+        "all_reviews": all_reviews,
         "total_reviews_available": total_reviews_available,
         "product_spec": spec,
         "competitor_specs": competitor_specs,
@@ -231,40 +232,45 @@ def run_parallel_analysis(state: VOCWorkflowState) -> dict:
     result = comp_agent.analyze(reviews, retriever, result)
     _tick("CompetitivePositioningAgent", "Competitive positioning complete", 76)
 
-    # Task 7: Contradictions
+    # Task 7: Contradictions — scan the FULL fetched population (not just the analyzed sample),
+    # since genuine rating/text mismatches are rare and a stratified sample can miss them entirely.
+    # The heuristic pre-filter is free; only flagged candidates ever reach the LLM, so cost stays
+    # bounded regardless of population size.
     agent_statuses["ContradictionAgent"] = "running"
     push_progress(agent_statuses=dict(agent_statuses), current_step="Contradiction detection", progress_pct=77)
     contra_agent = ContradictionAnalysisAgent()
-    result = contra_agent.analyze(reviews, retriever, result)
+    full_population = state.get("all_reviews") or reviews
+    result = contra_agent.analyze(full_population, retriever, result)
     _tick("ContradictionAgent", "Contradiction detection complete", 80)
 
-    # Task 8: Importance
-    agent_statuses["ImportanceAnalysisAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="Importance matrix", progress_pct=81)
-    importance_agent = ImportanceAnalysisAgent()
-    result = importance_agent.analyze(reviews, retriever, result)
-    _tick("ImportanceAnalysisAgent", "Importance matrix complete", 83)
-
-    # Task 9 (핵심): Expectation Gap
+    # Task 8: Expectation Gap
     agent_statuses["ExpectationGapAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="Expectation gap analysis", progress_pct=84)
+    push_progress(agent_statuses=dict(agent_statuses), current_step="Expectation gap analysis", progress_pct=81)
     gap_agent = ExpectationGapAgent()
     result = gap_agent.analyze(reviews, retriever, result)
-    _tick("ExpectationGapAgent", "Expectation gap analysis complete", 85)
+    _tick("ExpectationGapAgent", "Expectation gap analysis complete", 82)
 
-    # Task 10: Segment divergence
+    # Task 9: Segment divergence
     agent_statuses["SegmentDivergenceAnalysisAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="Segment divergence analysis", progress_pct=86)
+    push_progress(agent_statuses=dict(agent_statuses), current_step="Segment divergence analysis", progress_pct=83)
     segment_agent = SegmentDivergenceAnalysisAgent()
     result = segment_agent.analyze(reviews, retriever, result)
-    _tick("SegmentDivergenceAnalysisAgent", "Segment divergence analysis complete", 87)
+    _tick("SegmentDivergenceAnalysisAgent", "Segment divergence analysis complete", 84)
 
-    # Task 11: CX Action generation
+    # Task 10: CX Action generation
     agent_statuses["CXActionAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="CX action generation", progress_pct=88)
+    push_progress(agent_statuses=dict(agent_statuses), current_step="CX action generation", progress_pct=85)
     cx_agent = CXActionAgent()
     result = cx_agent.analyze(reviews, retriever, result)
-    _tick("CXActionAgent", "CX action generation complete", 89)
+    _tick("CXActionAgent", "CX action generation complete", 86)
+
+    # Task 11: Importance — runs last so it can synthesize a recommended action per issue
+    # from complaints (issue_type), expectation gaps, and CX actions, not frequency/impact alone.
+    agent_statuses["ImportanceAnalysisAgent"] = "running"
+    push_progress(agent_statuses=dict(agent_statuses), current_step="Importance matrix", progress_pct=87)
+    importance_agent = ImportanceAnalysisAgent()
+    result = importance_agent.analyze(reviews, retriever, result)
+    _tick("ImportanceAnalysisAgent", "Importance matrix complete", 89)
 
     return {
         "result": result,
@@ -335,6 +341,7 @@ def run_voc_pipeline(model_code: str, max_reviews: int = 200, skip_if_cached: bo
         "max_reviews": max_reviews,
         "skip_if_cached": skip_if_cached,
         "reviews": [],
+        "all_reviews": [],
         "total_reviews_available": 0,
         "product_spec": None,
         "competitor_specs": {},
@@ -355,10 +362,10 @@ def run_voc_pipeline(model_code: str, max_reviews: int = 200, skip_if_cached: bo
             "MarketingAnalysisAgent": "pending",
             "CompetitivePositioningAgent": "pending",
             "ContradictionAgent": "pending",
-            "ImportanceAnalysisAgent": "pending",
             "ExpectationGapAgent": "pending",
             "SegmentDivergenceAnalysisAgent": "pending",
             "CXActionAgent": "pending",
+            "ImportanceAnalysisAgent": "pending",
             "ReportGenerationAgent": "pending",
         },
         "errors": [],

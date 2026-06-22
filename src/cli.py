@@ -92,7 +92,7 @@ def _print_summary(result) -> None:
     # Expectation gaps
     if result.expectation_gaps:
         console.print()
-        g = Table(title="Expectation Gaps (핵심)", show_header=True, header_style="bold blue")
+        g = Table(title="Expectation Gaps", show_header=True, header_style="bold blue")
         g.add_column("Dimension")
         g.add_column("Severity", width=8)
         g.add_column("Gap")

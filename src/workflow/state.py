@@ -16,7 +16,9 @@ class VOCWorkflowState(TypedDict):
     skip_if_cached: bool  # opt-in dev replay cache — see src/workflow/cache.py
 
     # Data collection outputs
-    reviews: list[Review]
+    reviews: list[Review]  # the analyzed sample (stratified by rating, size = max_reviews)
+    all_reviews: list[Review]  # the full fetched population — only used for cheap heuristic scans
+    # (e.g. contradiction candidate flagging) that need to see rare cases the sample might miss
     total_reviews_available: int  # real population size discovered during scraping
     product_spec: Optional[ProductSpec]
     competitor_specs: dict[str, dict]

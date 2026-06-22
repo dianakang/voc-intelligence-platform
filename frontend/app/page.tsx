@@ -171,7 +171,6 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl border border-brand-100 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Expectation Gap Analysis</h2>
-            <span className="text-xs text-brand-600 bg-brand-50 px-2 py-1 rounded font-medium">핵심</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {result.expectation_gaps

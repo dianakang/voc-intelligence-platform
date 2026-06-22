@@ -133,10 +133,19 @@ class ContradictionCase(BaseModel):
     review_id: str
     rating: float
     contradiction_type: str  # "type_a" or "type_b"
+    # "hidden_complaint" (type_a) | "accidental_low_rating" | "service_failure_with_product_praise" |
+    # "non_product_issue" (type_b) — see SYSTEM_PROMPT in contradiction_analysis.py for definitions
+    mismatch_category: str = ""
     positive_elements: list[str]
     negative_elements: list[str]
     review_text: str
     implication: str
+    # Who should act on this case, derived from mismatch_category rather than the star rating
+    route_to: str = ""  # "product_engineering" | "cx_fulfillment_warranty" | "marketing_cs_followup" | "no_action_needed"
+    # Whether this review's rating/text should count as evidence of a product defect elsewhere in
+    # the report (e.g. product_defect frequency, importance matrix) — False for cases where the
+    # text's dissatisfaction is about shipping/support/seller, not the TV itself.
+    counts_as_product_issue: bool = True
     # Ready-to-post public reply that acknowledges the rating/text mismatch rather
     # than reacting to the star rating alone (e.g. not "thanks for 5 stars" on a
     # review that's actually a complaint).
@@ -151,6 +160,11 @@ class ImportanceItem(BaseModel):
     category: str  # "high_freq_low_impact" | "low_freq_high_impact"
     business_risk: str
     representative_reviews: list[str]
+    issue_type: str = "product_defect"  # "product_defect" | "purchase_experience" — who owns the fix
+    recommended_action: str = ""  # concrete next step, synthesized from category + issue_type + business_risk + any linked gap/CX action below
+    linked_expectation_gap: str = ""  # matching ExpectationGapItem.dimension, if this issue is also a tracked expectation gap
+    linked_cx_action: str = ""  # matching CXActionItem.title, if a support mitigation already exists for this issue
+    priority_rank: int = 0  # 1 = fix first, assigned holistically across all issues — not derived from the quadrant alone
 
 
 class CompetitorData(BaseModel):

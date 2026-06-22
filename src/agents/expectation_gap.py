@@ -1,4 +1,4 @@
-"""Task 8 (핵심): Customer Expectation Gap Analysis — the most important analysis."""
+"""Task 8: Customer Expectation Gap Analysis — the most important analysis."""
 from __future__ import annotations
 
 from src.agents.base import BaseAgent
@@ -41,7 +41,7 @@ class ExpectationGapAgent(BaseAgent):
         )
 
     def analyze(self, reviews: list[Review], retriever: ReviewRetriever, result: VOCAnalysisResult) -> VOCAnalysisResult:
-        self.log("Running Expectation Gap Analysis (핵심 Task 8) with Claude Opus...")
+        self.log("Running Expectation Gap Analysis (Task 8) with Claude Opus...")
 
         # Targeted retrieval for expectation signals
         expectation_reviews = retriever.retrieve(
@@ -91,11 +91,15 @@ Identify 7-8 key expectation dimensions. For each:
 {{
   "expectation_gaps": [
     {{
-      "dimension": "dimension name (e.g., 'Samsung Brand Premium Quality')",
-      "expectation": "what customers expected BEFORE purchase — be specific",
-      "actual_experience": "what customers ACTUALLY experienced — be specific",
+      "dimension": "concise topic name ONLY, 1-3 words (e.g. 'Brand Quality', 'Picture Quality') —
+        the Expected/Reality split is already shown below this title, so do NOT repeat words like
+        'expectation', 'vs.', or 'reality' in the dimension name itself",
+      "expectation": "what customers expected BEFORE purchase, one specific sentence",
+      "actual_experience": "what customers ACTUALLY experienced, one specific sentence",
       "gap_severity": "high|medium|low",
-      "gap_description": "detailed analysis of why this gap exists and its implications",
+      "gap_description": "the business implication ONLY — one sentence on the downstream consequence
+        (lost sales, returns, brand trust, etc.) if this gap goes unaddressed. Do not restate or
+        paraphrase the expectation/actual_experience sentences above — say something they don't already say",
       "recommended_action": "specific actionable recommendation for Samsung product/marketing team",
       "supporting_reviews": ["actual quote from reviews above", "another actual quote"]
     }}
@@ -103,15 +107,15 @@ Identify 7-8 key expectation dimensions. For each:
   "overall_gap_insight": "strategic insight: what is the single biggest expectation gap?"
 }}
 
-Dimensions to consider:
-- Brand quality expectation vs. actual quality
-- Picture quality expectation vs. reality
-- Audio quality expectation vs. reality
-- Smart TV / UX expectation vs. reality
-- Price-value expectation vs. reality
-- Reliability expectation vs. reality
-- Gaming performance expectation vs. reality
-- Setup / ease-of-use expectation vs. reality"""
+Dimensions to consider (use these topics, but name each field with just the short topic, not this full phrasing):
+- Brand quality
+- Picture quality
+- Audio quality
+- Smart TV / UX
+- Price-value
+- Reliability
+- Gaming performance
+- Setup / ease-of-use"""
 
         try:
             data = self.call_json(prompt, max_tokens=5000)

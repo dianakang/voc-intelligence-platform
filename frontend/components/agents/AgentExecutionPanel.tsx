@@ -16,7 +16,7 @@ const AGENT_LABELS: Record<string, string> = {
   CompetitivePositioningAgent: "Competitive Positioning",
   ContradictionAgent: "Contradiction Detection",
   ImportanceAnalysisAgent: "Importance Matrix",
-  ExpectationGapAgent: "Expectation Gap (핵심)",
+  ExpectationGapAgent: "Expectation Gap Analysis",
   SegmentDivergenceAnalysisAgent: "Segment Divergence",
   CXActionAgent: "CX Action Generation",
   ReportGenerationAgent: "Executive Report",

@@ -175,12 +175,16 @@ REPORT_TEMPLATE = """# Samsung TV VOC Intelligence Report
 **Type B (Low Rating + Product Praise):** {{ type_b|length }}
 
 {% for c in result.contradictions[:5] %}
-### Case: {{ c.contradiction_type|upper }} (Rating: {{ c.rating }}⭐)
+### Case: {{ c.contradiction_type|upper }} (Rating: {{ c.rating }}⭐){% if c.mismatch_category %} — {{ c.mismatch_category|replace('_', ' ') }}{% endif %}
+
 > "{{ c.review_text }}"
 
 **Positive:** {{ c.positive_elements|join(', ') }}
 **Negative:** {{ c.negative_elements|join(', ') }}
 **Implication:** {{ c.implication }}
+{% if c.route_to %}
+**Route to:** {{ c.route_to|replace('_', ' ') }} | **Counts as product issue:** {{ "Yes" if c.counts_as_product_issue else "No" }}
+{% endif %}
 {% if c.suggested_public_response %}
 **Suggested public response:** {{ c.suggested_public_response }}
 {% endif %}
@@ -190,6 +194,26 @@ REPORT_TEMPLATE = """# Samsung TV VOC Intelligence Report
 ---
 
 ## Task 7: Issue Importance Matrix
+
+Each issue below is plotted by frequency (how often it's mentioned) vs. business impact (severity of
+the consequence if unaddressed) and ranked by overall priority. Where a fix is already detailed
+elsewhere in this report (Task 8 Expectation Gaps, Task 10 CX Actions), this list points there instead
+of repeating it.
+
+### Priority Order
+{% for i in result.importance_matrix|sort(attribute='priority_rank') %}
+{{ loop.index }}. **{{ i.issue }}** — [{{ i.issue_type }}] ({{ i.frequency }} mentions, {{ "%.1f"|format(i.frequency_pct) }}%, {{ i.category|replace('_', ' ') }})
+   - Business Risk: {{ i.business_risk }}
+   {%- if i.linked_expectation_gap %}
+   - → Fix detailed under Task 8, Expectation Gap: {{ i.linked_expectation_gap }}
+   {%- endif %}
+   {%- if i.linked_cx_action %}
+   - → Fix detailed under Task 10, CX Action: {{ i.linked_cx_action }}
+   {%- endif %}
+   {%- if not i.linked_expectation_gap and not i.linked_cx_action %}
+   - Recommended Action: {{ i.recommended_action }}
+   {%- endif %}
+{% endfor %}
 
 ### 🔴 Low Frequency / High Impact (Critical Quality Issues)
 {% for i in result.importance_matrix if i.category == 'low_freq_high_impact' %}
@@ -211,7 +235,14 @@ REPORT_TEMPLATE = """# Samsung TV VOC Intelligence Report
 
 ---
 
-## Task 8 (핵심): Customer Expectation Gap Analysis
+## Task 8: Customer Expectation Gap Analysis
+
+{% set excluded_mismatches = result.contradictions|rejectattr('counts_as_product_issue')|list %}
+{% if excluded_mismatches %}
+{{ excluded_mismatches|length }} flagged rating/text mismatch{{ "es are" if excluded_mismatches|length > 1 else " is" }} excluded from the
+gaps below — see Task 6 (Rating-Review Contradiction Analysis) for reviews where the product was
+praised but the rating was low for an unrelated reason.
+{% endif %}
 
 {% for gap in result.expectation_gaps|sort(attribute='gap_severity', reverse=False) %}
 ### {{ gap.dimension }} [{{ gap.gap_severity|upper }} GAP]
@@ -220,7 +251,7 @@ REPORT_TEMPLATE = """# Samsung TV VOC Intelligence Report
 |---|---|
 | **Expected** | {{ gap.expectation }} |
 | **Actual** | {{ gap.actual_experience }} |
-| **Gap** | {{ gap.gap_description }} |
+| **Why it matters** | {{ gap.gap_description }} |
 | **Action** | {{ gap.recommended_action }} |
 
 **Supporting Evidence:**

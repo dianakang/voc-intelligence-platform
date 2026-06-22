@@ -133,7 +133,16 @@ class BaseAgent:
             raw = raw[raw.find("\n") + 1:]
             if "```" in raw:
                 raw = raw[: raw.rfind("```")]
-        return json.loads(raw.strip())
+        parsed = json.loads(raw.strip())
+
+        # OpenAI's JSON mode requires a top-level object, so a prompt asking for a
+        # bare JSON array sometimes comes back wrapped as e.g. {"reviews": [...]}.
+        # Unwrap that so callers expecting a bare array still get one.
+        if isinstance(parsed, dict) and len(parsed) == 1:
+            only_value = next(iter(parsed.values()))
+            if isinstance(only_value, list):
+                return only_value
+        return parsed
 
     def log(self, message: str) -> None:
         console.print(f"[bold blue][{self.name}][/bold blue] {message}")

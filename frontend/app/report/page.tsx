@@ -157,6 +157,11 @@ function ExpectationGapCard({ gap }: { gap: ExpectationGapItem }) {
               <p className="leading-relaxed"><span className="font-medium text-gray-700">Full experience: </span>{gap.actual_experience}</p>
             </div>
           )}
+          {gap.gap_description && (
+            <p className="text-xs text-gray-500 leading-relaxed">
+              <span className="font-medium text-gray-700">Why it matters: </span>{gap.gap_description}
+            </p>
+          )}
           <div className="p-3 bg-brand-50 rounded-lg">
             <p className="text-[10px] font-semibold text-brand-500 uppercase tracking-wider mb-1">Recommended Action</p>
             <p className="text-sm text-brand-800 leading-relaxed">{gap.recommended_action}</p>
@@ -197,10 +202,10 @@ function ExpectationGapSection({ gaps }: { gaps: ExpectationGapItem[] }) {
 }
 
 const QUADRANT_BOXES: { key: "defend" | "differentiate" | "fix" | "monitor"; label: string; hint: string }[] = [
-  { key: "defend", label: "Defend", hint: "Already winning — protect it" },
+  { key: "defend", label: "Defend", hint: "Already winning, so protect it" },
   { key: "differentiate", label: "Differentiate", hint: "Winning, underleveraged in marketing" },
-  { key: "fix", label: "Fix", hint: "Losing — purchase barrier or trust risk" },
-  { key: "monitor", label: "Monitor", hint: "Lower volume, high severity — watch" },
+  { key: "fix", label: "Fix", hint: "Losing, a purchase barrier or trust risk" },
+  { key: "monitor", label: "Monitor", hint: "Lower volume but high severity, worth watching" },
 ];
 
 function ExecutiveQuadrant({ analysis }: { analysis: import("@/lib/api").PositioningAnalysis }) {
@@ -221,7 +226,7 @@ function ExecutiveQuadrant({ analysis }: { analysis: import("@/lib/api").Positio
                   ))}
                 </ul>
               ) : (
-                <p className="text-xs text-gray-300">—</p>
+                <p className="text-xs text-gray-300">None</p>
               )}
             </div>
           );
@@ -278,6 +283,20 @@ function PositioningMapTable({ attributes }: { attributes: import("@/lib/api").P
   );
 }
 
+const MISMATCH_CATEGORY_LABEL: Record<string, string> = {
+  hidden_complaint: "Hidden product complaint",
+  accidental_low_rating: "Likely accidental rating",
+  service_failure_with_product_praise: "Service failure, product praised",
+  non_product_issue: "Non-product issue",
+};
+
+const ROUTE_TO_LABEL: Record<string, string> = {
+  product_engineering: "Route to: Product / Engineering",
+  cx_fulfillment_warranty: "Route to: CX / Fulfillment / Warranty",
+  marketing_cs_followup: "Route to: Marketing / CS follow-up",
+  no_action_needed: "No action needed",
+};
+
 function ContradictionSection({ cases }: { cases: ContradictionCase[] }) {
   if (cases.length === 0) {
     return <p className="text-sm text-gray-400">No contradictions detected.</p>;
@@ -286,11 +305,25 @@ function ContradictionSection({ cases }: { cases: ContradictionCase[] }) {
     <div className="space-y-4">
       {cases.map((c, i) => (
         <div key={i} className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
             <div className={`text-xs font-bold px-2 py-0.5 rounded-full ${c.contradiction_type === "type_a" ? "bg-orange-100 text-orange-700" : "bg-brand-100 text-brand-700"}`}>
               {c.contradiction_type === "type_a" ? "High rating, hidden complaint" : "Low rating, praises product"}
             </div>
-            <div className="flex gap-0.5">
+            {c.mismatch_category && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200">
+                {MISMATCH_CATEGORY_LABEL[c.mismatch_category] || c.mismatch_category.replace(/_/g, " ")}
+              </span>
+            )}
+            <span
+              className={`text-[10px] px-1.5 py-0.5 rounded border ${
+                c.counts_as_product_issue
+                  ? "bg-red-50 text-red-600 border-red-100"
+                  : "bg-green-50 text-green-600 border-green-100"
+              }`}
+            >
+              {c.counts_as_product_issue ? "Counts as product issue" : "Excluded from product metrics"}
+            </span>
+            <div className="flex gap-0.5 ml-auto">
               {Array.from({ length: 5 }).map((_, j) => (
                 <span key={j} className={j < c.rating ? "text-yellow-400" : "text-gray-200"}>★</span>
               ))}
@@ -315,6 +348,11 @@ function ContradictionSection({ cases }: { cases: ContradictionCase[] }) {
           </div>
           {c.implication && (
             <p className="text-xs text-gray-500 mt-3 italic">{c.implication}</p>
+          )}
+          {c.route_to && (
+            <p className="text-xs text-gray-600 mt-2">
+              <span className="font-medium text-gray-700">{ROUTE_TO_LABEL[c.route_to] || c.route_to}</span>
+            </p>
           )}
           {c.suggested_public_response && (
             <div className="mt-3 bg-brand-50 border border-brand-100 rounded-lg p-3">
@@ -823,13 +861,13 @@ function ReportContent({ result }: { result: VOCResult }) {
 
       {/* Executive Summary */}
       <section id="summary" className="scroll-mt-24">
-        <SectionHeader number="0" title="Executive Summary" />
+        <SectionHeader number="1" title="Executive Summary" />
         <ExecutiveSummarySection summary={result.executive_summary} insights={result.key_insights} />
       </section>
 
       {/* Sentiment Distribution */}
       <section id="sentiment" className="scroll-mt-24">
-        <SectionHeader number="S" title="Sentiment Overview" />
+        <SectionHeader number="2" title="Sentiment Overview" />
         <div className="grid sm:grid-cols-2 gap-5">
           <div className="bg-white border border-gray-200 rounded-xl p-5">
             <h3 className="text-sm font-semibold text-gray-700 mb-4">Overall Sentiment</h3>
@@ -837,17 +875,21 @@ function ReportContent({ result }: { result: VOCResult }) {
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-5">
             <h3 className="text-sm font-semibold text-gray-700 mb-4">Aspect Sentiment Breakdown</h3>
-            <AspectBarChart data={Object.entries(result.aspect_sentiment_summary).map(([aspect, s]) => ({ aspect, positive: s.positive, negative: s.negative, neutral: s.neutral }))} />
+            <AspectBarChart
+              data={Object.entries(result.aspect_sentiment_summary)
+                .map(([aspect, s]) => ({ aspect, positive: s.positive, negative: s.negative, neutral: s.neutral }))
+                .sort((a, b) => (b.positive + b.negative + b.neutral) - (a.positive + a.negative + a.neutral))}
+            />
           </div>
         </div>
       </section>
 
-      {/* Task 1: Complaints */}
+      {/* Section 3: Complaints */}
       <section id="complaints" className="scroll-mt-24">
-        <SectionHeader number="1" title="Top Complaints" />
+        <SectionHeader number="3" title="Top Complaints" />
         <p className="text-xs text-gray-500 -mt-3 mb-4">
-          Tagged by type: <span className="font-semibold text-red-600">Product Issue</span> (defect — route to engineering)
-          vs. <span className="font-semibold text-gray-600">Purchase Experience</span> (delivery/account/setup — route to CX).
+          Tagged by type: <span className="font-semibold text-red-600">Product Issue</span> (a defect routed to engineering)
+          vs. <span className="font-semibold text-gray-600">Purchase Experience</span> (delivery, account, or setup issues routed to CX).
         </p>
         <div className="space-y-3">
           {result.complaints.map((c) => (
@@ -878,9 +920,9 @@ function ReportContent({ result }: { result: VOCResult }) {
         </div>
       </section>
 
-      {/* Task 2: Satisfaction Drivers */}
+      {/* Section 4: Satisfaction Drivers */}
       <section id="satisfaction" className="scroll-mt-24">
-        <SectionHeader number="2" title="Satisfaction Drivers" />
+        <SectionHeader number="4" title="Satisfaction Drivers" />
         <div className="space-y-3">
           {result.satisfaction_drivers.map((d) => (
             <div key={d.rank} className="bg-white border border-gray-200 rounded-xl p-5">
@@ -908,16 +950,16 @@ function ReportContent({ result }: { result: VOCResult }) {
         </div>
       </section>
 
-      {/* Task 3: Improvements */}
+      {/* Section 5: Improvements */}
       <section id="improvements" className="scroll-mt-24">
-        <SectionHeader number="3" title="Improvement Priorities" />
+        <SectionHeader number="5" title="Improvement Priorities" />
         <ImprovementSection improvements={result.improvement_points} />
       </section>
 
-      {/* Task 9: Segment divergence */}
+      {/* Section 6: Segment divergence */}
       {result.segment_divergence_analysis && result.segment_divergence_analysis.segment_insights.length > 0 && (
         <section id="segment-divergence" className="scroll-mt-24">
-          <SectionHeader number="9" title="Segment / Use-Case Divergence" badge="NEW" />
+          <SectionHeader number="6" title="Segment / Use-Case Divergence" />
           <SegmentDivergenceSection
             items={result.segment_divergence_analysis.segment_insights}
             risks={result.segment_divergence_analysis.emerging_risks}
@@ -927,18 +969,18 @@ function ReportContent({ result }: { result: VOCResult }) {
         </section>
       )}
 
-      {/* Task 4: Marketing */}
+      {/* Section 7: Marketing */}
       {result.marketing_recommendations && (
         <section id="marketing" className="scroll-mt-24">
-          <SectionHeader number="4" title="Marketing Recommendations" />
+          <SectionHeader number="7" title="Marketing Recommendations" />
           <MarketingSection rec={result.marketing_recommendations} />
         </section>
       )}
 
-      {/* Task 5: Competitive Positioning */}
+      {/* Section 8: Competitive Positioning */}
       {result.positioning_analysis && (
         <section id="positioning" className="scroll-mt-24">
-          <SectionHeader number="5" title="Competitive Positioning" />
+          <SectionHeader number="8" title="Competitive Positioning" />
           <div className="space-y-5">
             {result.positioning_analysis.attribute_map.length > 0 && (
               <>
@@ -1016,37 +1058,58 @@ function ReportContent({ result }: { result: VOCResult }) {
         </section>
       )}
 
-      {/* Task 6: Contradictions */}
+      {/* Section 9: Contradictions */}
       <section id="contradictions" className="scroll-mt-24">
-        <SectionHeader number="6" title="Paradox Reviews" />
+        <SectionHeader number="9" title="Paradox Reviews" />
         <p className="text-xs text-gray-500 -mt-3 mb-4">
-          Star rating ≠ product quality. These reviews separate <span className="font-semibold text-gray-700">emotional rating</span> from
-          <span className="font-semibold text-gray-700"> actual product experience</span> — useful for telling roadmap priorities apart from service fixes.
+          A star rating doesn't always reflect product quality. These reviews separate <span className="font-semibold text-gray-700">emotional rating</span> from
+          <span className="font-semibold text-gray-700"> actual product experience</span>, which helps tell roadmap priorities apart from service fixes.
         </p>
         <ContradictionSection cases={result.contradictions} />
       </section>
 
-      {/* Task 7: Importance Matrix */}
+      {/* Section 10: Importance Matrix */}
       <section id="importance" className="scroll-mt-24">
-        <SectionHeader number="7" title="Importance-Frequency Matrix" />
+        <SectionHeader number="10" title="Importance-Frequency Matrix" />
+        <p className="text-xs text-gray-500 -mt-3 mb-4">
+          Each dot is an issue, plotted by how often it's mentioned (x-axis) against its business impact
+          (y-axis) — defects that drive returns or warranty claims score high impact even if rarely
+          mentioned, while common-but-minor annoyances score low impact even at high frequency. The number
+          on each dot matches its rank in the priority list below, which orders every issue by overall
+          priority and points to where its fix is already detailed elsewhere in this report (Expectation
+          Gaps, CX Actions), or gives a new recommendation if nothing covers it yet.
+        </p>
         <div className="bg-white border border-gray-200 rounded-xl p-5">
           <ImportanceMatrix data={result.importance_matrix} />
         </div>
       </section>
 
-      {/* Task 8: Expectation Gap (핵심) */}
+      {/* Section 11: Expectation Gap */}
       <section id="expectation-gaps" className="scroll-mt-24">
-        <SectionHeader number="8" title="Customer Expectation Gap Analysis" badge="핵심" />
+        <SectionHeader number="11" title="Customer Expectation Gap Analysis" />
+        {(() => {
+          const nonProductMismatches = result.contradictions.filter((c) => !c.counts_as_product_issue);
+          if (nonProductMismatches.length === 0) return null;
+          return (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-xs text-amber-800">
+              <span className="font-semibold">{nonProductMismatches.length} flagged rating/text mismatch{nonProductMismatches.length > 1 ? "es are" : " is"} excluded</span> from
+              the gaps below — these are reviews where the product itself was praised but the rating was low for
+              an unrelated reason (delivery, warranty, support, or likely a mistaken rating), so they're tracked as
+              contradictions rather than genuine expectation gaps.{" "}
+              <a href="#contradictions" className="underline font-medium">See Paradox Reviews →</a>
+            </div>
+          );
+        })()}
         <ExpectationGapSection gaps={result.expectation_gaps} />
       </section>
 
-      {/* Task 11: CX Action Toolkit */}
+      {/* Section 12: CX Action Toolkit */}
       {result.cx_actions && result.cx_actions.length > 0 && (
         <section id="cx-actions" className="scroll-mt-24">
-          <SectionHeader number="11" title="CX Action Toolkit" />
+          <SectionHeader number="12" title="CX Action Toolkit" />
           <p className="text-xs text-gray-500 -mt-3 mb-4">
             Ready-to-use <span className="font-semibold text-gray-700">FAQ entries, support scripts, and proactive notices</span> generated
-            directly from the complaint clusters above — for customer support and help-center publishing.
+            directly from the complaint clusters above, ready for customer support and help-center publishing.
           </p>
           <CXActionSection actions={result.cx_actions} />
         </section>

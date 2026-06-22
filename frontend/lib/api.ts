@@ -117,10 +117,13 @@ export interface ContradictionCase {
   review_id: string;
   rating: number;
   contradiction_type: "type_a" | "type_b";
+  mismatch_category: string;
   positive_elements: string[];
   negative_elements: string[];
   review_text: string;
   implication: string;
+  route_to: string;
+  counts_as_product_issue: boolean;
   suggested_public_response: string;
 }
 
@@ -132,6 +135,11 @@ export interface ImportanceItem {
   category: string;
   business_risk: string;
   representative_reviews: string[];
+  issue_type: string;
+  recommended_action: string;
+  linked_expectation_gap: string;
+  linked_cx_action: string;
+  priority_rank: number;
 }
 
 export interface ExpectationGapItem {
