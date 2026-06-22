@@ -192,12 +192,13 @@ def sample(
     import asyncio
 
     async def _fetch():
-        async with SamsungReviewScraper(model_code) as scraper:
-            return await scraper.fetch_reviews(max_reviews=n)
+        async with SamsungReviewScraper() as scraper:
+            sampled, _ = await scraper.collect_all_reviews(model_code, max_reviews=n)
+            return sampled
 
     reviews = asyncio.run(_fetch())
     for r in reviews[:n]:
-        stars = "★" * r.rating + "☆" * (5 - r.rating)
+        stars = "★" * int(r.rating) + "☆" * (5 - int(r.rating))
         console.print(Panel(
             f"[yellow]{stars}[/yellow]  [dim]{r.date}[/dim]\n\n{r.text}",
             title=f"Review {r.review_id}",
