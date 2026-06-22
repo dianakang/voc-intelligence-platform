@@ -14,8 +14,11 @@ Every analysis is grounded jointly in the review text **and** the product spec/P
 
 ```mermaid
 flowchart TD
-    A[collect_data] -->|cache hit| B[load_cached_result]
-    A -->|cache miss| C[clean_reviews]
+    A[collect_data] --> R{skip_if_cached?}
+    R -->|no| C[clean_reviews]
+    R -->|yes| H{input hash matches manifest?}
+    H -->|yes| B[load_cached_result]
+    H -->|no| C
     C --> D[build_taxonomy]
     D --> E[run_analysis]
     E --> F[generate_report]
@@ -23,12 +26,25 @@ flowchart TD
     F --> G
 ```
 
-- **`collect_data`**: live product-page scrape plus a full review-population fetch
-- **`load_cached_result`**: opt-in dev replay cache (`skip_if_cached`), used only if reviews/spec are unchanged since the last full run
+- **`collect_data`**: live product-page scrape plus a full review-population fetch (see the fallback chain below)
+- **`skip_if_cached?` / `input hash matches manifest?`**: the opt-in dev replay cache. `--skip-if-cached` only checks the manifest if passed; the hash covers reviews, model code, max_reviews, and the live spec, so any change forces a full run
+- **`load_cached_result`**: reloads the last saved `VOCAnalysisResult` from disk, skipping every LLM agent
 - **`clean_reviews`**: dedup + LLM cleaning
 - **`build_taxonomy`**: taxonomy classification + RAG indexing
-- **`run_analysis`**: the 11 analysis agents, see table below
-- **`generate_report`**: renders Markdown + JSON
+- **`run_analysis`**: the 11 analysis agents, see table and dependency diagram below
+- **`generate_report`**: renders Markdown + JSON, then writes the manifest for the next run's cache check
+
+### Data collection fallback chain
+
+```mermaid
+flowchart TD
+    R1[BazaarVoice browser gateway] -->|success| R5[Cache full population, draw stratified sample]
+    R1 -->|fails or empty| R2[Legacy passkey API]
+    R2 -->|fails| R3[Samsung native API]
+    R3 -->|fails| R4[Cached snapshot, else synthetic sample]
+```
+
+The product spec follows a shorter chain: live page scrape, falling back to the last cached `spec.json`, falling back to a hardcoded dict, only if each prior step fails.
 
 ### Components
 
@@ -69,6 +85,18 @@ Each row runs inside the `run_analysis` node above, sharing one `VOCAnalysisResu
 | 9 | `SegmentDivergenceAnalysisAgent` | Segment-level insights |
 | 10 | `CXActionAgent` | FAQ entries, support scripts, and proactive notices, generated directly from complaint clusters |
 | 11 | `ImportanceAnalysisAgent` | Frequency/impact matrix with a `recommended_action` and `priority_rank` per issue (see below) |
+
+Most agents only read `reviews`/`retriever`. Four read another agent's output directly:
+
+```mermaid
+flowchart TD
+    Complaints["#2 Complaints"] --> CXActions["#10 CX Actions"]
+    Complaints --> ExpectationGap["#8 Expectation Gap"]
+    Satisfaction["#3 Satisfaction"] --> ExpectationGap
+    Complaints --> Importance["#11 Importance"]
+    ExpectationGap --> Importance
+    CXActions --> Importance
+```
 
 Three agents worth calling out:
 
@@ -160,3 +188,12 @@ Full reference in `.env.example`. Key settings:
 | `BATCH_SIZE` | Reviews per LLM call in cleaning/taxonomy batching, sized against a `max_tokens=4096` ceiling; re-check that budget before raising |
 | `ENABLE_RAG` | Toggle RAG retrieval |
 | `QDRANT_URL` / `PINECONE_API_KEY` | Vector DB choice (Qdrant preferred, Pinecone fallback) |
+
+Every agent call follows the same fallback, in either direction depending on which provider it prefers:
+
+```mermaid
+flowchart LR
+    A[Agent calls preferred provider] -->|success| R[Parsed result]
+    A -->|fails: rate limit, outage, credit exhaustion| B[Retry on the other provider, equivalent model tier]
+    B --> R
+```
