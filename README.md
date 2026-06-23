@@ -1,6 +1,6 @@
-# Samsung TV VOC Intelligence Platform
+# Samsung VOC Intelligence Platform
 
-AI-powered Voice of Customer (VOC) analysis for Samsung TVs. Scrapes reviews, cleans and classifies them, runs LLM analysis agents, and produces a Markdown/JSON report. Accessible via CLI, REST API, or a Next.js dashboard.
+AI-powered Voice of Customer (VOC) analysis for any Samsung product — paste a product URL (TV, refrigerator, audio, etc.) and it scrapes reviews, cleans and classifies them, runs LLM analysis agents, and produces a Markdown/JSON report. Accessible via CLI, REST API, or a Next.js dashboard.
 
 **Primary users:** in-house marketers (PDP copy, ad messaging), CX/support (FAQ updates, response scripts); designed to extend to product/PM and sales enablement.
 
@@ -8,9 +8,9 @@ Every analysis is grounded in both the review text **and** the product spec/PDP 
 
 ## Architecture
 
-What happens, step by step, when you run an analysis for a TV model:
+What happens, step by step, when you run an analysis for a product (the model code is derived automatically from the URL you paste, e.g. a TV's `-sku-un50u7900ffxza/` page or a refrigerator's `-sku-rf24bb6600qlaa/` page):
 
-1. **Collect the data:** Pull every customer review for that TV, plus its official product spec (price, features, delivery options). If the exact same data was already analyzed in a prior run, skip straight to step 5 and reuse that saved report instead of redoing all the AI analysis.
+1. **Collect the data:** Pull every customer review for that product, plus its official product spec (price, features, delivery options, and category — TV, refrigerator, etc.). If the exact same data was already analyzed in a prior run, skip straight to step 5 and reuse that saved report instead of redoing all the AI analysis.
 2. **Clean the reviews:** Remove duplicates and have AI lightly tidy up messy review text.
 3. **Sort into topics:** AI groups every review into topics (picture quality, sound, smart TV features, delivery, etc.) so later steps can pull up "everything customers said about X."
 4. **Run the analysis:** 11 specialized AI agents each study the reviews from a different angle:
@@ -21,8 +21,8 @@ What happens, step by step, when you run an analysis for a TV model:
    | 2 | Complaints | Ranked complaint categories, split into product defects vs. purchase/delivery issues |
    | 3 | Satisfaction | What's driving positive reviews |
    | 4 | Improvement | What customers want changed |
-   | 5 | Marketing | Messaging recommendations grounded in real customer language |
-   | 6 | Competitive positioning | How this TV stacks up vs. TCL Q6, Hisense A7, LG UT70 |
+   | 5 | Marketing | Messaging recommendations grounded in real customer language, plus 2-4 target-audience personas (demographic/psychographic/behavioral) inferred from the reviews and product spec |
+   | 6 | Competitive positioning | How this product stacks up vs. its top competitors, discovered per product so the comparison set always matches its actual category (e.g. other TVs for a TV) |
    | 7 | Contradictions | Reviews where the star rating and the text disagree (e.g. a 1★ review that praises the product) |
    | 8 | Expectation gaps | Where reality fell short of what customers expected |
    | 9 | Segment differences | How different customer groups experience the product differently |
@@ -60,9 +60,11 @@ If the live browser fetch fails, it falls back in order to: Samsung's own intern
 
 Once collected, only a subset is actually sent to the AI for analysis (`--max-reviews`, default 200), to control cost and speed. That subset is picked so its mix of star ratings matches the full set (e.g. if 30% of all reviews are 5-star, ~30% of the analyzed subset is too), so the analysis isn't skewed by which reviews happened to load first.
 
-**Product spec** combines two sources: the official spec sheet (display, audio, design, gaming, things that don't change) and a live page scrape (price, stock, delivery, things that do).
+**Product spec** combines two sources: the official spec sheet (display, audio, design, gaming, things that don't change) and a live page scrape (price, stock, delivery, things that do). The `category` field (TV, refrigerator, etc.) read from this spec drives every category-specific prompt downstream.
 
-**Competitor specs** (TCL, Hisense, LG) are a fixed reference, only updated by hand via `voc refresh-competitors`. Competitor TV hardware doesn't change once it ships, so there's no need to refresh it automatically.
+**Competitor specs** are discovered and fetched per product (not a fixed list) via `voc refresh-competitors <model_code>`, using Claude's native web-search tool to find and ground real competitors in that product's own category — a TV's competitors are other TVs, a refrigerator's are other refrigerators. Cached per product at `data/raw/{model_code}/competitors.json`; hardware specs don't change once a model ships, so this is a manual, human-reviewed step rather than something run automatically on every analysis.
+
+**New-category discovery:** `voc discover <category>` crawls samsung.com/us's sitemap to find every product URL under a category (e.g. `tvs`, `refrigerators`), and `voc crawl-batch <category>` bulk-collects reviews + spec for all of them (data collection only — run `voc run` per model for the full LLM analysis).
 
 ---
 
@@ -73,8 +75,9 @@ Once collected, only a subset is actually sent to the AI for analysis (`--max-re
 | Path | What it does |
 |---|---|
 | `src/data/scraper.py` | Fetches reviews via a Playwright browser hitting BazaarVoice's gateway; falls back to Samsung's API, then cache/sample |
-| `src/data/spec_extractor.py` | Merges the spec PDF (static fields) with a live scrape (commerce fields) into one `ProductSpec` |
-| `src/data/competitor_spec_fetcher.py` | Manual competitor-spec refresh via a search-grounded OpenRouter call |
+| `src/data/spec_extractor.py` | Merges the spec PDF (static fields) with a live scrape (commerce fields) into one `ProductSpec`, for any product category |
+| `src/data/product_discovery.py` | Crawls samsung.com/us's sitemap to discover product URLs/model codes per category (`voc discover`/`crawl-batch`) |
+| `src/data/competitor_spec_fetcher.py` | Manual per-product competitor-spec discovery + refresh via Claude's web-search tool |
 | `src/rag/` | Chunks reviews → embeds (OpenAI) → stores (Qdrant → Pinecone → in-memory) → retrieves per query |
 | `src/agents/` | 11 analysis agents (table below); each retries on a second LLM provider if the first fails |
 | `src/workflow/graph.py` | LangGraph state machine orchestrating the pipeline end to end |
@@ -132,9 +135,12 @@ OPENAI_API_KEY=...         # required for embeddings
 |---|---|
 | `voc run UN50U7900FFXZA --max-reviews 200 --json` | Run the full pipeline, write reports to `data/reports/` |
 | `voc run UN50U7900FFXZA --skip-if-cached` | Skip LLM analysis and reload the last result if nothing changed |
+| `voc run <model_code> --url <product page>` | Run the pipeline for any Samsung product page (not just TVs) |
 | `voc spec UN50U7900FFXZA` | Show the merged product spec and its `spec_source` |
-| `voc refresh-competitors` | Manually refresh competitor specs via OpenRouter (requires `OPENROUTER_API_KEY`) |
+| `voc refresh-competitors <model_code>` | Discover + refresh that product's competitor specs via Claude's web-search tool (requires `ANTHROPIC_API_KEY`) |
 | `voc sample UN50U7900FFXZA --n 5` | Preview sample reviews |
+| `voc discover tvs` | Crawl samsung.com/us's sitemap for every product URL under a category |
+| `voc crawl-batch tvs --max-products 20` | Bulk-collect reviews + spec for every discovered product in a category (no LLM analysis) |
 
 ### API server
 
@@ -145,14 +151,14 @@ python main.py
 
 | Endpoint | Description |
 |---|---|
-| `POST /api/v1/analysis/run` | Start a pipeline job |
+| `POST /api/v1/analysis/run` | Start a pipeline job — pass `url` (any Samsung product page) or `model_code` directly |
 | `GET /api/v1/analysis/status/{job_id}` | Poll progress |
 | `GET /api/v1/analysis/result/{job_id}` | Fetch the final result |
 | `GET /api/v1/analysis/result/{job_id}/report` | Download the Markdown report |
-| `GET /api/v1/reports/list` | List previously generated reports |
+| `GET /api/v1/reports/list` | List previously generated reports, each tagged with its product `category` |
 | `GET /api/v1/reports/{filename}` | Fetch a report by filename |
 | `GET /api/v1/product/spec/{model_code}` | Live-scraped product spec |
-| `GET /api/v1/product/competitors` | Competitor spec data |
+| `GET /api/v1/product/competitors/{model_code}` | That product's discovered competitor spec data |
 | `GET /api/v1/reviews/sample/{model_code}` | Sample reviews |
 
 Full interactive docs at `http://localhost:8000/docs`.
@@ -167,6 +173,11 @@ npm run dev
 
 Expects the API server on `http://localhost:8000` (CORS pre-configured for `localhost:3000`).
 
+- **Run Analysis** (`/analysis`) — paste any Samsung product URL to kick off a run; the model code is parsed from the URL's `-sku-...` segment.
+- **Dashboard** (`/`) — every analyzed product grouped by category, so a TV run and a refrigerator run both surface here instead of just the most recent one.
+- **Reports** (`/reports`) — flat list of every saved report with a category badge per row.
+- **Report detail** (`/report`) — accordion drill-down instead of one long scroll: Executive Summary stays expanded, the other 11 sections are clustered into four groups (Voice of the Customer, Recommended Actions, Strategic Analysis, Data Quality Checks) and expand in place on click.
+
 ## Configuration
 
 Full reference in `.env.example`. Key settings:
@@ -179,8 +190,7 @@ Full reference in `.env.example`. Key settings:
 | `BATCH_SIZE` | Reviews per LLM call in cleaning/taxonomy, sized against a 4096-token ceiling |
 | `ENABLE_RAG` | Toggle RAG retrieval |
 | `QDRANT_URL` / `PINECONE_API_KEY` | Vector DB choice (Qdrant preferred, Pinecone fallback) |
-| `OPENROUTER_API_KEY` | Required for `voc refresh-competitors`; also a fallback if `ANTHROPIC_API_KEY` is unset |
-| `COMPETITOR_SEARCH_MODEL` | Model for `voc refresh-competitors`; default uses OpenRouter's `:online` web-search grounding |
+| `OPENROUTER_API_KEY` | Optional fallback if `ANTHROPIC_API_KEY` is unset |
 
 ```mermaid
 flowchart TD
