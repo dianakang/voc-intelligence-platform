@@ -190,19 +190,35 @@ async def get_sample_reviews(model_code: str, limit: int = 20):
     return [r.model_dump() for r in reviews]
 
 
+def _cached_product_meta(model_code: str) -> dict:
+    """Reads category/product_name from the spec cache written during analysis,
+    without triggering get_samsung_spec()'s live-scrape fallback on a cache miss."""
+    spec_path = settings.raw_product_dir(model_code) / "spec.json"
+    try:
+        with open(spec_path) as fp:
+            spec = json.load(fp)
+        return {"category": spec.get("category", ""), "product_name": spec.get("product_name", "")}
+    except Exception:
+        return {"category": "", "product_name": ""}
+
+
 @router.get("/reports/list")
 async def list_reports():
     reports = []
     for f in settings.output_path.glob("*.json"):
+        if f.name.endswith(".manifest.json"):
+            continue
         try:
             with open(f) as fp:
                 data = json.load(fp)
+            model = data.get("model", "")
             reports.append({
                 "filename": f.name,
-                "model": data.get("model", ""),
+                "model": model,
                 "analysis_date": data.get("analysis_date", ""),
                 "total_reviews": data.get("total_reviews", 0),
                 "avg_rating": data.get("avg_rating", 0),
+                **_cached_product_meta(model),
             })
         except Exception:
             pass

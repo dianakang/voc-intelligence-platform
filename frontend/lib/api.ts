@@ -9,6 +9,16 @@ export interface JobStatus {
   error?: string;
 }
 
+export interface ReportMeta {
+  filename: string;
+  model: string;
+  analysis_date: string;
+  total_reviews: number;
+  avg_rating: number;
+  category: string;
+  product_name: string;
+}
+
 export interface VOCResult {
   product_id: string;
   model: string;
@@ -197,7 +207,7 @@ export const api = {
 
   getResult: (jobId: string) => fetchAPI<VOCResult>(`/analysis/result/${jobId}`),
 
-  listReports: () => fetchAPI<{ filename: string; model: string; analysis_date: string; total_reviews: number; avg_rating: number }[]>("/reports/list"),
+  listReports: () => fetchAPI<ReportMeta[]>("/reports/list"),
 
   getReport: (filename: string) => fetchAPI<VOCResult>(`/reports/${filename}`),
 

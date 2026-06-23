@@ -2,15 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { api } from "@/lib/api";
-
-interface ReportMeta {
-  filename: string;
-  model: string;
-  analysis_date: string;
-  total_reviews: number;
-  avg_rating: number;
-}
+import { api, ReportMeta } from "@/lib/api";
 
 export default function ReportsPage() {
   const [reports, setReports] = useState<ReportMeta[]>([]);
@@ -64,7 +56,14 @@ export default function ReportsPage() {
           >
             <div className="flex items-start justify-between gap-2">
               <div>
-                <p className="font-semibold text-gray-900">{r.model}</p>
+                <div className="flex items-center gap-2">
+                  {r.category && (
+                    <span className="text-[10px] font-semibold text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                      {r.category}
+                    </span>
+                  )}
+                  <p className="font-semibold text-gray-900">{r.model}</p>
+                </div>
                 <p className="text-xs text-gray-400 mt-0.5">
                   {new Date(r.analysis_date).toLocaleString()} · {r.total_reviews.toLocaleString()} reviews
                 </p>

@@ -988,42 +988,14 @@ function CompetitorCard({ comp }: { comp: import("@/lib/api").CompetitorData }) 
   );
 }
 
-function SectionOverviewList({ result, onSelect }: { result: VOCResult; onSelect: (id: string) => void }) {
-  return (
-    <div>
-      <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Explore the Report</h2>
-      <div className="divide-y divide-gray-100 bg-white border border-gray-200 rounded-xl overflow-hidden">
-        {activeSections(result).map((s, i) => (
-          <button
-            key={s.id}
-            onClick={() => onSelect(s.id)}
-            className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-7 h-7 rounded-full bg-brand-100 text-brand-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
-                {i + 1}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-gray-900">{s.label}</p>
-                <p className="text-xs text-gray-500 mt-0.5 truncate">{s.stat(result)}</p>
-              </div>
-            </div>
-            <span className="text-gray-300 text-sm flex-shrink-0">→</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function SectionDetail({
+function SectionAccordion({
   result,
-  sectionId,
-  onBack,
+  activeSection,
+  onToggleSection,
 }: {
   result: VOCResult;
-  sectionId: string;
-  onBack: () => void;
+  activeSection: string | null;
+  onToggleSection: (id: string) => void;
 }) {
   const [complaintsFilter, setComplaintsFilter] = useState<"all" | "product" | "purchase">("all");
   const [paradoxFilter, setParadoxFilter] = useState<"all" | "product" | "purchase">("all");
@@ -1041,13 +1013,33 @@ function SectionDetail({
 
   return (
     <div>
-      <button onClick={onBack} className="text-sm text-brand-600 hover:underline mb-5 inline-block">
-        ← Back to Report
-      </button>
+      <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Explore the Report</h2>
+      <div className="divide-y divide-gray-100 bg-white border border-gray-200 rounded-xl overflow-hidden">
+        {activeSections(result).map((s, i) => {
+          const sectionId = s.id;
+          const isOpen = activeSection === sectionId;
+          return (
+            <div key={sectionId}>
+              <button
+                onClick={() => onToggleSection(sectionId)}
+                className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-7 h-7 rounded-full bg-brand-100 text-brand-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                    {i + 1}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-900">{s.label}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 truncate">{s.stat(result)}</p>
+                  </div>
+                </div>
+                <span className="text-gray-400 text-sm flex-shrink-0">{isOpen ? "↑" : "↓"}</span>
+              </button>
+              {isOpen && (
+                <div className="px-5 pb-6 pt-1 bg-gray-50/40 border-t border-gray-100">
 
       {sectionId === "sentiment" && (
         <section>
-          <SectionHeader number="2" title="Sentiment Overview" />
           <div className="grid sm:grid-cols-2 gap-5">
             <div className="bg-white border border-gray-200 rounded-xl p-5">
               <h3 className="text-sm font-semibold text-gray-700 mb-4">Overall Sentiment</h3>
@@ -1067,7 +1059,6 @@ function SectionDetail({
 
       {sectionId === "complaints" && (
         <section>
-          <SectionHeader number="3" title="Top Complaints" />
           <p className="text-xs text-gray-500 mb-4">
             Tagged by type: <span className="font-semibold text-red-600">Product Issue</span> (a defect routed to engineering)
             vs. <span className="font-semibold text-gray-600">Purchase Experience</span> (delivery, account, or setup issues routed to CX).
@@ -1106,7 +1097,6 @@ function SectionDetail({
 
       {sectionId === "satisfaction" && (
         <section>
-          <SectionHeader number="4" title="Satisfaction Drivers" />
           <div className="space-y-3">
             {result.satisfaction_drivers.map((d) => (
               <div key={d.rank} className="bg-white border border-gray-200 rounded-xl p-5">
@@ -1137,14 +1127,12 @@ function SectionDetail({
 
       {sectionId === "improvements" && (
         <section>
-          <SectionHeader number="5" title="Improvement Priorities" />
           <ImprovementSection improvements={result.improvement_points} />
         </section>
       )}
 
       {sectionId === "segment-divergence" && result.segment_divergence_analysis && result.segment_divergence_analysis.segment_insights.length > 0 && (
         <section>
-          <SectionHeader number="6" title="Segment / Use-Case Divergence" />
           <SegmentDivergenceSection
             items={result.segment_divergence_analysis.segment_insights}
             risks={result.segment_divergence_analysis.emerging_risks}
@@ -1156,14 +1144,12 @@ function SectionDetail({
 
       {sectionId === "marketing" && result.marketing_recommendations && (
         <section>
-          <SectionHeader number="7" title="Marketing Recommendations" />
           <MarketingSection rec={result.marketing_recommendations} />
         </section>
       )}
 
       {sectionId === "positioning" && result.positioning_analysis && (
         <section>
-          <SectionHeader number="8" title="Competitive Positioning" />
           <div className="space-y-5">
             {result.positioning_analysis.attribute_map.length > 0 && (
               <>
@@ -1243,7 +1229,6 @@ function SectionDetail({
 
       {sectionId === "contradictions" && (
         <section>
-          <SectionHeader number="9" title="Paradox Reviews" />
           <p className="text-xs text-gray-500 mb-4">
             A star rating doesn't always reflect product quality. These reviews separate <span className="font-semibold text-gray-700">emotional rating</span> from
             <span className="font-semibold text-gray-700"> actual product experience</span>, which helps tell roadmap priorities apart from service fixes.
@@ -1255,7 +1240,6 @@ function SectionDetail({
 
       {sectionId === "importance" && (
         <section>
-          <SectionHeader number="10" title="Importance-Frequency Matrix" />
           <p className="text-xs text-gray-500 mb-4">
             Each dot is an issue, plotted by how often it's mentioned (x-axis) against its business impact
             (y-axis). Defects that drive returns or warranty claims score high impact even if rarely
@@ -1272,7 +1256,6 @@ function SectionDetail({
 
       {sectionId === "expectation-gaps" && (
         <section>
-          <SectionHeader number="11" title="Customer Expectation Gap Analysis" />
           {(() => {
             const nonProductMismatches = result.contradictions.filter((c) => !c.counts_as_product_issue);
             if (nonProductMismatches.length === 0) return null;
@@ -1282,7 +1265,7 @@ function SectionDetail({
                 the gaps below. These are reviews where the product itself was praised but the rating was low for
                 an unrelated reason (delivery, warranty, support, or likely a mistaken rating), so they're tracked as
                 contradictions rather than genuine expectation gaps.{" "}
-                <button onClick={onBack} className="underline font-medium">See Paradox Reviews on the overview →</button>
+                <button onClick={() => onToggleSection("contradictions")} className="underline font-medium">See Paradox Reviews →</button>
               </div>
             );
           })()}
@@ -1292,7 +1275,6 @@ function SectionDetail({
 
       {sectionId === "cx-actions" && result.cx_actions && result.cx_actions.length > 0 && (
         <section>
-          <SectionHeader number="12" title="CX Action Toolkit" />
           <p className="text-xs text-gray-500 mb-4">
             Ready-to-use <span className="font-semibold text-gray-700">FAQ entries, support scripts, and proactive notices</span> generated
             directly from the complaint clusters above, ready for customer support and help-center publishing.
@@ -1301,6 +1283,12 @@ function SectionDetail({
           <CXActionSection actions={filteredCxActions} />
         </section>
       )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -1346,11 +1334,11 @@ function ReportContent({
         <ExecutiveSummarySection summary={result.executive_summary} insights={result.key_insights} />
       </section>
 
-      {activeSection === null ? (
-        <SectionOverviewList result={result} onSelect={onSelectSection} />
-      ) : (
-        <SectionDetail result={result} sectionId={activeSection} onBack={() => onSelectSection(null)} />
-      )}
+      <SectionAccordion
+        result={result}
+        activeSection={activeSection}
+        onToggleSection={(id) => onSelectSection(activeSection === id ? null : id)}
+      />
     </div>
   );
 }
@@ -1367,7 +1355,7 @@ function ReportPageInner() {
     const params = new URLSearchParams(searchParams.toString());
     if (id) params.set("section", id);
     else params.delete("section");
-    router.push(`${pathname}?${params.toString()}`, { scroll: true });
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const [result, setResult] = useState<VOCResult | null>(null);
