@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 import asyncio
+import concurrent.futures
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 from langgraph.graph import StateGraph, END
 from rich.console import Console
@@ -52,18 +53,19 @@ def collect_data(state: VOCWorkflowState) -> dict:
 
     model_code = state["model_code"]
     max_reviews = state.get("max_reviews", settings.max_reviews)
+    url = state.get("url")
 
     # Fetch reviews synchronously (run async in sync context)
     async def _fetch():
         async with SamsungReviewScraper() as scraper:
-            sampled, all_reviews = await scraper.collect_all_reviews(model_code, max_reviews)
+            sampled, all_reviews = await scraper.collect_all_reviews(model_code, max_reviews, url=url)
             scraper.save_raw(all_reviews, model_code)  # cache the full real population, not just the sample
             return sampled, all_reviews
 
     reviews, all_reviews = asyncio.run(_fetch())
     total_reviews_available = len(all_reviews)
-    spec = get_samsung_spec(model_code)
-    competitor_specs = get_competitor_specs()
+    spec = get_samsung_spec(model_code, url=url)
+    competitor_specs = get_competitor_specs(model_code)
     # Hash the full fetched population (not just the sample) so a source-data change
     # is never masked by sampling happening to draw an identical-looking subset.
     input_hash = compute_input_hash(all_reviews, model_code, max_reviews, spec)
@@ -135,8 +137,11 @@ def build_taxonomy(state: VOCWorkflowState) -> dict:
     push_progress(agent_statuses=update["agent_statuses"], current_step="Building VOC taxonomy", progress_pct=35)
 
     # Taxonomy classification
+    product_spec = state.get("product_spec")
     taxonomy_agent = VOCTaxonomyAgent()
-    classified = taxonomy_agent.classify_reviews(state["cleaned_reviews"])
+    classified = taxonomy_agent.classify_reviews(
+        state["cleaned_reviews"], category=product_spec.category if product_spec else None
+    )
 
     # Build RAG index — clear stale data from any previous run first
     VectorStore.clear_process_memory()
@@ -160,12 +165,21 @@ def build_taxonomy(state: VOCWorkflowState) -> dict:
 
 
 def run_parallel_analysis(state: VOCWorkflowState) -> dict:
-    """Run all 8 analysis tasks sequentially (LangGraph handles parallelism via fan-out)."""
+    """Run the 11 analysis agents in 3 dependency-respecting concurrent waves.
+
+    BaseAgent.call() is a blocking HTTP call, so concurrency here comes from a
+    thread pool (these calls are I/O-bound and release the GIL while waiting on
+    the network), not asyncio. Each agent runs against its own result.model_copy()
+    snapshot and returns the mutated copy; only the main thread ever writes back
+    onto the shared `result`, by copying just the field(s) that agent owns — so
+    no two threads ever touch the same VOCAnalysisResult instance concurrently.
+    """
     console.rule("[bold cyan]Step 4: Parallel Analysis")
 
     reviews = state["cleaned_reviews"]
     reviews_by_id = state["reviews_by_id"]
     product_spec = state.get("product_spec")
+    full_population = state.get("all_reviews") or reviews
 
     # Rebuild vector store connection (stateless between nodes)
     vector_store = VectorStore()
@@ -184,99 +198,90 @@ def run_parallel_analysis(state: VOCWorkflowState) -> dict:
     )
 
     agent_statuses = dict(state.get("agent_statuses", {}))
+    TOTAL_AGENTS, PCT_START, PCT_END = 11, 48, 89
+    completed = 0
 
-    def _tick(agent: str, step: str, pct: int) -> None:
+    def _tick(agent: str, step: str) -> None:
+        nonlocal completed
+        completed += 1
+        pct = PCT_START + round((PCT_END - PCT_START) * completed / TOTAL_AGENTS)
         agent_statuses[agent] = "done"
         push_progress(agent_statuses=dict(agent_statuses), current_step=step, progress_pct=pct)
 
-    # Task 1: Sentiment
-    agent_statuses["SentimentAnalysisAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="Sentiment analysis", progress_pct=48)
-    sentiment_agent = SentimentAnalysisAgent()
-    result = sentiment_agent.analyze_sentiment_distribution(reviews, result)
-    result = sentiment_agent.deep_analyze(reviews, retriever, result)
-    _tick("SentimentAnalysisAgent", "Sentiment analysis complete", 52)
+    def _sentiment_task(snap: VOCAnalysisResult) -> VOCAnalysisResult:
+        agent = SentimentAnalysisAgent()
+        snap = agent.analyze_sentiment_distribution(reviews, snap)
+        return agent.deep_analyze(reviews, retriever, snap)
 
-    # Task 2: Complaints
-    agent_statuses["ComplaintAnalysisAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="Complaint analysis", progress_pct=53)
-    complaint_agent = ComplaintAnalysisAgent()
-    result = complaint_agent.analyze(reviews, retriever, result, product_spec=product_spec)
-    _tick("ComplaintAnalysisAgent", "Complaint analysis complete", 57)
+    def _contradiction_task(snap: VOCAnalysisResult) -> VOCAnalysisResult:
+        # Scans the FULL fetched population (not just the analyzed sample), since
+        # genuine rating/text mismatches are rare and a stratified sample can miss
+        # them entirely. The heuristic pre-filter is free; only flagged candidates
+        # ever reach the LLM, so cost stays bounded regardless of population size.
+        return ContradictionAnalysisAgent().analyze(full_population, retriever, snap)
 
-    # Task 3: Satisfaction
-    agent_statuses["SatisfactionAnalysisAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="Satisfaction analysis", progress_pct=58)
-    satisfaction_agent = SatisfactionAnalysisAgent()
-    result = satisfaction_agent.analyze(reviews, retriever, result)
-    _tick("SatisfactionAnalysisAgent", "Satisfaction analysis complete", 62)
+    # (agent_status_name, step_label, result fields this agent owns, fn(snapshot) -> mutated snapshot)
+    WAVE_1 = [
+        ("SentimentAnalysisAgent", "Sentiment analysis",
+         ["sentiment_distribution", "aspect_sentiment_summary"], _sentiment_task),
+        ("ComplaintAnalysisAgent", "Complaint analysis", ["complaints"],
+         lambda snap: ComplaintAnalysisAgent().analyze(reviews, retriever, snap, product_spec=product_spec)),
+        ("SatisfactionAnalysisAgent", "Satisfaction analysis", ["satisfaction_drivers"],
+         lambda snap: SatisfactionAnalysisAgent().analyze(reviews, retriever, snap, product_spec=product_spec)),
+        ("ContradictionAgent", "Contradiction detection", ["contradictions"], _contradiction_task),
+    ]
+    # Each of these reads result.complaints / result.satisfaction_drivers, written by wave 1.
+    WAVE_2 = [
+        ("ImprovementAnalysisAgent", "Improvement analysis", ["improvement_points"],
+         lambda snap: ImprovementAnalysisAgent().analyze(reviews, retriever, snap, product_spec=product_spec)),
+        ("MarketingAnalysisAgent", "Marketing analysis", ["marketing_recommendations"],
+         lambda snap: MarketingAnalysisAgent().analyze(reviews, retriever, snap, product_spec=product_spec)),
+        ("CompetitivePositioningAgent", "Competitive positioning", ["positioning_analysis"],
+         lambda snap: CompetitivePositioningAgent().analyze(reviews, retriever, snap, product_spec=product_spec)),
+        ("ExpectationGapAgent", "Expectation gap analysis", ["expectation_gaps"],
+         lambda snap: ExpectationGapAgent().analyze(reviews, retriever, snap, product_spec=product_spec)),
+        ("SegmentDivergenceAnalysisAgent", "Segment divergence analysis", ["segment_divergence_analysis"],
+         lambda snap: SegmentDivergenceAnalysisAgent().analyze(reviews, retriever, snap, product_spec=product_spec)),
+        ("CXActionAgent", "CX action generation", ["cx_actions"],
+         lambda snap: CXActionAgent().analyze(reviews, retriever, snap)),
+    ]
+    # Synthesizes a recommended action per issue from complaints (issue_type), expectation
+    # gaps, and CX actions, not frequency/impact alone — so it must run after wave 2.
+    WAVE_3 = [
+        ("ImportanceAnalysisAgent", "Importance matrix", ["importance_matrix"],
+         lambda snap: ImportanceAnalysisAgent().analyze(reviews, retriever, snap, product_spec=product_spec)),
+    ]
 
-    # Task 4: Improvements
-    agent_statuses["ImprovementAnalysisAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="Improvement analysis", progress_pct=63)
-    improvement_agent = ImprovementAnalysisAgent()
-    result = improvement_agent.analyze(reviews, retriever, result)
-    _tick("ImprovementAnalysisAgent", "Improvement analysis complete", 67)
+    def _run_wave(tasks: list[tuple[str, str, list[str], Any]]) -> None:
+        for agent_name, _, _, _ in tasks:
+            agent_statuses[agent_name] = "running"
+        pct = PCT_START + round((PCT_END - PCT_START) * completed / TOTAL_AGENTS)
+        push_progress(
+            agent_statuses=dict(agent_statuses),
+            current_step=f"Running {len(tasks)} analysis agent(s) in parallel",
+            progress_pct=pct,
+        )
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(tasks)) as pool:
+            futures = {
+                pool.submit(fn, result.model_copy()): (agent_name, step_label, field_names)
+                for agent_name, step_label, field_names, fn in tasks
+            }
+            for future in concurrent.futures.as_completed(futures):
+                agent_name, step_label, field_names = futures[future]
+                mutated = future.result()
+                for field in field_names:
+                    setattr(result, field, getattr(mutated, field))
+                _tick(agent_name, f"{step_label} complete")
 
-    # Task 5: Marketing
-    agent_statuses["MarketingAnalysisAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="Marketing analysis", progress_pct=68)
-    marketing_agent = MarketingAnalysisAgent()
-    result = marketing_agent.analyze(reviews, retriever, result, product_spec=product_spec)
-    _tick("MarketingAnalysisAgent", "Marketing analysis complete", 72)
-
-    # Task 6: Competitive
-    agent_statuses["CompetitivePositioningAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="Competitive positioning", progress_pct=73)
-    comp_agent = CompetitivePositioningAgent()
-    result = comp_agent.analyze(reviews, retriever, result)
-    _tick("CompetitivePositioningAgent", "Competitive positioning complete", 76)
-
-    # Task 7: Contradictions — scan the FULL fetched population (not just the analyzed sample),
-    # since genuine rating/text mismatches are rare and a stratified sample can miss them entirely.
-    # The heuristic pre-filter is free; only flagged candidates ever reach the LLM, so cost stays
-    # bounded regardless of population size.
-    agent_statuses["ContradictionAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="Contradiction detection", progress_pct=77)
-    contra_agent = ContradictionAnalysisAgent()
-    full_population = state.get("all_reviews") or reviews
-    result = contra_agent.analyze(full_population, retriever, result)
-    _tick("ContradictionAgent", "Contradiction detection complete", 80)
-
-    # Task 8: Expectation Gap
-    agent_statuses["ExpectationGapAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="Expectation gap analysis", progress_pct=81)
-    gap_agent = ExpectationGapAgent()
-    result = gap_agent.analyze(reviews, retriever, result)
-    _tick("ExpectationGapAgent", "Expectation gap analysis complete", 82)
-
-    # Task 9: Segment divergence
-    agent_statuses["SegmentDivergenceAnalysisAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="Segment divergence analysis", progress_pct=83)
-    segment_agent = SegmentDivergenceAnalysisAgent()
-    result = segment_agent.analyze(reviews, retriever, result)
-    _tick("SegmentDivergenceAnalysisAgent", "Segment divergence analysis complete", 84)
-
-    # Task 10: CX Action generation
-    agent_statuses["CXActionAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="CX action generation", progress_pct=85)
-    cx_agent = CXActionAgent()
-    result = cx_agent.analyze(reviews, retriever, result)
-    _tick("CXActionAgent", "CX action generation complete", 86)
-
-    # Task 11: Importance — runs last so it can synthesize a recommended action per issue
-    # from complaints (issue_type), expectation gaps, and CX actions, not frequency/impact alone.
-    agent_statuses["ImportanceAnalysisAgent"] = "running"
-    push_progress(agent_statuses=dict(agent_statuses), current_step="Importance matrix", progress_pct=87)
-    importance_agent = ImportanceAnalysisAgent()
-    result = importance_agent.analyze(reviews, retriever, result)
-    _tick("ImportanceAnalysisAgent", "Importance matrix complete", 89)
+    _run_wave(WAVE_1)
+    _run_wave(WAVE_2)
+    _run_wave(WAVE_3)
 
     return {
         "result": result,
         "agent_statuses": agent_statuses,
         "current_step": "Analysis complete",
-        "progress_pct": 89,
+        "progress_pct": PCT_END,
     }
 
 
@@ -286,7 +291,7 @@ def generate_report(state: VOCWorkflowState) -> dict:
     push_progress(agent_statuses=update["agent_statuses"], current_step="Generating executive report", progress_pct=90)
 
     report_agent = ReportGenerationAgent()
-    result = report_agent.generate_executive_summary(state["result"])
+    result = report_agent.generate_executive_summary(state["result"], product_spec=state.get("product_spec"))
 
     # Save result to disk
     import json
@@ -333,13 +338,23 @@ def build_voc_graph() -> StateGraph:
     return graph.compile()
 
 
-def run_voc_pipeline(model_code: str, max_reviews: int = 200, skip_if_cached: bool = False) -> VOCWorkflowState:
-    """Run the full VOC pipeline and return final state."""
+def run_voc_pipeline(
+    model_code: str,
+    max_reviews: int = 200,
+    skip_if_cached: bool = False,
+    url: Optional[str] = None,
+) -> VOCWorkflowState:
+    """Run the full VOC pipeline and return final state.
+
+    `url` is the product page to scrape; omit it for the original U7900F TV
+    (falls back to settings.samsung_product_url) or pass it for any other model.
+    """
     graph = build_voc_graph()
     initial_state: VOCWorkflowState = {
         "model_code": model_code,
         "max_reviews": max_reviews,
         "skip_if_cached": skip_if_cached,
+        "url": url,
         "reviews": [],
         "all_reviews": [],
         "total_reviews_available": 0,

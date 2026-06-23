@@ -22,6 +22,7 @@ class RunAnalysisRequest(BaseModel):
     model_code: str = "UN50U7900FFXZA"
     max_reviews: int = 200
     skip_if_cached: bool = False
+    url: Optional[str] = None  # if set, overrides model_code (derived from the URL's slug) and the page scraped
 
 
 class JobStatus(BaseModel):
@@ -33,7 +34,9 @@ class JobStatus(BaseModel):
     error: Optional[str] = None
 
 
-def _run_pipeline(job_id: str, model_code: str, max_reviews: int, skip_if_cached: bool = False):
+def _run_pipeline(
+    job_id: str, model_code: str, max_reviews: int, skip_if_cached: bool = False, url: Optional[str] = None
+):
     """Background task: run the full pipeline and store result."""
     try:
         from src.workflow.graph import run_voc_pipeline
@@ -42,7 +45,7 @@ def _run_pipeline(job_id: str, model_code: str, max_reviews: int, skip_if_cached
         set_current_job_id(job_id)
 
         final_state = run_voc_pipeline(
-            model_code=model_code, max_reviews=max_reviews, skip_if_cached=skip_if_cached
+            model_code=model_code, max_reviews=max_reviews, skip_if_cached=skip_if_cached, url=url
         )
 
         _jobs[job_id]["status"] = "done"
@@ -77,6 +80,18 @@ def _run_pipeline(job_id: str, model_code: str, max_reviews: int, skip_if_cached
 async def start_analysis(req: RunAnalysisRequest, background_tasks: BackgroundTasks):
     import uuid
 
+    model_code = req.model_code
+    if req.url:
+        from src.data.product_discovery import extract_model_code
+
+        derived = extract_model_code(req.url)
+        if not derived:
+            raise HTTPException(
+                status_code=400,
+                detail="Could not find a '-sku-{model}/' segment in that URL — paste a samsung.com product page URL.",
+            )
+        model_code = derived
+
     job_id = str(uuid.uuid4())[:8]
     _jobs[job_id] = {
         "job_id": job_id,
@@ -102,10 +117,12 @@ async def start_analysis(req: RunAnalysisRequest, background_tasks: BackgroundTa
         },
         "error": None,
         "result": None,
-        "model_code": req.model_code,
+        "model_code": model_code,
     }
 
-    background_tasks.add_task(_run_pipeline, job_id, req.model_code, req.max_reviews, req.skip_if_cached)
+    background_tasks.add_task(
+        _run_pipeline, job_id, model_code, req.max_reviews, req.skip_if_cached, req.url
+    )
     return {"job_id": job_id, "status": "pending"}
 
 
@@ -160,10 +177,10 @@ async def get_product_spec(model_code: str):
     return spec.model_dump()
 
 
-@router.get("/product/competitors")
-async def get_competitors():
+@router.get("/product/competitors/{model_code}")
+async def get_competitors(model_code: str):
     from src.data.spec_extractor import get_competitor_specs
-    return get_competitor_specs()
+    return get_competitor_specs(model_code)
 
 
 @router.get("/reviews/sample/{model_code}")

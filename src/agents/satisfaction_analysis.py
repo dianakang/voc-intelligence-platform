@@ -1,13 +1,15 @@
 """Task 2 & 3: Satisfaction Factor Analysis and Product Improvement Points."""
 from __future__ import annotations
 
+from typing import Optional
+
 from src.agents.base import BaseAgent
 from src.config import settings
-from src.data.models import ImprovementPoint, Priority, Review, SatisfactionDriver, VOCAnalysisResult
+from src.data.models import ImprovementPoint, Priority, ProductSpec, Review, SatisfactionDriver, VOCAnalysisResult
 from src.rag.retriever import ReviewRetriever
 
 SATISFACTION_SYSTEM = """You are a customer experience expert analyzing what drives purchase satisfaction
-for consumer electronics. Identify the core factors that make customers happy with their TV purchase.
+for consumer products. Identify the core factors that make customers happy with their purchase.
 Focus on genuine satisfaction drivers, not just absence of complaints.
 Return structured JSON only."""
 
@@ -31,6 +33,7 @@ class SatisfactionAnalysisAgent(BaseAgent):
         reviews: list[Review],
         retriever: ReviewRetriever,
         result: VOCAnalysisResult,
+        product_spec: Optional[ProductSpec] = None,
     ) -> VOCAnalysisResult:
         self.log("Analyzing satisfaction factors (Task 2)...")
 
@@ -42,13 +45,14 @@ class SatisfactionAnalysisAgent(BaseAgent):
         pool = list({r.review_id: r for r in positive_reviews + rag_positive}.values())
 
         context = retriever.format_for_context(pool[:20], max_chars=7000)
+        product_label = product_spec.product_name if product_spec and product_spec.product_name else result.model
 
-        prompt = f"""Analyze these positive Samsung TV reviews to identify the TOP 6 satisfaction drivers.
+        prompt = f"""Analyze these positive reviews to identify the TOP 6 satisfaction drivers.
 
 Reviews ({len(pool)} positive reviews):
 {context}
 
-Product: Samsung 50" Crystal UHD U7900F
+Product: {product_label}
 Total 4-5 star reviews: {len(positive_reviews)} out of {len([r for r in reviews if not r.is_duplicate])} total
 
 Return:
@@ -57,7 +61,7 @@ Return:
     {{
       "rank": 1,
       "factor": "specific satisfaction factor",
-      "aspect": "picture_quality|sound|smart_tv|price|reliability|design|gaming|connectivity",
+      "aspect": "a short aspect tag appropriate to this specific product type, or other",
       "positive_rate": <percentage 0-100>,
       "mention_count": <estimated count>,
       "representative_reviews": ["actual quote 1", "actual quote 2", "actual quote 3"]
@@ -100,6 +104,7 @@ class ImprovementAnalysisAgent(BaseAgent):
         reviews: list[Review],
         retriever: ReviewRetriever,
         result: VOCAnalysisResult,
+        product_spec: Optional[ProductSpec] = None,
     ) -> VOCAnalysisResult:
         self.log("Deriving product improvement points (Task 3)...")
 
@@ -114,8 +119,13 @@ class ImprovementAnalysisAgent(BaseAgent):
 
         rag_improvement = retriever.retrieve("wish could improve better if only would be better", top_k=10)
         context = retriever.format_for_context(rag_improvement, max_chars=4000)
+        product_label = product_spec.product_name if product_spec and product_spec.product_name else result.model
+        spec_lines = "\n".join(
+            f"- {group.group_name}: {', '.join(f'{k}: {v}' for k, v in list(group.items.items())[:4])}"
+            for group in (product_spec.raw_spec_groups[:5] if product_spec else [])
+        )
 
-        prompt = f"""Based on VOC analysis of Samsung 50" Crystal UHD U7900F reviews, generate prioritized product improvement recommendations.
+        prompt = f"""Based on VOC analysis of {product_label} reviews, generate prioritized product improvement recommendations.
 
 COMPLAINT ANALYSIS:
 {complaints_summary}
@@ -127,10 +137,7 @@ ADDITIONAL CUSTOMER VOICE:
 {context}
 
 Product spec context:
-- Display: Crystal UHD (VA panel), 60Hz, HDR10+
-- Audio: 20W 2.0 channel, no Dolby Atmos
-- Smart TV: Tizen OS, Bixby/Alexa/Google
-- Gaming: FreeSync Premium, ~13ms input lag
+{spec_lines or "(no spec data available)"}
 
 Generate TOP 8 improvement recommendations. Prioritize by: customer impact × feasibility × competitive gap.
 

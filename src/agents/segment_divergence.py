@@ -1,19 +1,20 @@
 """Task 9: Customer segment / use-case divergence analysis."""
 from __future__ import annotations
 
+from typing import Optional
+
 from src.agents.base import BaseAgent
 from src.config import settings
-from src.data.models import Review, SegmentDivergenceAnalysis, SegmentInsight, VOCAnalysisResult
+from src.data.models import ProductSpec, Review, SegmentDivergenceAnalysis, SegmentInsight, VOCAnalysisResult
 from src.rag.retriever import ReviewRetriever
 
 SYSTEM_PROMPT = """You are a VOC strategy analyst specializing in segment-level divergence.
 Your job is to find where different customer segments experience the product differently.
 
-Focus on segment patterns such as:
-- gaming-oriented customers
-- picture-quality-first customers
+Focus on segment patterns relevant to this specific product's category, such as:
+- core-performance-first customers (the attribute this product category is bought for)
 - price/value-sensitive customers
-- smart TV / usability-focused customers
+- usability/setup-focused customers
 - brand-premium expectation customers
 - reliability / long-term ownership customers
 
@@ -26,7 +27,7 @@ class SegmentDivergenceAnalysisAgent(BaseAgent):
     def __init__(self):
         super().__init__(
             name="SegmentDivergenceAnalysisAgent",
-            model=settings.model_opus,
+            model=settings.model_sonnet,
             system_prompt=SYSTEM_PROMPT,
             temperature=0.3,
         )
@@ -36,6 +37,7 @@ class SegmentDivergenceAnalysisAgent(BaseAgent):
         reviews: list[Review],
         retriever: ReviewRetriever,
         result: VOCAnalysisResult,
+        product_spec: Optional[ProductSpec] = None,
     ) -> VOCAnalysisResult:
         self.log("Analyzing segment and use-case divergence (Task 9)...")
 
@@ -49,11 +51,9 @@ class SegmentDivergenceAnalysisAgent(BaseAgent):
         )[:10]
 
         queries = [
-            "gaming input lag response console smooth fast competitive",
-            "picture quality color brightness contrast viewing quality",
+            "performance quality how well it works for its main purpose",
             "price value worth money bang for buck cheap expensive",
-            "setup installation remote menu smart tv easy use",
-            "sound audio volume bass clarity speakers",
+            "setup installation easy to use straightforward",
             "Samsung brand premium expectation quality reputation",
             "reliability defect broken return warranty long term",
         ]
@@ -72,7 +72,9 @@ class SegmentDivergenceAnalysisAgent(BaseAgent):
             f"- {s.factor}: {s.positive_rate:.0f}% positive" for s in result.satisfaction_drivers[:6]
         )
 
-        prompt = f"""Analyze how customer experience diverges by segment or use case for Samsung 50\" Crystal UHD U7900F.
+        product_label = product_spec.product_name if product_spec and product_spec.product_name else result.model
+
+        prompt = f"""Analyze how customer experience diverges by segment or use case for {product_label}.
 
 KNOWN COMPLAINTS:
 {complaint_summary}
@@ -83,8 +85,9 @@ KNOWN SATISFACTION DRIVERS:
 EVIDENCE POOL:
 {context}
 
-Interpret the reviews through segment lenses such as gaming, picture-first, price-sensitive,
-smart-TV/usability-focused, brand-premium expectation, and reliability-focused customers.
+Interpret the reviews through segment lenses appropriate to this specific product category — e.g.
+core-performance-first, price-sensitive, usability-focused, brand-premium expectation, and
+reliability-focused customers.
 
 Return JSON in this shape:
 {{

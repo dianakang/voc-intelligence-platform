@@ -1,0 +1,26 @@
+{
+  "product_name": "Bespoke AI 3-Door French Door",
+  "model": "RF24BB6600QLAA",
+  "category": "Refrigerator",
+  "screen_size": "",
+  "series": "BESPOKE RF8000BC 3 Door French Door Refrigertor with Beverage Center",
+  "display": {},
+  "resolution": {},
+  "hdr": {},
+  "smart_tv": {},
+  "gaming": {},
+  "audio": {},
+  "connectivity": {},
+  "design": {},
+  "energy": {},
+  "other": {
+    "price_usd": 2099,
+    "msrp_usd": 3199,
+    "stock_status": "in_stock",
+    "delivery_availability": "Get it tomorrow",
+    "marketing_highlights": []
+  },
+  "raw_spec_groups": [],
+  "spec_highlights": [],
+  "spec_source": "live_scrape"
+}

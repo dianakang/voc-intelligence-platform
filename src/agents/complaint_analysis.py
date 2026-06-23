@@ -17,11 +17,12 @@ Your task is to:
 2. Determine the root cause of each complaint
 3. Rank complaints by frequency and severity
 4. Extract representative review quotes
-5. Classify each complaint as either a genuine PRODUCT DEFECT (hardware/software issue with the
-   TV itself, e.g. dead pixels, laggy UI, weak speakers) or a PURCHASE EXPERIENCE issue (anything
-   about buying, account setup/login, delivery, installation, or pickup that is NOT a flaw in the
-   TV itself). This separation matters because product issues drive engineering/roadmap decisions
-   while purchase experience issues drive logistics/CX decisions.
+5. Classify each complaint as either a genuine PRODUCT DEFECT (a hardware/software/build-quality
+   issue with the product itself, e.g. a TV's dead pixels, an appliance's compressor failure) or a
+   PURCHASE EXPERIENCE issue (anything about buying, account setup/login, delivery, installation,
+   or pickup that is NOT a flaw in the product itself). This separation matters because product
+   issues drive engineering/roadmap decisions while purchase experience issues drive logistics/CX
+   decisions.
 
 Return structured JSON only. Be specific and actionable in your analysis."""
 
@@ -77,19 +78,21 @@ class ComplaintAnalysisAgent(BaseAgent):
 
         context = retriever.format_for_context(complaint_pool[:25], max_chars=8000)
         product_context = self._build_product_context(product_spec)
+        product_label = product_spec.product_name if product_spec and product_spec.product_name else result.model
+        category = product_spec.category if product_spec and product_spec.category else "consumer product"
 
-        prompt = f"""Analyze the following Samsung TV reviews to identify the top customer complaints.
+        prompt = f"""Analyze the following reviews of a {category} to identify the top customer complaints.
 
 Reviews (total pool: {len(complaint_pool)} negative/neutral reviews):
 {context}
 
-Product: Samsung 50" Crystal UHD U7900F (UN50U7900FFXZA)
+Product: {product_label}
 Total reviews analyzed: {len([r for r in reviews if not r.is_duplicate])}
 {product_context}
 
 Use the PRODUCT PAGE FACTS above to correctly separate product_defect from purchase_experience —
 e.g. a complaint about needing an account/login, delivery delays, or stock/availability is a
-purchase_experience issue regardless of how it's phrased, not a defect in the TV itself.
+purchase_experience issue regardless of how it's phrased, not a defect in the product itself.
 
 Identify the TOP 8 complaint categories. For each, provide:
 {{
@@ -97,7 +100,7 @@ Identify the TOP 8 complaint categories. For each, provide:
     {{
       "rank": 1,
       "category": "category name",
-      "aspect": "picture_quality|sound|smart_tv|price|installation|reliability|design|gaming|connectivity|remote",
+      "aspect": "a short aspect tag appropriate to this specific product type (e.g. picture_quality/sound/smart_tv/gaming for a TV; cooling/ice_maker/noise/capacity for a refrigerator), or other",
       "issue_type": "product_defect|purchase_experience",
       "frequency": <estimated count>,
       "frequency_pct": <percentage of negative reviews>,

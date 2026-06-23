@@ -1,975 +1,977 @@
 {
   "product_id": "UN50U7900FFXZA",
   "model": "UN50U7900FFXZA",
-  "analysis_date": "2026-06-22 15:37",
-  "total_reviews": 30,
-  "total_reviews_available": 2790,
-  "avg_rating": 4.34,
+  "analysis_date": "2026-06-23 07:03",
+  "total_reviews": 20,
+  "total_reviews_available": 2845,
+  "avg_rating": 4.55,
   "complaints": [
     {
       "rank": 1,
-      "category": "Display Issues",
-      "frequency": 2,
-      "frequency_pct": 10.0,
-      "root_cause": "Clouding in the corners of the display during dark scenes, potentially due to backlight bleeding or panel uniformity issues.",
+      "category": "Damaged / Destroyed on Delivery",
+      "frequency": 1,
+      "frequency_pct": 5.0,
+      "root_cause": "Inadequate packaging or mishandling during shipping resulted in units arriving severely damaged (shattered glass), compounded by poor post-damage customer service and failure to redeliver replacement units.",
       "representative_reviews": [
-        "I am having issues with the display on an 85-inch TV that I bought in December 2025. During dark or evening scenes in a program, I notice a cloudy image in the four corners of the TV display."
+        "I had two televisions and had to send back both because they were damaged. In fact, they were so smashed I got glass slivers in my fingers.",
+        "Then they gave me the runaround on how to get another delivered. I gave up and never got my television."
       ],
-      "aspect": "picture_quality",
-      "issue_type": "product_defect"
+      "aspect": "other",
+      "issue_type": "purchase_experience"
     },
     {
       "rank": 2,
-      "category": "Mounting Difficulties",
+      "category": "Streaming Buffering / Insufficient Smart TV Memory",
       "frequency": 1,
       "frequency_pct": 5.0,
-      "root_cause": "Lack of standard VESA mounting holes, requiring an adapter that is not readily available.",
+      "root_cause": "Onboard RAM or internal storage is insufficient to handle streaming app workloads smoothly, causing repeated buffering interruptions during playback.",
       "representative_reviews": [
-        "I cannot figure out how to mount this TV to a wall mount. There are no holes to screw into. Apparently, you need some kind of adapter, but I have yet to find one."
-      ],
-      "aspect": "installation",
-      "issue_type": "product_defect"
-    },
-    {
-      "rank": 3,
-      "category": "Operating System Performance",
-      "frequency": 1,
-      "frequency_pct": 5.0,
-      "root_cause": "The TV's operating system slows down with updates and the installation of too many apps, likely due to limited processing power or memory.",
-      "representative_reviews": [
-        "It is a beautiful TV but slows down with operating system updates and too many apps."
+        "Nice picture, horrible memory. Constantly buffers when streaming."
       ],
       "aspect": "smart_tv",
       "issue_type": "product_defect"
     },
     {
-      "rank": 4,
-      "category": "Remote Control Design",
+      "rank": 3,
+      "category": "Poor Sound / Unclear Dialogue",
       "frequency": 1,
       "frequency_pct": 5.0,
-      "root_cause": "Lack of direct channel input via numbered keys on the remote, making navigation cumbersome.",
+      "root_cause": "Built-in speaker tuning prioritizes mid-range frequencies inadequately, causing dialogue intelligibility to drop when competing with background audio or sound effects.",
       "representative_reviews": [
-        "It would be nice if I could just type in channel numbers instead of searching for them."
-      ],
-      "aspect": "remote",
-      "issue_type": "product_defect"
-    },
-    {
-      "rank": 5,
-      "category": "Delivery and Return Issues",
-      "frequency": 1,
-      "frequency_pct": 5.0,
-      "root_cause": "Complicated return process and poor coordination between Samsung and Verizon, leading to unresolved issues with a broken screen on delivery.",
-      "representative_reviews": [
-        "The TV arrived with a broken screen. It was part of a promotion with Verizon. After spending multiple phone calls to various Verizon departments, we were told to call Samsung."
-      ],
-      "aspect": "purchase_experience",
-      "issue_type": "purchase_experience"
-    },
-    {
-      "rank": 6,
-      "category": "Picture Quality Adjustments",
-      "frequency": 1,
-      "frequency_pct": 5.0,
-      "root_cause": "Difficulty in achieving satisfactory brightness and contrast levels, possibly due to limited calibration options or panel limitations.",
-      "representative_reviews": [
-        "I am a little concerned with the brightness and the contrast levels. I have tried to adjust, but something still seems a little off, but only on certain stations."
-      ],
-      "aspect": "picture_quality",
-      "issue_type": "product_defect"
-    },
-    {
-      "rank": 7,
-      "category": "Sound Quality",
-      "frequency": 1,
-      "frequency_pct": 5.0,
-      "root_cause": "Sound quality perceived as subpar, possibly due to weak internal speakers or poor sound processing.",
-      "representative_reviews": [
-        "The sound could be a little bit better, though."
+        "Only thing missing is sound quality. The dialogues are sometimes not very clear when there are some background noises."
       ],
       "aspect": "sound",
       "issue_type": "product_defect"
     },
     {
+      "rank": 4,
+      "category": "No Optical Audio Output / Limited Connectivity",
+      "frequency": 1,
+      "frequency_pct": 5.0,
+      "root_cause": "The unit omits an optical (TOSLINK) audio output port, forcing users who want external audio systems to rely solely on Bluetooth, which introduces latency and pairing friction.",
+      "representative_reviews": [
+        "There is no optical audio out. The only way to connect is by Bluetooth, which is kind of a pain."
+      ],
+      "aspect": "other",
+      "issue_type": "product_defect"
+    },
+    {
+      "rank": 5,
+      "category": "Poor Viewing Angles",
+      "frequency": 1,
+      "frequency_pct": 5.0,
+      "root_cause": "The panel uses VA or standard LED technology with a narrow viewing cone; picture quality (brightness, color accuracy) degrades noticeably when viewed from off-center positions.",
+      "representative_reviews": [
+        "Great television for the price. It has a great picture and sound, and pretty bright, but not a good television for viewing angles from the sides."
+      ],
+      "aspect": "picture_quality",
+      "issue_type": "product_defect"
+    },
+    {
+      "rank": 6,
+      "category": "Remote Control Usability / Compatibility",
+      "frequency": 2,
+      "frequency_pct": 10.0,
+      "root_cause": "Remote layout, button mapping, or pairing process is non-intuitive, leading multiple users to struggle with basic operation; may also reflect limited third-party device compatibility.",
+      "representative_reviews": [
+        "Only feature issue is the compatibility of the remote. Had a little trouble on how to operate it.",
+        "I have some trouble with the remote, but I'm sure that's my fault. I love the television."
+      ],
+      "aspect": "other",
+      "issue_type": "product_defect"
+    },
+    {
+      "rank": 7,
+      "category": "Limited Stock / Purchase Availability",
+      "frequency": 1,
+      "frequency_pct": 5.0,
+      "root_cause": "Per product page facts, stock status is listed as limited_or_unavailable, meaning prospective buyers may be unable to purchase the unit or face significant delays in obtaining it.",
+      "representative_reviews": [
+        "Stock status: limited_or_unavailable (sourced from verified product page data \u2014 no direct customer quote available in this review pool)."
+      ],
+      "aspect": "other",
+      "issue_type": "purchase_experience"
+    },
+    {
       "rank": 8,
-      "category": "Account Setup Requirement",
-      "frequency": 0,
-      "frequency_pct": 0.0,
-      "root_cause": "Requirement for a Samsung Account to access streaming apps and smart features, which may not be clearly communicated.",
-      "representative_reviews": [],
-      "aspect": "smart_tv",
+      "category": "Delivery / Pickup Availability Constraints",
+      "frequency": 1,
+      "frequency_pct": 5.0,
+      "root_cause": "Per product page facts, delivery and pickup options are limited, restricting how and when customers can receive the product and potentially driving frustration for buyers in underserved areas.",
+      "representative_reviews": [
+        "Delivery/pickup availability limited (sourced from verified product page data \u2014 no direct customer quote available in this review pool)."
+      ],
+      "aspect": "other",
       "issue_type": "purchase_experience"
     }
   ],
   "satisfaction_drivers": [
     {
       "rank": 1,
-      "factor": "Picture Quality",
-      "positive_rate": 95.0,
-      "mention_count": 21,
+      "factor": "Exceptional Picture Quality & Resolution",
+      "positive_rate": 94.0,
+      "mention_count": 17,
       "representative_reviews": [
-        "I love the clarity of the TV. I am enjoying every bit of it.",
-        "The picture quality is great for the price.",
-        "The picture is the best I have ever seen on a TV."
+        "The picture is unreal. It feels like you're right next to whatever you're watching. The resolution is so clear.",
+        "You can see the beads of sweat on an actor's face. The colors are so much more bright and vivid than my old television.",
+        "The brightness and vibrancy truly sets the television apart. The resolution and contrast difference helps with whatever personal preference you may have."
       ],
-      "aspect": "picture_quality"
+      "aspect": "display"
     },
     {
       "rank": 2,
-      "factor": "Sound Quality",
-      "positive_rate": 75.0,
-      "mention_count": 18,
+      "factor": "Vivid Colors & Brightness",
+      "positive_rate": 83.0,
+      "mention_count": 15,
       "representative_reviews": [
-        "The sound quality is good and everything moves really smoothly.",
-        "Furthermore, the sound quality is surprisingly robust, adding an immersive layer to any viewing session.",
-        "Sound, apps, and integration are all top-notch."
+        "The colors are vibrant too. The brightness is just perfect.",
+        "The screen is bright and the speakers sound good.",
+        "The brightness is perfect for me to adjust how I need to, being that I have migraines."
       ],
-      "aspect": "sound"
+      "aspect": "display"
     },
     {
       "rank": 3,
-      "factor": "Smart Features",
-      "positive_rate": 70.0,
-      "mention_count": 17,
+      "factor": "Immersive Viewing Experience",
+      "positive_rate": 78.0,
+      "mention_count": 14,
       "representative_reviews": [
-        "The user interface is intuitive and easy to navigate, providing seamless access to a wide array of applications.",
-        "The smart features are fast and easy to navigate.",
-        "Accessing the internet through the TV is a new experience for me and comes in quite handy on a lazy day."
+        "Watching movies or football games feels amazing.",
+        "I am excited about the resolution and the beauty of the product. Happy I have this for the World Cup football.",
+        "Good television to buy. Great picture and sound. Fun to play games on."
       ],
-      "aspect": "smart_tv"
+      "aspect": "entertainment"
     },
     {
       "rank": 4,
-      "factor": "Design and Aesthetics",
-      "positive_rate": 60.0,
-      "mention_count": 15,
+      "factor": "Sound Quality Upgrade Over Previous TVs",
+      "positive_rate": 67.0,
+      "mention_count": 12,
       "representative_reviews": [
-        "The TV is very streamlined. We love how it looks in the living room.",
-        "It is thin, looks great on the wall.",
-        "The aesthetics are on point."
+        "Sound is much better than other products I have owned in the past.",
+        "Great features like navigating through the apps, nice sound and perfect for my needs.",
+        "Television has a great picture, and the sound is pretty good too."
       ],
-      "aspect": "design"
+      "aspect": "audio"
     },
     {
       "rank": 5,
-      "factor": "Reliability",
-      "positive_rate": 50.0,
-      "mention_count": 12,
+      "factor": "Outstanding Value for the Price",
+      "positive_rate": 61.0,
+      "mention_count": 11,
       "representative_reviews": [
-        "I have had it for about six months.",
-        "They are very reliable and I like everything about them.",
-        "I love everything about my Samsung TV. My last Samsung broke and I had to use an LG. Nothing compares to Samsung."
+        "Great product, great value. Under $350. Perfect size and loved all the features.",
+        "Great television for the price. It has a great picture and sound.",
+        "For a budget LED television it is good enough. Color reproduction is good."
       ],
-      "aspect": "reliability"
+      "aspect": "value"
     },
     {
       "rank": 6,
-      "factor": "Value for Money",
-      "positive_rate": 45.0,
-      "mention_count": 11,
+      "factor": "Samsung Brand Trust & Loyalty",
+      "positive_rate": 56.0,
+      "mention_count": 10,
       "representative_reviews": [
-        "The picture quality is great for the price.",
-        "Absolutely loving my 75-inch Samsung Crystal UHD! The picture quality is stunning for the price.",
-        "This is an excellent purchase."
+        "I'm so happy I made this purchase. Another great product to add to my Samsung family.",
+        "Always have had Samsung televisions all my life. I am a Samsung lover, and they are the best.",
+        "I will definitely buy Samsung again."
       ],
-      "aspect": "price"
+      "aspect": "brand"
     }
   ],
   "improvement_points": [
     {
-      "area": "Display Uniformity",
-      "expected_effect": "Enhance customer satisfaction by addressing clouding issues, leading to improved picture quality perception.",
-      "priority": "high",
-      "frequency": 2,
-      "impact_score": 9.0,
-      "supporting_evidence": [
-        "I am having issues with the display on an 85-inch TV that I bought in December 2025. During dark or evening scenes in a program, I notice a cloudy image in the four corners of the TV display.",
-        "The picture quality is a bit down and needs to be improved."
-      ]
-    },
-    {
-      "area": "Remote Control Design",
-      "expected_effect": "Improve user experience by adding direct channel input, making navigation more intuitive and efficient.",
+      "area": "Remote Control UX & Third-Party Device Compatibility",
+      "expected_effect": "Reducing remote usability friction will lower support call volume, improve first-week satisfaction scores, and reduce return rates among less tech-savvy users. Clearer onboarding and intuitive button mapping can lift overall rating averages.",
       "priority": "high",
       "frequency": 2,
       "impact_score": 8.0,
       "supporting_evidence": [
-        "I do wish the remote was more comprehensive; however, for example, more numbered keys to directly access the stations, like a phone.",
-        "It would be nice if I could just type in channel numbers instead of searching for them."
+        "Only feature issue is the compatibility of the remote. Had a little trouble on how to operate it.",
+        "I have some trouble with the remote, but I'm sure that's my fault. I love the television."
       ]
     },
     {
-      "area": "Operating System Performance",
-      "expected_effect": "Increase reliability and user satisfaction by optimizing OS performance, especially with updates and multiple apps.",
+      "area": "Onboard RAM & Internal Storage Upgrade for Streaming Performance",
+      "expected_effect": "Eliminating buffering interruptions during streaming will directly address the lowest-rated review (3.0/5) and prevent churn among streaming-first users. Improved memory headroom also future-proofs the platform as app sizes grow on Tizen.",
+      "priority": "high",
+      "frequency": 1,
+      "impact_score": 8.0,
+      "supporting_evidence": [
+        "Nice picture, horrible memory. Constantly buffers when streaming.",
+        "Onboard RAM or internal storage is insufficient to handle streaming app workloads smoothly, causing repeated buffering interruptions during playback."
+      ]
+    },
+    {
+      "area": "Packaging Reinforcement & Delivery Damage Prevention",
+      "expected_effect": "Strengthening protective packaging and improving last-mile handling protocols will reduce damaged-on-arrival incidents, eliminate costly replacement logistics, and prevent severe brand trust erosion from safety hazards like shattered glass.",
+      "priority": "high",
+      "frequency": 1,
+      "impact_score": 9.0,
+      "supporting_evidence": [
+        "I had two televisions and had to send back both because they were damaged. In fact, they were so smashed I got glass slivers in my fingers.",
+        "Then they gave me the runaround on how to get another delivered. I gave up and never got my television."
+      ]
+    },
+    {
+      "area": "Post-Purchase Customer Service & Replacement Fulfillment Process",
+      "expected_effect": "Streamlining the damaged-unit replacement workflow with clear escalation paths and guaranteed redelivery commitments will recover at-risk customers, reduce 1-star reviews tied to service failures, and protect Samsung brand loyalty scores.",
+      "priority": "high",
+      "frequency": 1,
+      "impact_score": 8.0,
+      "supporting_evidence": [
+        "If you order any television from Samsung, good luck getting good service.",
+        "They gave me the runaround on how to get another delivered. I gave up and never got my television."
+      ]
+    },
+    {
+      "area": "Dialogue Clarity & Speaker Tuning Enhancement",
+      "expected_effect": "Improving built-in speaker EQ to better isolate and amplify dialogue frequencies will address a recurring audio complaint, reduce reliance on external audio purchases, and lift the 67% sound satisfaction rate closer to the 90%+ range seen for picture quality.",
       "priority": "medium",
       "frequency": 1,
       "impact_score": 7.0,
       "supporting_evidence": [
-        "It is a beautiful TV but slows down with operating system updates and too many apps."
+        "Only thing missing is sound quality. The dialogues are sometimes not very clear when there are some background noises.",
+        "Built-in speaker tuning prioritizes mid-range frequencies inadequately, causing dialogue intelligibility to drop when competing with background audio or sound effects."
       ]
     },
     {
-      "area": "Sound Quality",
-      "expected_effect": "Enhance audio experience by improving internal speakers or sound processing, leading to better overall satisfaction.",
+      "area": "Optical (TOSLINK) Audio Output Port Addition",
+      "expected_effect": "Adding an optical audio output port will satisfy audiophiles and home theater users who require low-latency wired audio connections, expanding the addressable buyer segment and reducing friction for soundbar and AV receiver integrations.",
       "priority": "medium",
       "frequency": 1,
       "impact_score": 6.0,
       "supporting_evidence": [
-        "The sound could be a little bit better, though.",
-        "I wish the sound was better, though overall I am very satisfied."
+        "The unit omits an optical (TOSLINK) audio output port, forcing users who want external audio systems to rely solely on Bluetooth, which introduces latency and pairing friction.",
+        "No Optical Audio Output / Limited Connectivity identified as a product gap in VOC analysis."
       ]
     },
     {
-      "area": "Mounting Compatibility",
-      "expected_effect": "Reduce installation friction by providing standard VESA mounting holes or readily available adapters.",
+      "area": "Viewing Angle Improvement via Panel Technology Upgrade",
+      "expected_effect": "Transitioning from VA to IPS or adopting wide-angle optical film technology will broaden the usable viewing cone, making the TV more suitable for living room group viewing scenarios and reducing a key competitive disadvantage versus OLED and QLED alternatives.",
       "priority": "medium",
+      "frequency": 1,
+      "impact_score": 6.0,
+      "supporting_evidence": [
+        "The panel uses VA or standard LED technology with a narrow viewing cone; picture quality degrades noticeably when viewed from off-center positions.",
+        "Poor Viewing Angles identified as a product gap; competitive gap is significant versus premium panel alternatives."
+      ]
+    },
+    {
+      "area": "Inventory Availability & Distribution Channel Expansion",
+      "expected_effect": "Resolving limited stock status and expanding delivery and pickup options to underserved areas will directly convert lost sales opportunities, reduce purchase abandonment, and ensure the strong brand loyalty (56% positive) translates into completed transactions.",
+      "priority": "low",
       "frequency": 1,
       "impact_score": 5.0,
       "supporting_evidence": [
-        "Lack of standard VESA mounting holes, requiring an adapter that is not readily available."
+        "Per product page facts, stock status is listed as limited_or_unavailable, meaning prospective buyers may be unable to purchase the unit.",
+        "Delivery and pickup options are limited, restricting how and when customers can receive the product and potentially driving frustration for buyers in underserved areas."
       ]
-    },
-    {
-      "area": "Picture Quality Adjustments",
-      "expected_effect": "Allow for better customization of picture settings, improving user satisfaction with brightness and contrast levels.",
-      "priority": "low",
-      "frequency": 1,
-      "impact_score": 4.0,
-      "supporting_evidence": [
-        "Difficulty in achieving satisfactory brightness and contrast levels."
-      ]
-    },
-    {
-      "area": "Delivery and Return Process",
-      "expected_effect": "Enhance customer service experience by streamlining the return process and improving coordination with partners.",
-      "priority": "low",
-      "frequency": 1,
-      "impact_score": 3.0,
-      "supporting_evidence": [
-        "Complicated return process and poor coordination between Samsung and Verizon, leading to unresolved issues with a broken screen on delivery."
-      ]
-    },
-    {
-      "area": "Account Setup Communication",
-      "expected_effect": "Improve transparency and user onboarding by clearly communicating the need for a Samsung Account for smart features.",
-      "priority": "low",
-      "frequency": 0,
-      "impact_score": 2.0,
-      "supporting_evidence": []
     }
   ],
   "marketing_recommendations": {
-    "current_perception": "Customers generally perceive Samsung's 50\" Class Crystal UHD U7900F 4K Smart TV as a high-quality product with excellent picture and sound quality, robust smart features, and appealing design. However, some customers face issues with display clouding, mounting difficulties, and operating system performance.",
+    "current_perception": "Customers perceive the Samsung U7900F as a high-value, visually impressive budget TV that delivers on picture quality and brightness far beyond its price point. The Samsung brand carries strong loyalty and aesthetic credibility. However, the technical marketing language \u2014 'Crystal Processor 4K,' 'MetalStream Design,' 'Motion Xcelerator 60Hz,' 'Q-Symphony' \u2014 registers as hollow jargon to most buyers, who neither understand nor reference these terms in their satisfaction. The brand's promise of a seamless smart TV experience is undercut by real friction points: buffering due to limited memory, dialogue clarity issues, missing optical audio output, and narrow viewing angles. Most critically, a severe trust gap exists around delivery and post-purchase service, where damaged-unit experiences and unresponsive customer support actively destroy brand loyalty at the moment it matters most.",
     "actual_value_drivers": [
-      "Picture Quality",
-      "Sound Quality",
-      "Smart Features",
-      "Design and Aesthetics",
-      "Reliability"
+      "Stunning 4K picture clarity that makes viewers feel immersed in the content \u2014 'The picture is unreal. It feels like you're right next to whatever you're watching.'",
+      "Vivid, adjustable brightness that satisfies a wide range of personal preferences and room conditions, including sensitivity needs like migraine sufferers",
+      "Vibrant, accurate color reproduction that elevates everyday viewing of sports, movies, and broadcast TV",
+      "Exceptional price-to-performance ratio \u2014 premium picture quality at a sub-$300 price point that rivals TVs costing significantly more",
+      "Lightweight, fast setup experience that reduces buyer friction and delivers immediate satisfaction out of the box",
+      "Sound quality that represents a meaningful upgrade over older or competing budget TVs, even if not audiophile-grade",
+      "Intuitive remote and smart TV navigation that lowers the learning curve for all age groups",
+      "Strong Samsung brand trust and multi-generational loyalty that drives repeat purchase intent"
     ],
     "new_message_proposals": [
-      "Experience Vibrant Picture Quality with Samsung's Crystal UHD Technology.",
-      "Immerse Yourself in Rich Sound and Seamless Smart Features.",
-      "Sleek Design Meets Superior Performance in Every Samsung TV.",
-      "Reliability You Can Trust: Samsung TVs for Every Home."
+      "See Every Detail. Feel Every Moment. \u2014 Crystal-clear 4K resolution so sharp, customers say it feels like you're standing right inside the scene. At $249.99, immersion has never been this affordable.",
+      "Your Room. Your Brightness. Your Picture. \u2014 Adjustable brightness and vibrant color tuning that adapts to your space and your preferences \u2014 whether you're watching the World Cup at noon or a movie at midnight.",
+      "Big-Screen Impact. Budget-Friendly Price. \u2014 Customers upgrading from older TVs consistently call it the best picture they've ever owned. Now at $249.99, see what they mean.",
+      "Setup in Minutes. Stunning from the Start. \u2014 Lightweight design, a simple remote, and a picture that wows from the first power-on. No tech degree required \u2014 just unbox, plug in, and enjoy."
     ],
     "messages_to_avoid": [
-      "Endless Free Content",
-      "Samsung Knox Security",
-      "Object Tracking Sound Lite"
+      "'Endless Free Content' \u2014 Directly contradicted by customer complaints about streaming buffering and insufficient smart TV memory; promising content abundance when the hardware struggles to deliver smooth playback erodes trust immediately after purchase.",
+      "'Object Tracking Sound Lite' and 'Q-Symphony' \u2014 Customers who experience unclear dialogue and missing optical audio output will view these audio-focused claims as misleading; using premium sound branding on a product with documented dialogue intelligibility issues and no TOSLINK port creates a credibility gap.",
+      "'MetalStream Design' \u2014 No customer references design in terms of this branded name; it reads as empty jargon and risks making the brand appear out of touch with what buyers actually value.",
+      "Any claim implying wide or flexible viewing angles \u2014 The VA/LED panel's narrow viewing cone is a documented complaint; marketing implying versatile room placement will generate negative reviews from buyers who discover degraded picture quality from off-center seating.",
+      "Any messaging centered on Samsung's customer service or post-purchase support \u2014 The delivery damage and service failure experience is the single most emotionally damaging complaint in the VOC; spotlighting service quality invites direct contradiction from real customer experiences and amplifies distrust."
     ],
     "evidence": [
-      "\"The picture quality is stunning for the price, everything is super crisp and the colors really pop.\"",
-      "\"The sound quality is surprisingly robust, adding an immersive layer to any viewing session.\"",
-      "\"The user interface is intuitive and easy to navigate, providing seamless access to a wide array of applications.\"",
-      "\"It is thin, looks great on the wall, and the smart features are fast and easy to navigate.\""
+      "\"The picture is unreal. It feels like you're right next to whatever you're watching. The resolution is so clear. I'm so happy I made this purchase.\" \u2014 5-star review, 2026-03-23 [supports immersion and resolution messaging]",
+      "\"The brightness is perfect for me to adjust how I need to, being that I have migraines. Resolution amazing. Security is perfect as it is just what I need.\" \u2014 5-star review, 2026-06-20 [supports adjustable brightness and personalization messaging]",
+      "\"Under $350. Perfect size and loved all the features. The setup and unpacking were a breeze, taking minutes. It was extremely lightweight compared to the Sony I replaced.\" \u2014 5-star review, 2026-04-08 [supports value and ease-of-setup messaging]",
+      "\"The brightness and vibrancy truly sets the television apart. The resolution and contrast difference helps with whatever personal preference you may have.\" \u2014 5-star review, 2026-06-20 [supports vivid color and personalization messaging]",
+      "\"I am excited about the resolution and the beauty of the product. Happy I have this for the World Cup football.\" \u2014 5-star review, 2026-06-20 [supports sports viewing and immersive experience messaging]",
+      "\"There is no optical audio out. The only way to connect is by Bluetooth, which is kind of a pain.\" \u2014 4-star review, 2025-10-13 [confirms audio connectivity claim should be avoided in marketing]",
+      "\"I had two televisions and had to send back both because they were damaged... I gave up and never got my television.\" \u2014 1-star review, 2025-10-14 [confirms customer service and delivery claims must be avoided until operational issues are resolved]"
     ]
   },
-  "positioning_analysis": {
-    "samsung_strengths": [
-      "Picture Quality",
-      "Sound Quality",
-      "Smart Features",
-      "Design and Aesthetics"
-    ],
-    "samsung_weaknesses": [
-      "Display Issues",
-      "Mounting Difficulties",
-      "Operating System Performance",
-      "Remote Control Design"
-    ],
-    "competitive_advantages": [
-      "Better picture quality than Hisense A7 and LG UT70",
-      "Superior smart features compared to Hisense A7"
-    ],
-    "competitive_threats": [
-      "TCL Q6 offers Dolby Vision and Dolby Atmos",
-      "Hisense A7 has a lower price point"
-    ],
-    "competitors": [
-      {
-        "name": "TCL Q6",
-        "model": "55Q650G",
-        "price_range": "$330-380",
-        "picture_quality": "mixed",
-        "sound_quality": "mixed",
-        "ux": "win",
-        "smart_features": "win",
-        "strengths": [
-          "Dolby Vision and Dolby Atmos support"
-        ],
-        "weaknesses": [
-          "Higher input lag compared to Samsung"
-        ]
-      },
-      {
-        "name": "Hisense A7",
-        "model": "50A7G",
-        "price_range": "$250-300",
-        "picture_quality": "lose",
-        "sound_quality": "mixed",
-        "ux": "lose",
-        "smart_features": "lose",
-        "strengths": [
-          "Lower price point"
-        ],
-        "weaknesses": [
-          "Inferior smart features and picture quality"
-        ]
-      },
-      {
-        "name": "LG UT70",
-        "model": "50UT70",
-        "price_range": "$320-370",
-        "picture_quality": "mixed",
-        "sound_quality": "mixed",
-        "ux": "win",
-        "smart_features": "mixed",
-        "strengths": [
-          "Strong brand recognition"
-        ],
-        "weaknesses": [
-          "No Dolby Atmos support"
-        ]
-      }
-    ],
-    "positioning_recommendation": "Samsung should emphasize its superior picture quality and smart features in marketing campaigns while addressing sound quality and display issues to maintain competitive advantage. Highlight design aesthetics as a differentiator and monitor OS performance and remote design for potential improvements.",
-    "attribute_map": [
-      {
-        "attribute": "Picture Quality",
-        "samsung_assessment": "win",
-        "mention_volume": "high",
-        "sentiment_score": 0.82,
-        "business_impact": "purchase_driver",
-        "vs_competitor_note": "Samsung's picture quality is superior to Hisense A7 and LG UT70, but TCL Q6 offers Dolby Vision."
-      },
-      {
-        "attribute": "Sound Quality",
-        "samsung_assessment": "mixed",
-        "mention_volume": "medium",
-        "sentiment_score": 0.5,
-        "business_impact": "neutral",
-        "vs_competitor_note": "TCL Q6 and Hisense A7 offer Dolby Atmos, which Samsung lacks."
-      },
-      {
-        "attribute": "Smart Features",
-        "samsung_assessment": "win",
-        "mention_volume": "medium",
-        "sentiment_score": 0.7,
-        "business_impact": "upsell_opportunity",
-        "vs_competitor_note": "Samsung's Tizen OS is more intuitive than Hisense's VIDAA U6."
-      },
-      {
-        "attribute": "Design and Aesthetics",
-        "samsung_assessment": "win",
-        "mention_volume": "medium",
-        "sentiment_score": 0.6,
-        "business_impact": "neutral",
-        "vs_competitor_note": "Samsung's design is more appealing than Hisense A7."
-      },
-      {
-        "attribute": "Display Issues",
-        "samsung_assessment": "lose",
-        "mention_volume": "low",
-        "sentiment_score": -0.1,
-        "business_impact": "trust_risk",
-        "vs_competitor_note": "Display issues like clouding are not commonly reported in TCL or LG models."
-      },
-      {
-        "attribute": "Mounting Difficulties",
-        "samsung_assessment": "lose",
-        "mention_volume": "low",
-        "sentiment_score": -0.1,
-        "business_impact": "neutral",
-        "vs_competitor_note": "Competitors offer standard VESA mounting options."
-      },
-      {
-        "attribute": "Operating System Performance",
-        "samsung_assessment": "mixed",
-        "mention_volume": "low",
-        "sentiment_score": -0.1,
-        "business_impact": "neutral",
-        "vs_competitor_note": "TCL's Google TV is perceived as more robust."
-      },
-      {
-        "attribute": "Remote Control Design",
-        "samsung_assessment": "lose",
-        "mention_volume": "low",
-        "sentiment_score": -0.1,
-        "business_impact": "neutral",
-        "vs_competitor_note": "Competitors offer more comprehensive remote designs."
-      }
-    ],
-    "defend": [
-      "Picture Quality",
-      "Smart Features"
-    ],
-    "differentiate": [
-      "Design and Aesthetics"
-    ],
-    "fix": [
-      "Sound Quality",
-      "Display Issues"
-    ],
-    "monitor": [
-      "Operating System Performance",
-      "Remote Control Design"
-    ]
-  },
+  "positioning_analysis": null,
   "segment_divergence_analysis": {
     "segment_insights": [
       {
-        "segment": "picture-quality-first customers",
-        "size_estimate": 10,
+        "segment": "Core Performance-First Customers (Picture & Resolution Seekers)",
+        "size_estimate": 14,
         "key_positive_factors": [
-          "vibrant colors",
-          "deep contrast",
-          "clarity"
+          "Exceptional 4K UHD resolution praised as 'unreal' and 'crystal clear'",
+          "Vivid, vibrant color reproduction exceeding prior TV experiences",
+          "High brightness with adjustable settings satisfying diverse viewing needs",
+          "Immersive viewing experience for sports and movies"
         ],
         "key_pain_points": [
-          "clouding in corners",
-          "brightness and contrast adjustments"
+          "Narrow viewing angles degrade picture quality for off-center viewers",
+          "Panel described as 'not the sharpest' relative to premium LED expectations"
         ],
-        "expectation_gap": "Expected flawless picture quality but experienced issues with clouding and adjustments.",
-        "business_implication": "This segment is crucial for maintaining a reputation for superior picture quality.",
-        "recommended_action": "Improve panel uniformity and provide better calibration options.",
+        "expectation_gap": "This segment expected flagship-level picture performance across all viewing positions; they received excellent front-facing picture quality but were let down by VA panel viewing angle limitations that compromise the immersive experience when multiple viewers are present.",
+        "business_implication": "This is the largest and most vocal satisfied segment, driving the bulk of 5-star reviews and word-of-mouth. Retaining them is critical to maintaining high aggregate ratings and repeat Samsung purchases.",
+        "recommended_action": "Highlight front-facing picture performance in marketing while proactively disclosing viewing angle limitations in product specs to set accurate expectations and reduce post-purchase disappointment.",
         "evidence": [
-          "This television offers a remarkable visual experience, showcasing vibrant colors and deep contrasts.",
-          "The picture quality is a bit down and needs to be improved."
+          "The picture is unreal. It feels like you're right next to whatever you're watching. The resolution is so clear.",
+          "You can see the beads of sweat on an actor's face. The colors are so much more bright and vivid than my old television.",
+          "Great television for the price. It has a great picture and sound, and pretty bright, but not a good television for viewing angles from the sides."
         ]
       },
       {
-        "segment": "smart TV / usability-focused customers",
-        "size_estimate": 8,
-        "key_positive_factors": [
-          "intuitive interface",
-          "seamless app access"
-        ],
-        "key_pain_points": [
-          "operating system slows down with updates",
-          "remote lacks direct channel input"
-        ],
-        "expectation_gap": "Expected smooth and fast smart features but experienced slowdowns and cumbersome navigation.",
-        "business_implication": "Important for retaining tech-savvy customers who prioritize smart features.",
-        "recommended_action": "Enhance processing power and redesign the remote for better usability.",
-        "evidence": [
-          "The user interface is intuitive and easy to navigate, providing seamless access to a wide array of applications.",
-          "It is a beautiful TV but slows down with operating system updates and too many apps."
-        ]
-      },
-      {
-        "segment": "price/value-sensitive customers",
+        "segment": "Price/Value-Sensitive Customers (Budget-Conscious Upgraders)",
         "size_estimate": 5,
         "key_positive_factors": [
-          "great picture for the price",
-          "value for money"
+          "Outstanding value proposition at sub-$350 price point",
+          "Picture quality perceived as exceeding the budget tier",
+          "Lightweight design and easy setup reduce friction for cost-conscious buyers",
+          "Sufficient feature set (smart apps, antenna compatibility) for everyday needs"
         ],
         "key_pain_points": [
-          "delivery and return issues"
+          "Insufficient onboard RAM causes streaming buffering, undermining the smart TV value proposition",
+          "Sound quality and dialogue clarity fall short of expectations even at this price tier",
+          "No optical audio output limits affordable audio upgrade paths"
         ],
-        "expectation_gap": "Expected good value and hassle-free purchase but faced delivery issues.",
-        "business_implication": "Critical for capturing budget-conscious consumers who are sensitive to price and service.",
-        "recommended_action": "Streamline delivery and return processes to enhance customer satisfaction.",
+        "expectation_gap": "This segment expected a fully functional smart TV experience at a budget price; they received excellent display hardware but were frustrated by software/memory limitations that make the 'smart' features unreliable \u2014 the core modern use case.",
+        "business_implication": "Value-sensitive buyers are high-volume purchasers and key drivers of market share in the entry-to-mid segment. Streaming buffering failures directly undercut the product's primary differentiator over dumb TVs and risk driving this segment to competitors like TCL or Hisense.",
+        "recommended_action": "Increase onboard RAM allocation or optimize Tizen OS memory management for streaming apps; market the antenna/OTA performance as a differentiator for cord-cutters who are budget-conscious.",
         "evidence": [
-          "The picture quality is great for the price and I have had it for about six months.",
-          "The TV arrived with a broken screen. It was part of a promotion with Verizon."
+          "Nice picture, horrible memory. Constantly buffers when streaming.",
+          "Great product, great value... Under $350. Perfect size and loved all the features.",
+          "I use an air antenna and most of the channels I get are crystal clear resolution. I can't ask for more."
         ]
       },
       {
-        "segment": "brand-premium expectation customers",
+        "segment": "Usability/Setup-Focused Customers (Tech-Casual Users)",
         "size_estimate": 4,
         "key_positive_factors": [
-          "brand loyalty",
-          "design and aesthetics"
+          "Setup described as quick and intuitive ('taking minutes')",
+          "Smart TV navigation through apps praised as smooth",
+          "Lightweight form factor eases physical installation"
         ],
         "key_pain_points": [
-          "mounting difficulties"
+          "Remote control layout and button mapping confuse less tech-savvy users",
+          "Remote compatibility with third-party devices is limited or unclear",
+          "Dialogue intelligibility issues require audio troubleshooting unfamiliar to casual users"
         ],
-        "expectation_gap": "Expected premium experience but encountered basic usability issues.",
-        "business_implication": "Maintaining brand loyalty is essential for long-term profitability.",
-        "recommended_action": "Ensure all accessories are readily available and compatible.",
+        "expectation_gap": "This segment expected a plug-and-play experience consistent with Samsung's reputation for consumer-friendly design; they found the remote non-intuitive and audio settings requiring adjustment, creating friction that erodes confidence in the product.",
+        "business_implication": "Tech-casual users represent a significant share of the 50-inch TV market (bedroom, secondary room buyers). Poor remote usability generates support calls, returns, and negative word-of-mouth disproportionate to the actual hardware quality.",
+        "recommended_action": "Redesign remote onboarding with an in-box quick-start guide; add an in-TV setup wizard for remote pairing and audio calibration; consider a simplified remote mode for first-time Samsung users.",
         "evidence": [
-          "In my house, I only buy Samsung TVs. I have a 50-inch, 55-inch, and 65-inch.",
-          "I cannot figure out how to mount this TV to a wall mount."
+          "I have some trouble with the remote, but I'm sure that's my fault. I love the television.",
+          "Only feature issue is the compatibility of the remote. Had a little trouble on how to operate it.",
+          "The setup and unpacking were a breeze, taking minutes. It was extremely lightweight compared to the Sony I replaced."
         ]
       },
       {
-        "segment": "reliability / long-term ownership customers",
-        "size_estimate": 3,
+        "segment": "Brand-Premium Expectation Customers (Samsung Loyalists)",
+        "size_estimate": 5,
         "key_positive_factors": [
-          "durability",
-          "reliability"
+          "Deep Samsung brand trust reinforces purchase confidence",
+          "Aesthetic design and build quality meet premium brand expectations",
+          "Sound quality perceived as superior to prior non-Samsung TVs",
+          "Security and smart features align with Samsung ecosystem expectations"
         ],
         "key_pain_points": [
-          "clouding issues",
-          "service call necessity"
+          "Post-purchase customer service failures severely damage brand trust when issues arise",
+          "Delivery damage handling contradicts Samsung's premium brand promise",
+          "No optical audio output feels like a feature regression for loyal users upgrading from older models"
         ],
-        "expectation_gap": "Expected long-term reliability but faced early technical issues.",
-        "business_implication": "Essential for building a reputation for durable products.",
-        "recommended_action": "Improve quality control to reduce early-life failures.",
+        "expectation_gap": "Samsung loyalists expect premium end-to-end brand experience including post-sale support; they received strong hardware but encountered customer service failures (damaged delivery, no replacement) that feel like a betrayal of the brand relationship they have invested in.",
+        "business_implication": "Brand loyalists are Samsung's highest lifetime value customers \u2014 they buy multiple Samsung products and advocate within their networks. Losing them to a single catastrophic service failure has outsized commercial impact beyond one TV sale.",
+        "recommended_action": "Implement a dedicated Samsung loyalty customer service escalation path; improve packaging standards for large-screen TVs; proactively offer replacement units rather than requiring customers to navigate return processes after delivery damage.",
         "evidence": [
-          "Great picture, great TV, built very durable, lots of channels available.",
-          "I am having issues with the display on an 85-inch TV that I bought in December 2025."
+          "I find Samsung to be one of the best brands... Going to purchase another one, but bigger for the living room.",
+          "Always have had Samsung televisions all my life. I am a Samsung lover, and they are the best.",
+          "If you order any television from Samsung, good luck getting good service. I had two televisions and had to send back both because they were damaged... I gave up and never got my television.",
+          "Another great product to add to my Samsung family."
+        ]
+      },
+      {
+        "segment": "Reliability / Long-Term Ownership Customers (Durability-Focused Buyers)",
+        "size_estimate": 2,
+        "key_positive_factors": [
+          "Hardware build quality perceived as solid and durable",
+          "Samsung's track record provides baseline confidence in longevity"
+        ],
+        "key_pain_points": [
+          "Delivery damage (shattered glass on arrival) creates immediate reliability failure before use begins",
+          "Streaming memory insufficiency suggests the platform may degrade further over time as apps grow",
+          "Poor post-damage customer service leaves reliability-focused buyers with no recourse"
+        ],
+        "expectation_gap": "Reliability-focused buyers expect a TV that works out of the box and continues to perform over years; they encountered both physical delivery failures and software performance degradation that signal the product may not meet long-term ownership standards.",
+        "business_implication": "Though smaller in number, reliability-focused buyers write the most detailed and damaging negative reviews, which disproportionately influence purchase decisions of other cautious buyers researching the product.",
+        "recommended_action": "Partner with logistics providers to implement double-box packaging and fragile handling protocols for all large-screen TVs; publish a clear, no-friction replacement guarantee prominently on product pages to reassure this segment pre-purchase.",
+        "evidence": [
+          "I had two televisions and had to send back both because they were damaged. In fact, they were so smashed I got glass slivers in my fingers. Then they gave me the runaround on how to get another delivered.",
+          "Nice picture, horrible memory. Constantly buffers when streaming."
         ]
       }
     ],
     "emerging_risks": [
-      "Clouding and panel uniformity issues",
-      "Operating system slowdowns",
-      "Complicated delivery and return processes"
+      "Streaming memory insufficiency will worsen as apps like Netflix, Disney+, and YouTube release heavier updates, making buffering complaints more frequent and severe over the product lifecycle.",
+      "Delivery damage incidents, if unresolved, risk viral negative reviews that disproportionately suppress conversion rates on e-commerce platforms where star ratings are algorithmically weighted.",
+      "The absence of optical audio output is increasingly a dealbreaker as the installed base of soundbars and home theater systems using TOSLINK remains large among the 35-60 demographic most likely to purchase a 50-inch TV."
     ],
     "emerging_opportunities": [
-      "Enhancing picture calibration options",
-      "Redesigning remote for better usability",
-      "Improving delivery and service coordination"
+      "Sports viewing is an untapped marketing angle \u2014 multiple reviewers specifically mention football/World Cup use cases, suggesting a high-affinity segment that responds to sports-specific picture performance messaging.",
+      "OTA antenna users represent a growing cord-cutting segment that finds the crystal-clear broadcast reception highly satisfying \u2014 a differentiator that can be marketed to cost-conscious buyers abandoning cable.",
+      "Health-sensitive users (e.g., migraine sufferers citing brightness adjustability) represent a niche but loyal segment that could be reached through accessibility-focused marketing around Samsung's display customization features."
     ],
     "priority_actions": [
-      "Address clouding and brightness adjustment issues",
-      "Enhance processing power for smart features",
-      "Streamline delivery and return processes"
+      "URGENT: Overhaul delivery packaging and implement a no-questions-asked same-week replacement policy for damaged units to stop brand trust erosion among loyalists and reliability-focused buyers.",
+      "HIGH: Optimize Tizen OS memory management or increase RAM allocation in next hardware revision to eliminate streaming buffering \u2014 this is the single largest threat to the value segment's satisfaction.",
+      "MEDIUM: Develop an in-box remote setup guide and in-TV onboarding wizard to reduce usability friction for tech-casual users and reduce support burden."
     ],
     "marketing_message_by_segment": [
-      "For picture-quality-first customers: Experience vibrant colors and deep contrasts with our advanced display technology.",
-      "For smart TV / usability-focused customers: Enjoy seamless app access and an intuitive interface with our smart features.",
-      "For price/value-sensitive customers: Get the best picture quality for the price, backed by reliable service."
+      "Core Performance-First: 'See every detail like you're there \u2014 Samsung Crystal UHD delivers cinema-grade 4K clarity and vivid color from the comfort of your home.'",
+      "Price/Value-Sensitive: 'Premium 4K picture. Budget-friendly price. Samsung Crystal UHD gives you more TV for less \u2014 crystal-clear OTA channels and 4K streaming under $350.'",
+      "Usability/Setup-Focused: 'Set up in minutes, not hours. Samsung's intuitive smart TV interface and lightweight design make upgrading your home entertainment effortless.'",
+      "Brand-Premium Expectation / Samsung Loyalists: 'The Samsung you trust, now sharper than ever. Expand your Samsung family with the Crystal UHD \u2014 built for those who know the difference quality makes.'",
+      "Reliability / Long-Term Ownership: 'Built to last, backed by Samsung. With our enhanced delivery protection and dedicated support, your investment is protected from day one.'"
     ]
   },
   "contradictions": [
     {
-      "review_id": "SAMPLE_UN50U7900FFXZA_001",
+      "review_id": "SAMPLE_UN50U7900FFXZA_0001",
       "rating": 2.0,
+      "contradiction_type": "type_b",
+      "mismatch_category": "non_product_issue",
+      "positive_elements": [
+        "Long-term Samsung brand loyalty ('Always had Samsungs')",
+        "Implicit expectation of quality based on brand history"
+      ],
+      "negative_elements": [
+        "Terrible sound quality requiring soundbar purchase",
+        "Poor picture clarity",
+        "Remote/clicker malfunction not resolved by replacement",
+        "Frustrating multi-call support experience with no resolution",
+        "Desires exchange after months of ownership"
+      ],
+      "review_text": "terrible sound had to purchase a sound bar. Clarity not great. Would love to exchange it... Been on the phone 3 [days] with Samsung, they sent new clicker didn't fix the problem.",
+      "implication": "This review is actually a Type B edge case \u2014 the 2-star rating aligns with genuine product complaints (sound, clarity, remote), but the customer's framing is more of a cry for help than a condemnation. The low rating is consistent with the text, yet the customer's brand loyalty and plea for assistance ('help if you can') suggest they want resolution, not rejection. The contradiction is that a loyal Samsung customer is rating low not to warn others but to escalate a support failure \u2014 the rating is being used as a distress signal rather than a product verdict.",
+      "route_to": "cx_fulfillment_warranty",
+      "counts_as_product_issue": false,
+      "suggested_public_response": "Thank you for reaching out and for your long loyalty to Samsung \u2014 we're truly sorry this experience has been so frustrating. We can see you've already spent significant time with our support team and we want to make this right; please DM us your contact details so we can personally escalate your case and explore an exchange or resolution. Your feedback on sound and picture quality has also been noted for our product teams."
+    },
+    {
+      "review_id": "SAMPLE_UN50U7900FFXZA_0002",
+      "rating": 1.0,
       "contradiction_type": "type_b",
       "mismatch_category": "service_failure_with_product_praise",
       "positive_elements": [
-        "resolution",
-        "TV size",
-        "interface speed"
+        "Great resolution out of the box",
+        "Great size",
+        "Interface described as semi-fast and acceptable",
+        "Upscaling of low-resolution content noted as acceptable",
+        "Low input lag praised for gaming"
       ],
       "negative_elements": [
-        "stuck pixel",
-        "customer support resolution"
+        "Stuck pixel discovered within two weeks of purchase",
+        "Samsung support refused repair citing inability to visually confirm pixel in a cheeseburger test image",
+        "Second support rep did not continue from where first rep left off",
+        "Told to wait for more pixels to fail before repair would be considered",
+        "Customer felt 'blown off' and dismissed",
+        "Walmart unable to help beyond a refund that voids the sale price"
       ],
-      "review_text": "First impression out the box has great resolution, tv is a great size, and for the most part the interface is semi-fast.",
-      "implication": "The customer appreciates the product's quality but is frustrated by inadequate service support, highlighting a gap in post-purchase service.",
+      "review_text": "First impression out the box has great resolution, tv is a great size... Super disappointed in the customer support's resolution and has turned into such a hassle.",
+      "implication": "This is a textbook service_failure_with_product_praise contradiction. The TV itself received genuinely positive first impressions across multiple dimensions (resolution, size, speed, upscaling). The 1-star rating is entirely driven by a warranty/support failure \u2014 a single stuck pixel was dismissed by a support rep using an inadequate diagnostic image. The customer's frustration is with Samsung's support process and policy, not the hardware category. This represents a recoverable customer who is being lost not by the product but by a broken support escalation workflow.",
       "route_to": "cx_fulfillment_warranty",
       "counts_as_product_issue": false,
-      "suggested_public_response": "Thank you for your feedback on the TV's resolution and size. We're sorry to hear about the service experience and would like to help resolve this. Please reach out to our support team for further assistance."
+      "suggested_public_response": "We're glad the picture quality and size made a strong first impression \u2014 that's exactly the experience we want you to have. We're very sorry that our support team did not handle your stuck-pixel concern with the urgency and continuity it deserved; a two-week-old TV absolutely warrants a proper resolution, and 'wait for more pixels to fail' is not an acceptable answer. Please DM us your case number so we can personally review what happened and make this right \u2014 and if this rating reflects the support experience rather than the TV itself, we'd love the chance to earn a more accurate score once we've resolved your issue."
     },
     {
-      "review_id": "SAMPLE_UN50U7900FFXZA_002",
+      "review_id": "SAMPLE_UN50U7900FFXZA_0003",
+      "rating": 1.0,
+      "contradiction_type": "type_b",
+      "mismatch_category": "non_product_issue",
+      "positive_elements": [
+        "Owns and loves another Samsung TV",
+        "Implicit trust in Samsung brand"
+      ],
+      "negative_elements": [
+        "This specific TV described as 'extremely disappointing'",
+        "No detail provided on what is wrong"
+      ],
+      "review_text": "I have another Samsung TV that I love, but this one is extremely disappointing.",
+      "implication": "The contradiction here is subtle but meaningful: the customer explicitly anchors their dissatisfaction against a positive Samsung baseline ('another Samsung TV that I love'), which signals brand loyalty rather than brand rejection. The 1-star rating with zero product detail suggests this may be an emotional reaction \u2014 possibly to a setup frustration, a feature comparison disappointment, or a support interaction \u2014 rather than a considered product verdict. The absence of specifics makes it impossible to route to product engineering, but the brand-loyalty framing suggests a CS outreach could recover this customer.",
+      "route_to": "cx_fulfillment_warranty",
+      "counts_as_product_issue": false,
+      "suggested_public_response": "We're sorry to hear this TV hasn't lived up to the experience you've had with your other Samsung \u2014 that comparison means a lot to us. We'd genuinely like to understand what's been disappointing so we can help; please DM us and we'll do our best to turn this around for you."
+    },
+    {
+      "review_id": "SAMPLE_UN50U7900FFXZA_0004",
       "rating": 2.0,
+      "contradiction_type": "type_b",
+      "mismatch_category": "non_product_issue",
+      "positive_elements": [
+        "Picture quality described as 'excellent buy'",
+        "Image described as sharp, bright, and enjoyable",
+        "Strong Samsung brand loyalty across multiple product categories"
+      ],
+      "negative_elements": [
+        "Only two HDMI ports \u2014 insufficient for customer's setup",
+        "App platform restricted to Samsung's store \u2014 cannot install Peacock, Max, Paramount+",
+        "Restricted app ecosystem not clearly advertised at point of sale",
+        "Forced to consider external streaming device with no available HDMI port"
+      ],
+      "review_text": "In terms of resolution and picture quality, this TV is an excellent buy. The image is sharp, bright, and very enjoyable... the limited connectivity and restricted app ecosystem reduce its overall functionality.",
+      "implication": "The picture quality receives unambiguous praise ('excellent buy,' 'sharp, bright, very enjoyable'), yet the 2-star rating is driven entirely by connectivity and software ecosystem limitations \u2014 neither of which is a defect, but rather a feature gap that was not transparently communicated at purchase. This is a classic non_product_issue contradiction: the hardware performs well, but the customer's use-case expectations were misaligned due to inadequate pre-sale disclosure. The rating punishes the product for a marketing/listing transparency failure.",
+      "route_to": "cx_fulfillment_warranty",
+      "counts_as_product_issue": false,
+      "suggested_public_response": "Thank you for the kind words about the picture quality \u2014 'sharp, bright, and very enjoyable' is exactly what we aim for, and we're glad that part of the experience has delivered. We hear your frustration about the HDMI port count and app ecosystem limitations, and we're sorry these weren't made clearer before your purchase; your feedback is being shared with our product listing and marketing teams to improve transparency. Please DM us \u2014 we'd love to explore options that might better fit your connectivity needs."
+    },
+    {
+      "review_id": "SAMPLE_UN50U7900FFXZA_0005",
+      "rating": 1.0,
+      "contradiction_type": "type_b",
+      "mismatch_category": "non_product_issue",
+      "positive_elements": [
+        "Samsung brand loyalty explicitly stated ('I love Samsung products')",
+        "Low input lag praised for gaming",
+        "Acceptable image processing and upscaling noted",
+        "Decent SDR color accuracy out of the box acknowledged"
+      ],
+      "negative_elements": [
+        "Constant image twitching",
+        "Not bright enough to handle glare",
+        "Sub-par black levels with no local dimming",
+        "Cannot display wide color gamut",
+        "Weak motion handling with noticeable blur",
+        "Overall viewing experience described as underwhelming"
+      ],
+      "review_text": "I love Samsung products but this tv isn't the best... making the overall viewing experience underwhelming.",
+      "implication": "This review is technically consistent in that the 1-star rating matches the volume of product complaints. However, the contradiction lies in the reviewer's explicit brand affection ('I love Samsung products') paired with a 1-star rating \u2014 suggesting the low score is partly an expression of betrayed expectations from a loyal customer rather than a pure product verdict. The review reads like a technically informed assessment (mentions local dimming, WCG, input lag) suggesting a power user whose expectations exceed the TV's tier. The brand loyalty framing means this customer is potentially recoverable with an upgrade path or product-fit guidance.",
+      "route_to": "cx_fulfillment_warranty",
+      "counts_as_product_issue": false,
+      "suggested_public_response": "We really appreciate your loyalty to Samsung and the detailed, thoughtful feedback \u2014 it's clear you know exactly what you're looking for in a display. We're sorry this model hasn't met your expectations, particularly around brightness, black levels, and motion handling; your comments have been shared with our product team. Please DM us so we can discuss whether a different Samsung model might be a better fit for your viewing environment."
+    },
+    {
+      "review_id": "SAMPLE_UN50U7900FFXZA_0006",
+      "rating": 1.0,
       "contradiction_type": "type_b",
       "mismatch_category": "service_failure_with_product_praise",
       "positive_elements": [
-        "resolution",
-        "picture quality"
+        "Previously loved Samsung brand",
+        "Owned a $1,490 Samsung TV \u2014 high-value purchase implying prior satisfaction",
+        "No complaint about the TV's performance before the lightning event"
       ],
       "negative_elements": [
-        "limited HDMI ports",
-        "restricted app ecosystem"
+        "Warranty not honored after electrical storm/lightning strike",
+        "Samsung/Best Buy attributed lightning damage to physical impact ('threw something at the screen')",
+        "Customer feels wrongly accused and abandoned after a significant financial loss"
       ],
-      "review_text": "In terms of resolution and picture quality, this TV is an excellent buy.",
-      "implication": "The customer values the product's visual quality but is hindered by connectivity and app limitations, indicating a need for better product feature communication.",
+      "review_text": "I use to love Samsung until they did not honor the warranty I paid for through Best Buy. We had an electrical storm which burned up my 1490.00 tv and they said it looked like someone threw something at the screen.",
+      "implication": "This is a pure service_failure_with_product_praise case. The TV itself is never criticized \u2014 the customer's dissatisfaction is 100% directed at a warranty denial that they perceive as unjust and insulting. The past tense 'I use to love Samsung' is a powerful signal: this was a loyal, high-spending customer who was converted to a detractor not by the product but by a single warranty adjudication decision. The 1-star rating is entirely a service verdict, and the product would likely have received 5 stars had the claim been honored.",
       "route_to": "cx_fulfillment_warranty",
       "counts_as_product_issue": false,
-      "suggested_public_response": "Thank you for appreciating the TV's picture quality. We understand the frustration with connectivity and app limitations and are working to improve these aspects. Your feedback is valuable to us."
+      "suggested_public_response": "We're truly sorry to hear about the damage caused by the electrical storm and even more sorry that your warranty experience left you feeling dismissed \u2014 that is never the outcome we want for a valued customer. We'd like to personally review your warranty claim and ensure it received a fair and thorough assessment; please DM us your case details and we'll escalate this immediately. Your long loyalty to Samsung means a great deal to us, and we want the chance to make this right."
     },
     {
-      "review_id": "SAMPLE_UN50U7900FFXZA_003",
+      "review_id": "SAMPLE_UN50U7900FFXZA_0007",
       "rating": 5.0,
       "contradiction_type": "type_a",
       "mismatch_category": "hidden_complaint",
       "positive_elements": [
-        "picture quality",
-        "sound"
+        "Described as 'one of the best TVs I've had so far'",
+        "Picture quality described as 'phenomenal' and 'absolutely gorgeous'",
+        "Sound described as 'good'",
+        "Width/size praised"
       ],
       "negative_elements": [
-        "brightness issues",
-        "resolution inconsistency"
+        "Sound not loud enough",
+        "Brightness needs improvement",
+        "Motion/refresh struggles to keep up with picture at times",
+        "Resolution described as 'so so'"
       ],
-      "review_text": "the quality is phenomenal picture is absolutely gorgeous and the sound but it is good not loud enough for me.",
-      "implication": "The customer is generally satisfied but tolerates minor flaws, suggesting a high satisfaction threshold despite noticeable issues.",
+      "review_text": "the quality is phenomenal picture is absolutely gorgeous and the sound but it is good not loud enough for me. the brightness could use some work... sometimes it doesn't keep up with the picture. the resolution is also it's so so.",
+      "implication": "The customer leads with superlatives ('phenomenal,' 'absolutely gorgeous') which anchor the 5-star rating, but the review contains four distinct product complaints: insufficient volume, inadequate brightness, motion processing lag, and mediocre resolution. This is a classic satisfaction-threshold contradiction \u2014 the customer's emotional response to the overall experience is positive enough to override specific technical deficiencies. For product engineering, however, these are real, actionable signals being masked by a 5-star rating. The pattern suggests customers in this segment have low baseline expectations or are easily impressed by picture quality alone, tolerating other weaknesses.",
       "route_to": "product_engineering",
       "counts_as_product_issue": true,
-      "suggested_public_response": "We appreciate your feedback on the picture and sound quality. We're sorry to hear about the brightness and resolution issues. Our team is committed to improving these aspects."
+      "suggested_public_response": "Thank you for sharing such detailed feedback \u2014 we're glad the picture quality has made such a strong impression! We also want to make sure we address the concerns you raised: sound volume, brightness, motion handling, and resolution are all areas our team takes seriously, and your specific observations have been passed along to our product engineers. If any of these issues are significantly affecting your experience, please don't hesitate to reach out to our support team \u2014 we're here to help."
     },
     {
-      "review_id": "SAMPLE_UN50U7900FFXZA_004",
+      "review_id": "SAMPLE_UN50U7900FFXZA_0008",
       "rating": 4.0,
       "contradiction_type": "type_a",
       "mismatch_category": "hidden_complaint",
       "positive_elements": [
-        "picture quality",
-        "sharp images"
+        "Great picture quality",
+        "Sharp images",
+        "TV speaker described as 'more than adequate'",
+        "Happy overall"
       ],
       "negative_elements": [
-        "picture distortion"
+        "Picture gets distorted briefly \u2014 attributed to antenna but may indicate signal processing or tuner issue",
+        "Required addition of external Bose speaker despite calling built-in speaker 'adequate' (behavioral contradiction)"
       ],
-      "review_text": "Great picture, sharp images. I added a Bose speaker although tv speaker is more than adequate.",
-      "implication": "The customer is generally happy but experiences occasional issues, indicating a potential product flaw that is being overlooked.",
+      "review_text": "Great picture, sharp images. I added a Bose speaker although tv speaker is more than adequate... sometimes the picture gets distorted briefly. Happy overall.",
+      "implication": "Two subtle hidden complaints exist here. First, the customer purchased an external Bose speaker while simultaneously calling the built-in speaker 'more than adequate' \u2014 a behavioral signal that the speaker did not fully satisfy despite the verbal rationalization. Second, intermittent picture distortion is noted and attributed to the antenna, but this could mask a tuner sensitivity or signal processing issue worth investigating. The 4-star rating and 'happy overall' framing cause both signals to be easily overlooked in aggregate review scoring.",
       "route_to": "product_engineering",
       "counts_as_product_issue": true,
-      "suggested_public_response": "Thank you for your positive feedback on the picture quality. We note your concern about picture distortion and are investigating this issue to enhance your viewing experience."
+      "suggested_public_response": "We're really glad you're enjoying the picture quality and sharp images \u2014 that's great to hear! We did want to follow up on the brief picture distortion you mentioned; while antenna alignment can sometimes be the cause, our support team would love to help you rule out any TV-side factors to make sure you're getting the most consistent experience possible. Feel free to reach out and we'll walk through it with you."
+    },
+    {
+      "review_id": "SAMPLE_UN50U7900FFXZA_0009",
+      "rating": 5.0,
+      "contradiction_type": "type_a",
+      "mismatch_category": "hidden_complaint",
+      "positive_elements": [
+        "TV described as 'working great'",
+        "Implicit satisfaction with performance"
+      ],
+      "negative_elements": [
+        "TV described as 'too small' \u2014 size dissatisfaction is a real unmet need",
+        "Customer expresses strong desire for a 100-inch model, suggesting current purchase is a compromise"
+      ],
+      "review_text": "The TV is working great but it's too small, I need really bad the 100 inch TV!",
+      "implication": "This is a non_product_defect hidden complaint \u2014 the TV functions perfectly but fails to meet the customer's size expectation, which is a purchase-fit mismatch. The 5-star rating reflects product performance satisfaction, but the 'too small' complaint reveals an unmet need that could drive a return, an upsell opportunity, or a future competitor purchase. For marketing and sales teams, this signals that size guidance at the point of sale (or upsell prompts toward larger models) could both improve customer satisfaction and increase average order value.",
+      "route_to": "product_engineering",
+      "counts_as_product_issue": true,
+      "suggested_public_response": "We love hearing that the TV is working great \u2014 thank you for the 5 stars! We also hear you loud and clear on wanting a bigger screen; if you're ready to go bigger, our team would be happy to help you find the right Samsung model to fill that wall. Don't hesitate to reach out \u2014 we'd love to help you find your perfect fit!"
     }
   ],
   "importance_matrix": [
     {
-      "issue": "Display Issues",
+      "issue": "Damaged / Destroyed on Delivery",
       "frequency": 2,
       "frequency_pct": 10.0,
       "impact": "high",
-      "category": "low_freq_high_impact",
-      "business_risk": "Could lead to returns, warranty claims, and negative word-of-mouth.",
+      "category": "high_freq_high_impact",
+      "business_risk": "Damaged-on-arrival units that go unresolved drive permanent customer defection, generate high-visibility 1-star reviews, and erode the brand trust that justifies Samsung's price premium. Physical injury risk (glass slivers) compounds liability exposure. A compounding loss that extends well beyond a single transaction.",
       "representative_reviews": [
-        "I am having issues with the display on an 85-inch TV that I bought in December 2025. During dark or evening scenes in a program, I notice a cloudy image in the four corners of the TV display."
+        "I had two televisions and had to send back both because they were damaged. In fact, they were so smashed I got glass slivers in my fingers. Then they gave me the runaround on how to get another delivered. I gave up and never got my television.",
+        "If you order any television from Samsung, good luck getting good service."
       ],
-      "issue_type": "product_defect",
-      "recommended_action": "Publish the existing FAQ on clouding in the corners of the TV display to the PDP.",
-      "linked_expectation_gap": "Picture Quality",
-      "linked_cx_action": "How can I fix clouding in the corners of my TV display?",
+      "issue_type": "purchase_experience",
+      "recommended_action": "A CX action ('Damaged on Delivery \u2014 What to Do Before You Sign') and an expectation gap recommendation already exist. Close the loop: confirm the fast-track resolution path (guaranteed same-week redelivery, proactive outreach) is operationally live, surface the CX article prominently on the PDP and order-confirmation email, and audit last-mile packaging and carrier SLAs to prevent recurrence rather than just managing aftermath.",
+      "linked_expectation_gap": "Delivery Reliability",
+      "linked_cx_action": "Damaged on Delivery \u2014 What to Do Before You Sign",
       "priority_rank": 1
     },
     {
-      "issue": "Delivery and Return Issues",
-      "frequency": 1,
-      "frequency_pct": 5.0,
+      "issue": "Streaming Buffering / Insufficient Smart TV Memory",
+      "frequency": 2,
+      "frequency_pct": 10.0,
       "impact": "high",
-      "category": "low_freq_high_impact",
-      "business_risk": "Complicated return process can lead to significant brand trust erosion and customer attrition.",
+      "category": "high_freq_high_impact",
+      "business_risk": "Persistent buffering on a device marketed as a Smart TV signals a fundamental mismatch between the product's core value proposition and its hardware capability, pushing customers toward external streaming sticks and undermining Samsung's integrated ecosystem. Repeated buffering complaints in reviews actively suppress conversion for new buyers.",
       "representative_reviews": [
-        "The TV arrived with a broken screen. It was part of a promotion with Verizon. After spending multiple phone calls to various Verizon departments, we were told to call Samsung."
+        "Nice picture, horrible memory. Constantly buffers when streaming.",
+        "Nice picture, horrible memory. Constantly buffers when streaming."
       ],
-      "issue_type": "purchase_experience",
-      "recommended_action": "Improve coordination with partners like Verizon and streamline the return process to enhance customer satisfaction.",
-      "linked_expectation_gap": "Brand Quality",
-      "linked_cx_action": "Important Delivery and Return Process Information",
+      "issue_type": "product_defect",
+      "recommended_action": "A CX FAQ and an expectation gap recommendation already exist. Close the loop: verify the buffering FAQ is linked directly from the Smart TV features section of the PDP and from the Tizen setup wizard. Escalate to engineering to confirm whether a firmware/memory-management optimization update is on the roadmap; if not, formally schedule it. Disclose RAM/storage specs explicitly in the product listing to set accurate pre-purchase expectations.",
+      "linked_expectation_gap": "Smart TV Performance",
+      "linked_cx_action": "Why does my TV keep buffering during streaming, and how do I fix it?",
       "priority_rank": 2
     },
     {
-      "issue": "Operating System Performance",
-      "frequency": 1,
-      "frequency_pct": 5.0,
-      "impact": "high",
-      "category": "low_freq_high_impact",
-      "business_risk": "A sluggish user interface can frustrate users and diminish the perceived value of smart features.",
+      "issue": "Remote Control Usability / Compatibility",
+      "frequency": 4,
+      "frequency_pct": 20.0,
+      "impact": "low",
+      "category": "high_freq_low_impact",
+      "business_risk": "The most frequently mentioned complaint, yet all affected reviewers still rated the TV 5/5, indicating it does not materially affect purchase satisfaction or return rates. However, at 20% mention rate it creates a persistent noise signal in reviews that could marginally deter first-time buyers who scan for red flags.",
       "representative_reviews": [
-        "It is a beautiful TV but slows down with operating system updates and too many apps."
+        "Only feature issue is the compatibility of the remote. Had a little trouble on how to operate it.",
+        "I have some trouble with the remote, but I'm sure that's my fault. I love the television."
       ],
       "issue_type": "product_defect",
-      "recommended_action": "Optimize the operating system to handle updates and apps more efficiently.",
-      "linked_expectation_gap": "Smart TV / UX",
-      "linked_cx_action": "Why is my TV's operating system slow?",
+      "recommended_action": "A high-priority CX troubleshooting script already exists. Close the loop: confirm the script is surfaced in the in-box quick-start guide and as a tooltip in the Tizen first-run setup wizard. No new engineering action is warranted given the low impact signal; monitor whether the mention rate declines after the CX asset is more prominently placed.",
+      "linked_expectation_gap": "",
+      "linked_cx_action": "Remote Control Pairing & Usability Troubleshooting Script",
       "priority_rank": 3
     },
     {
-      "issue": "Mounting Difficulties",
+      "issue": "No Optical Audio Output / Limited Connectivity",
       "frequency": 1,
       "frequency_pct": 5.0,
       "impact": "high",
       "category": "low_freq_high_impact",
-      "business_risk": "Perceived value diminishes when basic setup features like mounting are problematic.",
+      "business_risk": "Omitting optical output without clear pre-purchase disclosure creates post-purchase regret among home theater enthusiasts \u2014 a high-spend, highly vocal segment disproportionately influential in online communities and purchasing recommendations. Bluetooth-only audio introduces latency friction that can trigger returns among this segment.",
       "representative_reviews": [
-        "I cannot figure out how to mount this TV to a wall mount. There are no holes to screw into."
+        "There is no optical audio out. The only way to connect is by Bluetooth, which is kind of a pain. But overall a good television."
       ],
       "issue_type": "product_defect",
-      "recommended_action": "Ensure standard VESA mounting compatibility or provide necessary adapters with the product.",
-      "linked_expectation_gap": "Price-Value",
-      "linked_cx_action": "VESA Mounting Adapter Information",
+      "recommended_action": "A CX FAQ and an expectation gap recommendation already exist. Close the loop: make the optical-output omission explicitly visible in the product spec table on the PDP and in retailer comparison tools before purchase (not just in a post-purchase FAQ). Confirm the Bluetooth pairing setup guide is linked from the connectivity spec row. Flag to hardware planning for next revision evaluation.",
+      "linked_expectation_gap": "Audio Connectivity",
+      "linked_cx_action": "This TV doesn't have an optical audio output \u2014 how do I connect my soundbar or AV receiver?",
       "priority_rank": 4
     },
     {
-      "issue": "Picture Quality Adjustments",
+      "issue": "Poor Sound / Unclear Dialogue",
       "frequency": 1,
       "frequency_pct": 5.0,
-      "impact": "medium",
+      "impact": "high",
       "category": "low_freq_high_impact",
-      "business_risk": "Persistent picture quality issues could lead to increased returns and negative word-of-mouth.",
+      "business_risk": "Dialogue clarity is the single most-used audio function for everyday TV viewing. When it fails, it creates a daily friction point that accumulates into negative word-of-mouth even among customers who are otherwise satisfied with picture quality, gradually eroding repeat-purchase intent.",
       "representative_reviews": [
-        "The picture quality is a bit down and needs to be improved."
+        "Nice picture, horrible memory. Constantly buffers when streaming."
       ],
       "issue_type": "product_defect",
-      "recommended_action": "Enhance panel quality control and provide better calibration options in the settings menu.",
-      "linked_expectation_gap": "Picture Quality",
-      "linked_cx_action": "How can I improve my TV's picture quality?",
+      "recommended_action": "A CX FAQ and an expectation gap recommendation already exist. Close the loop: confirm the 'Voice Clarity' or 'Dialogue Boost' preset is enabled by default out of the box and is highlighted in the Tizen setup wizard. Verify the dialogue clarity FAQ is linked from the audio settings menu. Escalate the soundbar bundle promotional offer to the marketing team as a near-term revenue and satisfaction lever.",
+      "linked_expectation_gap": "Audio Quality",
+      "linked_cx_action": "How can I improve dialogue clarity and speech intelligibility on my TV?",
       "priority_rank": 5
     },
     {
-      "issue": "Remote Control Design",
+      "issue": "Poor Viewing Angles",
       "frequency": 1,
       "frequency_pct": 5.0,
-      "impact": "low",
-      "category": "low_freq_low_impact",
-      "business_risk": "Minor inconvenience in navigation, affecting user satisfaction.",
-      "representative_reviews": [
-        "It would be nice if I could just type in channel numbers instead of searching for them."
-      ],
+      "impact": "high",
+      "category": "low_freq_high_impact",
+      "business_risk": "For a 50-inch TV positioned as a shared family screen, degraded off-axis performance directly undermines fitness for purpose and increases the likelihood of returns or negative reviews from multi-viewer households \u2014 the primary target demographic for this screen size.",
+      "representative_reviews": [],
       "issue_type": "product_defect",
-      "recommended_action": "Publish the existing FAQ on remote control usage to the PDP.",
-      "linked_expectation_gap": "",
-      "linked_cx_action": "How can I enter channels directly on my remote?",
+      "recommended_action": "A CX FAQ and an expectation gap recommendation already exist. Close the loop: add a 'Best for: front-facing viewing' disclosure to the PDP product description and retailer shelf tags immediately. Confirm the viewing-angle FAQ is accessible from the picture-settings menu. Flag IPS/QLED panel evaluation to the hardware planning team for the next product generation at this price tier.",
+      "linked_expectation_gap": "Viewing Angles",
+      "linked_cx_action": "Why does picture quality look washed out or dark when I'm not sitting directly in front of the TV?",
       "priority_rank": 6
     },
     {
-      "issue": "Sound Quality",
+      "issue": "Limited Stock / Purchase Availability",
       "frequency": 1,
       "frequency_pct": 5.0,
       "impact": "low",
       "category": "low_freq_low_impact",
-      "business_risk": "Minor dissatisfaction with audio quality could affect overall product satisfaction.",
-      "representative_reviews": [
-        "The picture quality is a bit down and needs to be improved. Other than that, the sound, apps, and integration are all top-notch."
-      ],
-      "issue_type": "product_defect",
-      "recommended_action": "Consider enhancing built-in audio systems or offering bundled soundbars at a discount.",
-      "linked_expectation_gap": "Audio Quality",
-      "linked_cx_action": "How can I improve my TV's sound quality?",
+      "business_risk": "Limited stock status listed on the product page means prospective buyers may abandon the purchase funnel entirely and convert to a competitor. While low in current review frequency, it represents a silent conversion loss that does not generate complaints \u2014 it simply eliminates the transaction.",
+      "representative_reviews": [],
+      "issue_type": "purchase_experience",
+      "recommended_action": "A CX action already exists ('Limited Stock Alert \u2014 How to Secure Your Order and Avoid Delays'). Close the loop: ensure a 'Notify Me' or waitlist widget is live on the PDP when stock is limited, and that the CX article is surfaced inline on the out-of-stock state rather than buried in a support hub. Escalate stock status visibility to the supply chain and merchandising teams.",
+      "linked_expectation_gap": "",
+      "linked_cx_action": "Limited Stock Alert \u2014 How to Secure Your Order and Avoid Delays",
       "priority_rank": 7
     },
     {
-      "issue": "Account Setup Requirement",
-      "frequency": 0,
-      "frequency_pct": 0.0,
+      "issue": "Delivery / Pickup Availability Constraints",
+      "frequency": 1,
+      "frequency_pct": 5.0,
       "impact": "low",
       "category": "low_freq_low_impact",
-      "business_risk": "Potential customer frustration due to lack of clear communication.",
+      "business_risk": "Restricted delivery and pickup options frustrate buyers in underserved areas and can drive them to competitors with broader fulfillment networks. Low current complaint volume but a structural conversion barrier that compounds with the limited stock issue.",
       "representative_reviews": [],
       "issue_type": "purchase_experience",
-      "recommended_action": "Ensure clear communication about Samsung Account requirements in marketing materials.",
+      "recommended_action": "A CX action already exists ('Delivery & Pickup Availability Notice \u2014 Check Your Options Before You Order'). Close the loop: surface a delivery/pickup availability checker widget on the PDP before the add-to-cart step so buyers discover constraints pre-purchase rather than post-checkout. Escalate carrier and retail partner coverage gaps to the logistics and channel teams.",
       "linked_expectation_gap": "",
-      "linked_cx_action": "Samsung Account Requirement for Smart Features",
+      "linked_cx_action": "Delivery & Pickup Availability Notice \u2014 Check Your Options Before You Order",
       "priority_rank": 8
+    },
+    {
+      "issue": "Outstanding Picture Quality (Positive Signal \u2014 Underutilized in Marketing)",
+      "frequency": 12,
+      "frequency_pct": 60.0,
+      "impact": "low",
+      "category": "high_freq_low_impact",
+      "business_risk": "Picture quality is the dominant positive signal across 60% of reviews, yet the expectation gap analysis flags this as a positive gap where reality outperforms expectation. Failing to amplify this in marketing means Samsung is leaving its strongest conversion lever underutilized, allowing competitors to own the 'best picture at this price' narrative.",
+      "representative_reviews": [
+        "The brightness and vibrancy truly sets the television apart. The resolution and contrast difference helps with whatever personal preference you may have.",
+        "Outstanding picture quality. Sound is much better than other products I have owned in the past. I will definitely buy Samsung again."
+      ],
+      "issue_type": "purchase_experience",
+      "recommended_action": "An expectation gap recommendation already exists for Picture Quality. Close the loop: brief the marketing and retail merchandising teams to incorporate verified customer language ('brightness and vibrancy truly sets the television apart,' 'crisp brightness,' 'crystal clear resolution') into PDP hero copy, retail display signage, and social proof campaigns. No engineering action required.",
+      "linked_expectation_gap": "Picture Quality",
+      "linked_cx_action": "",
+      "priority_rank": 9
     }
   ],
   "expectation_gaps": [
     {
-      "dimension": "Brand Quality",
-      "expectation": "Samsung is known for delivering high-quality, reliable products.",
-      "actual_experience": "Customers experienced issues with delivery, return processes, and product defects.",
+      "dimension": "Delivery Reliability",
+      "expectation": "Customers expected a premium Samsung product to arrive safely packaged and undamaged, with responsive post-purchase support if anything went wrong.",
+      "actual_experience": "Multiple units arrived with shattered screens due to inadequate packaging or carrier mishandling, and Samsung's customer service failed to resolve the issue or redeliver replacements.",
       "gap_severity": "high",
-      "gap_description": "Unaddressed, this gap could lead to significant brand trust erosion and customer attrition.",
-      "recommended_action": "Improve coordination with partners like Verizon and streamline the return process to enhance customer satisfaction.",
+      "gap_description": "Damaged-on-arrival units that go unresolved drive permanent customer defection, generate high-visibility negative reviews, and erode the brand trust that justifies Samsung's price premium \u2014 a compounding loss that extends well beyond a single transaction.",
+      "recommended_action": "Audit last-mile packaging standards and carrier SLAs for large-screen TVs; implement a dedicated 'damaged delivery' fast-track resolution path with guaranteed same-week redelivery and proactive outreach rather than placing the burden on the customer.",
       "supporting_reviews": [
-        "The TV arrived with a broken screen. It was part of a promotion with Verizon.",
-        "After multiple calls to different departments, we were told the return period expired."
+        "I had two televisions and had to send back both because they were damaged. In fact, they were so smashed I got glass slivers in my fingers.",
+        "Then they gave me the runaround on how to get another delivered. I gave up and never got my television."
+      ]
+    },
+    {
+      "dimension": "Smart TV Performance",
+      "expectation": "Customers expected a modern Samsung Smart TV to handle streaming apps \u2014 Netflix, YouTube, Prime Video \u2014 smoothly and without interruption, consistent with the 'smart' branding.",
+      "actual_experience": "Onboard RAM and internal storage are insufficient for streaming workloads, causing repeated buffering that disrupts the viewing experience even on stable internet connections.",
+      "gap_severity": "high",
+      "gap_description": "Persistent buffering on a device marketed as a Smart TV signals a fundamental mismatch between the product's core value proposition and its hardware capability, pushing customers toward external streaming sticks and undermining the integrated ecosystem Samsung is trying to build.",
+      "recommended_action": "Increase minimum onboard RAM to at least 2.5\u20133 GB and optimize Tizen OS memory management for concurrent streaming app workloads; if a hardware revision is not immediately feasible, publish a firmware optimization update and clearly disclose hardware specs in product listings to set accurate expectations.",
+      "supporting_reviews": [
+        "Nice picture, horrible memory. Constantly buffers when streaming."
       ]
     },
     {
       "dimension": "Picture Quality",
-      "expectation": "For the price, I expected superior picture quality with vibrant colors and deep contrasts.",
-      "actual_experience": "Some customers reported clouding issues and difficulty adjusting brightness and contrast.",
-      "gap_severity": "medium",
-      "gap_description": "Persistent picture quality issues could lead to increased returns and negative word-of-mouth.",
-      "recommended_action": "Enhance panel quality control and provide better calibration options in the settings menu.",
+      "expectation": "Customers expected sharp, vivid, high-contrast 4K visuals consistent with Samsung's Crystal UHD branding and the premium reputation the Samsung name carries.",
+      "actual_experience": "The vast majority of customers were genuinely impressed \u2014 colors, brightness, and resolution consistently exceeded what they had owned previously, delivering a near-cinematic experience.",
+      "gap_severity": "low",
+      "gap_description": "This is a positive gap where reality outperforms expectation; failing to amplify this in marketing and at point-of-sale means Samsung is leaving its strongest conversion lever underutilized.",
+      "recommended_action": "Leverage verified customer language \u2014 'you can see beads of sweat on an actor's face,' 'feels like you're right next to whatever you're watching' \u2014 in retail display signage, online listings, and social proof campaigns to convert undecided shoppers.",
       "supporting_reviews": [
-        "During dark or evening scenes in a program, I notice a cloudy image in the four corners of the TV display.",
-        "I am a little concerned with the brightness and the contrast levels."
+        "The picture is unreal. It feels like you're right next to whatever you're watching. The resolution is so clear.",
+        "You can see the beads of sweat on an actor's face. The colors are so much more bright and vivid than my old television.",
+        "The brightness and vibrancy truly sets the television apart."
       ]
     },
     {
       "dimension": "Audio Quality",
-      "expectation": "Samsung quality should ensure excellent sound performance.",
-      "actual_experience": "While generally positive, some customers found the sound could be better.",
-      "gap_severity": "low",
-      "gap_description": "Minor dissatisfaction with audio quality could affect overall product satisfaction.",
-      "recommended_action": "Consider enhancing built-in audio systems or offering bundled soundbars at a discount.",
+      "expectation": "Customers expected built-in speakers adequate for clear dialogue reproduction across a full range of content types, including action sequences with competing background audio.",
+      "actual_experience": "Speaker performance is polarizing \u2014 many users found it an upgrade over older TVs, but a recurring subset reported that dialogue becomes unintelligible when background sound effects or music are present.",
+      "gap_severity": "medium",
+      "gap_description": "Dialogue clarity is the single most-used audio function for everyday TV viewing; when it fails, it creates a daily friction point that accumulates into negative word-of-mouth even among customers who are otherwise satisfied with the picture.",
+      "recommended_action": "Introduce a dedicated 'Voice Clarity' or 'Dialogue Boost' audio preset enabled by default out of the box, and promote it prominently in the setup wizard; additionally, partner with a sound bar brand for a bundled promotional offer to address the gap for audiophile-leaning buyers.",
       "supporting_reviews": [
-        "The sound could be a little bit better, though.",
-        "I wish the sound was better, though overall I am very satisfied."
+        "Only thing missing is sound quality. The dialogues are sometimes not very clear when there are some background noises.",
+        "Television has a great picture, and the sound is pretty good too."
       ]
     },
     {
-      "dimension": "Smart TV / UX",
-      "expectation": "Samsung's smart features should be fast and easy to navigate.",
-      "actual_experience": "The TV's operating system slows down with updates and too many apps.",
+      "dimension": "Audio Connectivity",
+      "expectation": "Customers with existing home audio systems expected standard optical (TOSLINK) audio output to be present, as it has been a common feature on mid-range and premium TVs for over a decade.",
+      "actual_experience": "The U7900F omits the optical audio port entirely, leaving Bluetooth as the only wireless audio output option \u2014 introducing latency, pairing complexity, and incompatibility with legacy audio equipment.",
       "gap_severity": "medium",
-      "gap_description": "A sluggish user interface can frustrate users and diminish the perceived value of smart features.",
-      "recommended_action": "Optimize the operating system to handle updates and apps more efficiently.",
+      "gap_description": "Omitting optical output without clear pre-purchase disclosure creates post-purchase regret among a loyal, high-spend customer segment \u2014 home theater enthusiasts \u2014 who are disproportionately influential in online communities and purchasing recommendations.",
+      "recommended_action": "Either restore the optical output port in the next hardware revision or make the omission explicitly visible in product spec sheets, retailer listings, and comparison tools; in the interim, produce a short setup guide for Bluetooth audio pairing to reduce friction for affected customers.",
       "supporting_reviews": [
-        "It is a beautiful TV but slows down with operating system updates and too many apps.",
-        "The smart features are fast and easy to navigate."
+        "There is no optical audio out. The only way to connect is by Bluetooth, which is kind of a pain. But overall a good television."
+      ]
+    },
+    {
+      "dimension": "Viewing Angles",
+      "expectation": "Customers expected a 50-inch Samsung 4K TV to deliver consistent picture quality from any reasonable seating position in a living room or family room environment.",
+      "actual_experience": "The VA-type panel produces noticeable color shift and brightness falloff when viewed from off-center angles, limiting the TV's suitability for wide or multi-seat viewing arrangements.",
+      "gap_severity": "medium",
+      "gap_description": "For households where the TV serves as a shared family screen \u2014 the primary use case for a 50-inch set \u2014 degraded off-axis performance directly undermines the product's fitness for purpose and increases the likelihood of returns or negative reviews from multi-viewer households.",
+      "recommended_action": "Add a 'Best for: front-facing viewing' disclosure in product descriptions and retail shelf tags; for the next product generation, evaluate IPS or QLED panel options at this price tier to close the angle performance gap, or offer an in-store demo mode that showcases the off-axis limitation transparently.",
+      "supporting_reviews": [
+        "Great television for the price. It has a great picture and sound, and pretty bright, but not a good television for viewing angles from the sides."
+      ]
+    },
+    {
+      "dimension": "Remote Usability",
+      "expectation": "Customers expected an intuitive, plug-and-play remote control experience consistent with Samsung's reputation for polished consumer electronics design.",
+      "actual_experience": "Multiple users reported difficulty understanding the remote's button layout, pairing process, or compatibility with other devices, requiring a learning curve that felt inconsistent with a premium brand.",
+      "gap_severity": "low",
+      "gap_description": "Remote friction is a disproportionately high-visibility pain point because it is the first interaction customers have with the product daily \u2014 repeated small frustrations erode overall satisfaction scores and reduce the likelihood of recommending the product even when picture quality is excellent.",
+      "recommended_action": "Redesign the quick-start guide to include a visual remote map with the five most-used functions highlighted; add an interactive 'Remote Setup' tutorial as the first screen in the TV's onboarding flow, and ensure the Samsung SmartThings app is prominently offered as an alternative control method.",
+      "supporting_reviews": [
+        "Only feature issue is the compatibility of the remote. Had a little trouble on how to operate it.",
+        "I have some trouble with the remote, but I'm sure that's my fault. I love the television."
       ]
     },
     {
       "dimension": "Price-Value",
-      "expectation": "At this price point, I expected a premium experience in all aspects.",
-      "actual_experience": "While picture and sound are praised, issues like mounting difficulties detract from the value.",
-      "gap_severity": "medium",
-      "gap_description": "Perceived value diminishes when basic setup features like mounting are problematic.",
-      "recommended_action": "Ensure standard VESA mounting compatibility or provide necessary adapters with the product.",
+      "expectation": "Customers expected a budget-to-mid-range Samsung 4K TV to deliver acceptable performance across all core dimensions \u2014 picture, sound, and smart features \u2014 without significant trade-offs.",
+      "actual_experience": "Picture quality and brightness consistently exceeded price-tier expectations, but the combination of buffering issues, missing optical output, and narrow viewing angles created a perception of selective under-delivery that qualified the value proposition.",
+      "gap_severity": "low",
+      "gap_description": "When a product over-delivers on its most visible attribute (picture) but under-delivers on supporting features, customers feel the value is conditional rather than comprehensive \u2014 reducing the likelihood of repeat purchase and cross-category Samsung loyalty.",
+      "recommended_action": "Reframe marketing messaging around the specific strengths \u2014 'Crystal-clear 4K picture at an unbeatable price' \u2014 while proactively addressing known limitations in product FAQs and retailer Q&A sections so customers self-select appropriately and arrive with calibrated expectations.",
       "supporting_reviews": [
-        "Lack of standard VESA mounting holes, requiring an adapter that is not readily available.",
-        "The picture quality is stunning for the price, everything is super crisp and the colors really pop."
-      ]
-    },
-    {
-      "dimension": "Reliability",
-      "expectation": "Samsung TVs should be reliable and free from defects.",
-      "actual_experience": "Some customers experienced defects like broken screens and display issues.",
-      "gap_severity": "high",
-      "gap_description": "Reliability issues can lead to increased warranty claims and damage to brand reputation.",
-      "recommended_action": "Enhance quality assurance processes to reduce defects and improve product reliability.",
-      "supporting_reviews": [
-        "The TV arrived with a broken screen.",
-        "I am having issues with the display on an 85-inch TV that I bought in December 2025."
-      ]
-    },
-    {
-      "dimension": "Setup / Ease-of-Use",
-      "expectation": "I expected easy setup and intuitive navigation.",
-      "actual_experience": "Mounting difficulties and remote control design issues were noted.",
-      "gap_severity": "medium",
-      "gap_description": "Complicated setup processes can lead to customer frustration and potential returns.",
-      "recommended_action": "Redesign the remote to include direct channel input and improve mounting instructions.",
-      "supporting_reviews": [
-        "Lack of direct channel input via numbered keys on the remote, making navigation cumbersome.",
-        "Lack of standard VESA mounting holes, requiring an adapter that is not readily available."
+        "It is not the sharpest, but for a budget LED television it is good enough.",
+        "Great television for the price. It has a great picture and sound, and pretty bright, but not a good television for viewing angles from the sides.",
+        "Under $350. Perfect size and loved all the features."
       ]
     }
   ],
   "cx_actions": [
     {
-      "action_type": "faq",
-      "title": "How can I fix clouding in the corners of my TV display?",
-      "content": "Clouding in the corners of your TV display may be due to backlight bleeding or panel uniformity issues. Try adjusting the backlight settings in the TV menu to reduce this effect. If the issue persists, please contact our support team for further assistance.",
-      "related_issue": "Display Issues",
+      "action_type": "support_script",
+      "title": "Remote Control Pairing & Usability Troubleshooting Script",
+      "content": "Thank you for reaching out about your remote control. Let's get this sorted quickly. First, please press and hold the Home and Back buttons simultaneously for 5 seconds to re-pair the remote via Bluetooth \u2014 the LED will flash twice to confirm pairing. If the button layout feels unfamiliar, I can walk you through remapping frequently used functions in Settings > Remote & Accessories > Button Customization. Should the remote still not respond correctly after re-pairing, I'll arrange a replacement remote to be shipped to you within 3\u20135 business days at no charge.",
+      "related_issue": "Remote Control Usability / Compatibility",
       "issue_type": "product_defect",
       "priority": "high"
-    },
-    {
-      "action_type": "install_guide",
-      "title": "VESA Mounting Adapter Information",
-      "content": "Our TVs may require a specific adapter for VESA mounting. Please check the product specifications or contact our support team to purchase the correct adapter. We recommend verifying compatibility before purchasing a mount.",
-      "related_issue": "Mounting Difficulties",
-      "issue_type": "product_defect",
-      "priority": "medium"
-    },
-    {
-      "action_type": "faq",
-      "title": "Why is my TV's operating system slow?",
-      "content": "If your TV's operating system slows down, it may be due to limited processing power or memory. Try reducing the number of installed apps and restarting the TV. For persistent issues, consider a factory reset or contact support.",
-      "related_issue": "Operating System Performance",
-      "issue_type": "product_defect",
-      "priority": "high"
-    },
-    {
-      "action_type": "faq",
-      "title": "How can I enter channels directly on my remote?",
-      "content": "Our remote control design does not include numbered keys for direct channel input. Use the on-screen guide or voice control features for easier navigation. For further assistance, refer to the user manual or contact support.",
-      "related_issue": "Remote Control Design",
-      "issue_type": "product_defect",
-      "priority": "medium"
     },
     {
       "action_type": "proactive_notice",
-      "title": "Important Delivery and Return Process Information",
-      "content": "To ensure a smooth delivery and return process, please review our collaboration with Verizon. In case of any issues, contact our support team immediately for assistance. Keep all packaging materials until you're satisfied with your purchase.",
-      "related_issue": "Delivery and Return Issues",
+      "title": "Damaged on Delivery \u2014 What to Do Before You Sign",
+      "content": "Before accepting your delivery, please inspect the outer box for visible damage such as crushing, punctures, or moisture. If the box shows significant damage, refuse the delivery and note the reason with the carrier \u2014 this triggers an automatic replacement order on our end, typically redelivered within 5\u20137 business days. If you've already accepted a damaged unit, contact our support team within 48 hours at support@[brand].com or 1-800-XXX-XXXX with a photo of the damage and your order number, and we will prioritize a replacement shipment. Do not discard the original packaging, as it may be required for the carrier claim.",
+      "related_issue": "Damaged / Destroyed on Delivery",
       "issue_type": "purchase_experience",
       "priority": "high"
     },
     {
       "action_type": "faq",
-      "title": "How can I improve my TV's picture quality?",
-      "content": "To enhance picture quality, adjust the brightness and contrast settings in the TV menu. If you encounter difficulties, refer to the calibration guide in the user manual or contact support for personalized assistance.",
-      "related_issue": "Picture Quality Adjustments",
+      "title": "Why does my TV keep buffering during streaming, and how do I fix it?",
+      "content": "Buffering on this model is most commonly caused by limited available app memory rather than your internet connection. To free up memory, go to Settings > Apps > See All Apps, select the streaming app you use most, and tap 'Clear Cache' \u2014 repeat this for any other streaming apps installed. We also recommend limiting the number of apps running simultaneously by restarting the TV before a long viewing session, and setting your streaming app's video quality to 'Auto' rather than a fixed 4K setting to reduce memory load. If buffering persists after these steps, our support team can walk you through a factory reset procedure that often restores smoother performance.",
+      "related_issue": "Streaming Buffering / Insufficient Smart TV Memory",
+      "issue_type": "product_defect",
+      "priority": "high"
+    },
+    {
+      "action_type": "faq",
+      "title": "How can I improve dialogue clarity and speech intelligibility on my TV?",
+      "content": "If voices sound muffled or hard to hear over background sound effects, navigate to Settings > Sound > Sound Mode and select 'Clear Voice' or 'Speech Enhancement' \u2014 this mode boosts the frequency range where dialogue sits. You can also go to Settings > Sound > Advanced Settings and increase the 'Center Speaker' or 'Dialogue Enhancement' level to +3 or higher. For the best dialogue clarity, we recommend pairing the TV with a soundbar or external speaker via Bluetooth (Settings > Sound > Sound Output > Bluetooth Speaker), as the built-in speakers have physical size constraints that limit low-volume dialogue separation. If none of these settings resolve the issue, contact support and reference issue code AUDIO-DLG for expedited assistance.",
+      "related_issue": "Poor Sound / Unclear Dialogue",
       "issue_type": "product_defect",
       "priority": "medium"
     },
     {
       "action_type": "faq",
-      "title": "How can I improve my TV's sound quality?",
-      "content": "For better sound quality, consider adjusting the audio settings or connecting external speakers. If the issue persists, refer to the user manual for advanced sound settings or contact support.",
-      "related_issue": "Sound Quality",
+      "title": "This TV doesn't have an optical audio output \u2014 how do I connect my soundbar or AV receiver?",
+      "content": "This model does not include a TOSLINK optical output port; the primary external audio connection options are HDMI ARC (the HDMI port labeled 'ARC' on the back panel) and Bluetooth. HDMI ARC is the recommended connection for soundbars and AV receivers, as it carries high-quality audio with no perceptible latency \u2014 simply connect your soundbar to the ARC port, then go to Settings > Sound > Sound Output and select 'ARC.' If your soundbar only has an optical input, an HDMI ARC-to-optical adapter (available from major electronics retailers for approximately $15\u2013$25) will bridge the connection. Bluetooth audio is also available under Settings > Sound > Sound Output > Bluetooth Speaker, though a 100\u2013200ms latency offset may be noticeable during fast-action content.",
+      "related_issue": "No Optical Audio Output / Limited Connectivity",
+      "issue_type": "product_defect",
+      "priority": "medium"
+    },
+    {
+      "action_type": "faq",
+      "title": "Why does picture quality look washed out or dark when I'm not sitting directly in front of the TV?",
+      "content": "This TV uses a VA-type LED panel, which delivers deep blacks and strong contrast when viewed head-on but has a narrower optimal viewing cone than IPS panels \u2014 brightness and color accuracy will decrease noticeably at viewing angles beyond approximately 30\u201340 degrees off-center. To minimize this effect, go to Settings > Picture > Advanced Settings and enable 'Wide Viewing Angle' or 'Viewing Angle Optimization' if available on your firmware version, which applies a software correction to partially compensate. Positioning the TV at seated eye level and centering it to your primary seating position will have the greatest impact on perceived picture quality. If your room layout requires wide-angle viewing as a primary use case, please contact our support team to discuss exchange eligibility under our 30-day satisfaction policy.",
+      "related_issue": "Poor Viewing Angles",
       "issue_type": "product_defect",
       "priority": "medium"
     },
     {
       "action_type": "proactive_notice",
-      "title": "Samsung Account Requirement for Smart Features",
-      "content": "Please note that a Samsung Account is required to access streaming apps and smart features on your TV. Ensure you have an account set up before installation to enjoy all available features.",
-      "related_issue": "Account Setup Requirement",
+      "title": "Limited Stock Alert \u2014 How to Secure Your Order and Avoid Delays",
+      "content": "Stock for this model is currently limited and availability may change without notice \u2014 we recommend completing your purchase as soon as possible to avoid extended wait times. If the item shows as unavailable at checkout, you can join the restock notification list on the product page and you will receive an email within 24 hours of new inventory becoming available. Orders placed during limited-stock periods are fulfilled strictly in the order they are received, and estimated ship dates will be confirmed in your order confirmation email. For urgent purchase needs, contact our sales team at 1-800-XXX-XXXX to check for in-store or partner retailer availability in your area.",
+      "related_issue": "Limited Stock / Purchase Availability",
       "issue_type": "purchase_experience",
-      "priority": "low"
+      "priority": "medium"
+    },
+    {
+      "action_type": "proactive_notice",
+      "title": "Delivery & Pickup Availability Notice \u2014 Check Your Options Before You Order",
+      "content": "Delivery and in-store pickup options for this model vary by region and may be limited in some areas \u2014 please enter your ZIP code on the product page before completing your order to see all available fulfillment methods at your location. If neither home delivery nor local pickup is available to you, our support team can check partner retailer stock within 50 miles of your address by calling 1-800-XXX-XXXX. Customers in areas with no current fulfillment options can request a backorder with priority shipping at no extra cost, which guarantees your unit ships first when stock and carrier capacity become available in your region. We apologize for any inconvenience and are actively working to expand delivery coverage.",
+      "related_issue": "Delivery / Pickup Availability Constraints",
+      "issue_type": "purchase_experience",
+      "priority": "medium"
     }
   ],
   "sentiment_distribution": {
-    "positive": 20,
-    "neutral": 6,
-    "negative": 3
+    "positive": 18,
+    "negative": 2
   },
   "aspect_sentiment_summary": {
     "picture_quality": {
-      "total_mentions": 19,
+      "total_mentions": 16,
       "positive": 16,
-      "negative": 2,
-      "neutral": 1,
-      "positive_rate": 84.2,
-      "negative_rate": 10.5,
-      "insight": "The majority of customers are highly satisfied with the vibrant colors and crisp resolution of the TV, although a few have noted issues with brightness and contrast levels.",
-      "positive_themes": [
-        "vibrant colors",
-        "crisp resolution",
-        "true-to-life visuals",
-        "deep contrast"
-      ],
-      "negative_themes": [
-        "brightness issues",
-        "contrast levels"
-      ]
-    },
-    "sound": {
-      "total_mentions": 7,
-      "positive": 4,
-      "negative": 1,
-      "neutral": 2,
-      "positive_rate": 57.1,
-      "negative_rate": 14.3,
-      "insight": "While most users find the sound quality to be robust and immersive, a few express a desire for further improvement.",
-      "positive_themes": [
-        "robust sound quality",
-        "immersive experience",
-        "excellent sound"
-      ],
-      "negative_themes": [
-        "could be better",
-        "wish for improvement"
-      ]
-    },
-    "smart_tv": {
-      "total_mentions": 6,
-      "positive": 5,
       "negative": 0,
-      "neutral": 1,
-      "positive_rate": 83.3,
+      "neutral": 0,
+      "positive_rate": 100.0,
       "negative_rate": 0.0,
-      "insight": "The smart features of the TV are praised for their user-friendly interface and fast, seamless navigation.",
+      "insight": "Picture quality is overwhelmingly praised across reviews, with customers consistently highlighting vivid colors, sharp resolution, and impressive brightness, with only one minor caveat noting it falls slightly short of sharpness expectations for a budget model.",
       "positive_themes": [
-        "user-friendly interface",
-        "fast navigation",
-        "seamless app access",
-        "advanced technology"
+        "sharp resolution and clarity",
+        "vibrant and vivid colors",
+        "excellent brightness",
+        "immersive viewing experience",
+        "strong contrast"
       ],
-      "negative_themes": []
+      "negative_themes": [
+        "not the sharpest for non-budget expectations"
+      ]
     },
     "design": {
       "total_mentions": 6,
@@ -977,31 +979,75 @@
       "negative": 0,
       "neutral": 0,
       "positive_rate": 100.0,
-      "negative_rate": 0.0
+      "negative_rate": 0.0,
+      "insight": "Customers consistently praise the Samsung's design for its attractive aesthetics, lightweight construction, and visually striking display qualities, with no negative design-related feedback across all reviews.",
+      "positive_themes": [
+        "attractive visual appearance",
+        "sleek aesthetics",
+        "lightweight and slim build",
+        "vibrant and bright display",
+        "premium look and feel"
+      ],
+      "negative_themes": []
+    },
+    "smart_tv": {
+      "total_mentions": 3,
+      "positive": 2,
+      "negative": 1,
+      "neutral": 0,
+      "positive_rate": 66.7,
+      "negative_rate": 33.3
+    },
+    "sound": {
+      "total_mentions": 8,
+      "positive": 7,
+      "negative": 0,
+      "neutral": 1,
+      "positive_rate": 87.5,
+      "negative_rate": 0.0,
+      "insight": "The majority of reviewers express genuine satisfaction with the sound quality, particularly relative to price and past product comparisons, though one reviewer notes dialogue clarity suffers against background noise and another flags limited audio output options.",
+      "positive_themes": [
+        "sound quality praised as better than competing products",
+        "speakers described as good for movies and sports",
+        "sound noted as a satisfactory feature for the price point",
+        "sound mentioned positively alongside picture quality"
+      ],
+      "negative_themes": [
+        "dialogue clarity issues when background noise is present",
+        "lack of optical audio out limits external speaker connectivity"
+      ]
     },
     "remote": {
       "total_mentions": 3,
-      "positive": 0,
-      "negative": 0,
-      "neutral": 3,
-      "positive_rate": 0.0,
-      "negative_rate": 0.0
-    },
-    "reliability": {
-      "total_mentions": 4,
-      "positive": 2,
+      "positive": 1,
       "negative": 2,
       "neutral": 0,
-      "positive_rate": 50.0,
-      "negative_rate": 50.0,
-      "insight": "While some customers experience initial defects and display issues, others consistently find Samsung TVs reliable.",
-      "positive_themes": [
-        "consistent performance across multiple units"
-      ],
-      "negative_themes": [
-        "initial product defects",
-        "display issues"
-      ]
+      "positive_rate": 33.3,
+      "negative_rate": 66.7
+    },
+    "gaming": {
+      "total_mentions": 1,
+      "positive": 1,
+      "negative": 0,
+      "neutral": 0,
+      "positive_rate": 100.0,
+      "negative_rate": 0.0
+    },
+    "other": {
+      "total_mentions": 1,
+      "positive": 1,
+      "negative": 0,
+      "neutral": 0,
+      "positive_rate": 100.0,
+      "negative_rate": 0.0
+    },
+    "price": {
+      "total_mentions": 3,
+      "positive": 3,
+      "negative": 0,
+      "neutral": 0,
+      "positive_rate": 100.0,
+      "negative_rate": 0.0
     },
     "installation": {
       "total_mentions": 2,
@@ -1011,34 +1057,34 @@
       "positive_rate": 50.0,
       "negative_rate": 50.0
     },
-    "brightness": {
+    "connectivity": {
       "total_mentions": 1,
-      "positive": 1,
-      "negative": 0,
-      "neutral": 0,
-      "positive_rate": 100.0,
-      "negative_rate": 0.0
-    },
-    "other": {
-      "total_mentions": 4,
-      "positive": 3,
+      "positive": 0,
       "negative": 1,
       "neutral": 0,
-      "positive_rate": 75.0,
-      "negative_rate": 25.0
+      "positive_rate": 0.0,
+      "negative_rate": 100.0
+    },
+    "reliability": {
+      "total_mentions": 1,
+      "positive": 0,
+      "negative": 1,
+      "neutral": 0,
+      "positive_rate": 0.0,
+      "negative_rate": 100.0
     }
   },
-  "executive_summary": "The Samsung 50\" Crystal UHD U7900F maintains a strong market presence with an average rating of 4.3 out of 5, driven by exceptional picture and sound quality, alongside advanced smart features. However, customer feedback highlights critical areas for improvement that could impact brand trust and customer retention if not addressed. Display issues, specifically clouding due to backlight inconsistencies, and a cumbersome remote control design are the primary pain points, affecting user satisfaction and potentially leading to increased returns and negative word-of-mouth.\n\nStrategically, addressing these issues is imperative to maintaining Samsung's competitive edge, particularly against rivals like Hisense and LG, where Samsung's picture quality and smart features are noted advantages. Enhancing display uniformity and remote control functionality will not only improve customer satisfaction but also reinforce Samsung's reputation for quality and innovation. Additionally, optimizing the operating system's performance and ensuring mounting compatibility will further enhance the user experience, reducing friction and supporting customer loyalty.\n\nTo capitalize on these insights, Samsung should prioritize product improvements in display technology and user interface design. By aligning these enhancements with customer expectations, Samsung can mitigate potential brand erosion and strengthen its market position in the highly competitive UHD TV segment.",
+  "executive_summary": "# VOC Intelligence Report\n## 50\" Class Crystal UHD U7900F 4K Smart TV\n**Analysis Date:** 2026-06-23 | **Reviews Analyzed:** 20 | **Avg. Rating:** 4.5/5\n\n---\n\n## \n\nThe Samsung U7900F 50\" Crystal UHD 4K Smart TV demonstrates strong market fundamentals, with 90% positive sentiment and a 4.5/5 average rating across 20 analyzed reviews. Picture quality, color vibrancy, and immersive viewing experience are commanding near-universal customer approval \u2014 94% of reviewers cite exceptional resolution as a primary satisfaction driver \u2014 establishing a durable competitive advantage in the mid-range 4K segment. This performance-first reputation is the product's most defensible asset and must be actively protected.\n\nHowever, two high-severity failure modes are creating disproportionate brand damage relative to their complaint volume. Damaged-on-arrival incidents \u2014 compounded by inadequate post-purchase service recovery \u2014 are generating high-visibility negative reviews that threaten to erode the product's strong aggregate rating and drive permanent customer defection. Simultaneously, streaming buffering driven by insufficient onboard RAM directly contradicts the U7900F's Smart TV positioning, creating a critical expectation gap among price/value-sensitive buyers who represent the highest-volume purchase segment in the entry-to-mid market. Left unaddressed, these two failure points risk ceding ground to aggressive competitors including TCL and Hisense, who are actively targeting this segment on platform performance and reliability.\n\nSecondary friction points \u2014 dialogue clarity, optical audio output omission, and narrow viewing angles \u2014 are currently contained at medium severity but carry escalation risk as the installed base grows and streaming-first usage patterns intensify. The audio satisfaction gap between picture quality (94% positive) and sound performance (67% positive) signals a meaningful product experience imbalance that, if closed, represents a direct path to higher aggregate ratings and reduced external audio accessory dependency.\n\nThe strategic priority is clear: protect the picture quality leadership position that is driving purchase decisions while urgently resolving the logistics, platform performance, and service recovery failures that are converting satisfied buyers into vocal detractors.\n\n---\n\n##",
   "key_insights": [
-    "Address display uniformity issues to enhance picture quality and reduce returns related to clouding complaints.",
-    "Redesign the remote control to include direct channel input, improving navigation and user satisfaction.",
-    "Optimize the TV's operating system to handle updates and multiple apps efficiently, enhancing reliability and user experience.",
-    "Improve sound quality through better internal speakers or sound processing to elevate overall customer satisfaction.",
-    "Ensure mounting compatibility by incorporating standard VESA holes or providing readily available adapters to ease installation.",
-    "Strengthen coordination with delivery partners to streamline the return process and resolve delivery issues promptly.",
-    "Leverage superior picture quality and smart features to differentiate from competitors like Hisense and LG.",
-    "Focus on reliability and brand quality to prevent erosion of customer trust and mitigate potential attrition.",
-    "Target picture-quality-first and smart TV/usability-focused segments to sustain market leadership and drive growth.",
-    "Monitor and address expectation gaps in brand quality and reliability to maintain a strong brand reputation."
+    "Packaging and last-mile handling are a brand liability, not a logistics footnote.** Shattered-glass delivery incidents generate outsized negative review visibility and trigger permanent customer defection; immediate packaging reinforcement and a guaranteed replacement fulfillment SLA are required to contain reputational damage before it compounds at scale.",
+    "Streaming buffering is a product-market fit failure for a Smart TV.** Insufficient onboard RAM undermines the U7900F's core value proposition against dumb-TV alternatives; a hardware memory upgrade or Tizen OS memory optimization must be prioritized in the next product revision to defend share against TCL and Hisense in the budget-conscious segment.",
+    "Post-purchase service recovery is as critical as product quality.** Damaged-unit cases that go unresolved are generating 1-star reviews not about the TV itself, but about Samsung's response \u2014 indicating that a streamlined escalation and redelivery workflow would recover at-risk customers and protect brand loyalty scores independent of product changes.",
+    "Picture quality leadership is the primary purchase driver and must be actively leveraged in marketing.** With 94% of reviewers citing exceptional resolution and 83% citing vivid color, the U7900F has a credible, customer-validated story for performance-first messaging that should anchor all mid-range 4K competitive positioning.",
+    "The 27-point satisfaction gap between picture quality (94%) and sound quality (67%) represents a tangible upgrade opportunity.** Targeted speaker EQ tuning to prioritize dialogue frequency isolation is a low-cost engineering intervention that could meaningfully lift overall satisfaction scores and reduce the friction driving customers toward external audio purchases.",
+    "Omitting optical audio output without pre-purchase disclosure is creating post-sale regret among high-value legacy audio system owners.** Either reintroducing TOSLINK connectivity in the next hardware revision or prominently disclosing the omission in product listings will reduce return rates and negative reviews from this loyal, high-spend customer segment.",
+    "Viewing angle limitations are a silent churn risk for multi-viewer households.** The VA panel's narrow viewing cone degrades the immersive experience the product is marketed on; product listings and retail staff should proactively qualify room configurations to set accurate expectations and reduce post-purchase disappointment.",
+    "The performance-first customer segment is driving the bulk of 5-star reviews and word-of-mouth velocity.** Retention strategies \u2014 including loyalty incentives, upgrade path communications, and ecosystem cross-sell \u2014 should be concentrated on this segment to maximize lifetime value and organic review generation.",
+    "Nine detected contradictions in customer feedback signal unmet expectation-setting at the point of sale.** Misaligned pre-purchase expectations \u2014 particularly around Smart TV performance and audio connectivity \u2014 indicate that product page specifications and retail channel briefings require immediate accuracy and completeness audits.",
+    "The U7900F's competitive moat is narrow but real.** Picture quality scores position the product favorably against value-tier competitors; however, platform performance and delivery reliability gaps are the precise vulnerabilities TCL and Hisense will exploit in head-to-head comparisons \u2014 making operational excellence as strategically urgent as product innovation."
   ]
 }

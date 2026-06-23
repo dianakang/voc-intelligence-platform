@@ -6,8 +6,8 @@ import Link from "next/link";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Samsung TV VOC Intelligence Platform",
-  description: "AI-powered customer review analysis for Samsung TV products",
+  title: "Samsung VOC Intelligence Platform",
+  description: "AI-powered customer review analysis for Samsung products",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -32,9 +32,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <Link href="/reports" className="text-gray-600 hover:text-gray-900 font-medium">Reports</Link>
                 </div>
               </div>
-              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
-                Samsung 50&quot; Crystal UHD U7900F
-              </span>
             </div>
           </div>
         </nav>

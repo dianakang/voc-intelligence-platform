@@ -137,99 +137,6 @@ SAMSUNG_U7900F_SPEC: dict = {
     },
 }
 
-COMPETITOR_SPECS: dict[str, dict] = {
-    "TCL Q6": {
-        "model": "55Q650G",
-        "price_usd": 349.99,
-        "display_type": "QLED",
-        "panel": "VA",
-        "refresh_rate": "60Hz (Motion Rate 120)",
-        "local_dimming": "Full Array Local Dimming",
-        "hdr": ["Dolby Vision", "HDR10+", "HLG"],
-        "audio_power": "30W",
-        "dolby_atmos": True,
-        "os": "Google TV",
-        "hdmi": "4x HDMI (HDMI 2.1 x2)",
-        "vrr": "FreeSync Premium",
-        "gaming_input_lag": "~12ms",
-        "wifi": "WiFi 6 (802.11ax)",
-        "strengths": [
-            "QLED panel - better color volume than Crystal UHD",
-            "Full Array Local Dimming for better contrast",
-            "Dolby Vision + Dolby Atmos support",
-            "Google TV - broader app ecosystem",
-            "Lower price point",
-            "Better audio output (30W vs 20W)",
-        ],
-        "weaknesses": [
-            "Google TV can be slower than Tizen",
-            "TCL brand perceived as less premium",
-            "Less robust Samsung ecosystem integration",
-            "Build quality feels cheaper",
-        ],
-    },
-    "Hisense A7": {
-        "model": "50A7H",
-        "price_usd": 279.99,
-        "display_type": "4K UHD ULED",
-        "panel": "VA",
-        "refresh_rate": "60Hz",
-        "local_dimming": "Yes",
-        "hdr": ["Dolby Vision", "HDR10+", "HLG"],
-        "audio_power": "24W",
-        "dolby_atmos": True,
-        "os": "VIDAA U6",
-        "hdmi": "3x HDMI",
-        "vrr": "No",
-        "gaming_input_lag": "~15ms",
-        "wifi": "WiFi 5",
-        "strengths": [
-            "Dolby Vision and Dolby Atmos at this price",
-            "ULED technology - better colors than standard UHD",
-            "Significantly cheaper price",
-            "Good out-of-box picture calibration",
-        ],
-        "weaknesses": [
-            "VIDAA OS - limited app selection",
-            "No VRR/FreeSync for gaming",
-            "Higher input lag than Samsung",
-            "Less reliable smart features",
-            "Hisense brand perceived as budget",
-        ],
-    },
-    "LG UT70": {
-        "model": "50UT7050PSA",
-        "price_usd": 399.99,
-        "display_type": "4K UHD",
-        "panel": "IPS",
-        "refresh_rate": "60Hz",
-        "local_dimming": "No",
-        "hdr": ["HDR10", "HLG"],
-        "audio_power": "20W",
-        "dolby_atmos": False,
-        "os": "webOS 23",
-        "hdmi": "3x HDMI (HDMI 2.1 x1)",
-        "vrr": "FreeSync",
-        "gaming_input_lag": "~9ms",
-        "wifi": "WiFi 5",
-        "strengths": [
-            "IPS panel - better viewing angles than VA",
-            "Excellent low input lag for gaming (~9ms)",
-            "webOS - very smooth and user-friendly",
-            "Better motion handling on IPS",
-            "LG brand trust and reliability",
-        ],
-        "weaknesses": [
-            "IPS has worse black levels than VA (Samsung)",
-            "No local dimming",
-            "No HDR10+ (only HDR10)",
-            "No Dolby Vision or Dolby Atmos",
-            "Slightly higher price",
-        ],
-    },
-}
-
-
 def _extract_next_data(html: str) -> dict:
     """Parse the Next.js __NEXT_DATA__ blob embedded in the page (price, stock, marketing copy)."""
     match = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.DOTALL)
@@ -292,11 +199,28 @@ async def _fetch_full_spec_groups(group_id: str, model_code: str) -> tuple[list[
     return groups, highlights
 
 
+def _category_from_url(url: str) -> str:
+    """Derive a human-readable product category from the URL's first /us/{category}/ path
+    segment (e.g. '/us/tvs/...' -> 'TV', '/us/refrigerators/...' -> 'Refrigerator'). This
+    platform was originally built TV-only, so several agents key behavior off this category
+    (e.g. skipping TV-competitor positioning for non-TV products) — it must reflect the actual
+    product, not be hardcoded."""
+    match = re.search(r"/us/([a-z0-9-]+)/", url)
+    if not match:
+        return "Unknown"
+    segment = match.group(1)
+    if segment == "tvs":
+        return "TV"
+    label = segment.rstrip("s").replace("-", " ").strip()
+    return label.title() if label else "Unknown"
+
+
 def _map_to_product_spec_dict(
     model_code: str,
     product_entry: dict,
     spec_groups: list[dict],
     spec_highlights: list[str],
+    category: str = "TV",
 ) -> dict:
     """Map the live spec-table groups + page product data onto the ProductSpec schema."""
     categories: dict[str, dict] = {
@@ -338,15 +262,16 @@ def _map_to_product_spec_dict(
             kf["desc"] for kf in (product_entry.get("keySummary") or []) if kf.get("desc")
         ],
     })
-    categories["smart_tv"].setdefault(
-        "account_requirement",
-        "Samsung Account required to use streaming apps, SmartThings, and other network-based smart features",
-    )
+    if category == "TV":
+        categories["smart_tv"].setdefault(
+            "account_requirement",
+            "Samsung Account required to use streaming apps, SmartThings, and other network-based smart features",
+        )
 
     return {
         "product_name": product_entry.get("productTitle") or product_entry.get("modelName") or model_code,
         "model": model_code,
-        "category": "TV",
+        "category": category,
         "screen_size": categories["display"].get("Screen Size", ""),
         "series": product_entry.get("familyMktName", ""),
         **categories,
@@ -386,9 +311,16 @@ async def fetch_spec_from_web(model_code: str, url: Optional[str] = None) -> Pro
     group_id = product_entry.get("familyId") or product_entry.get("buySpaId")
     spec_groups, spec_highlights = [], []
     if group_id:
-        spec_groups, spec_highlights = await _fetch_full_spec_groups(str(group_id), model_code)
+        try:
+            spec_groups, spec_highlights = await _fetch_full_spec_groups(str(group_id), model_code)
+        except Exception as e:
+            # The detailed spec-table API isn't available for every product/division (e.g. 404s
+            # on some non-TV categories) — degrade to name/price-only rather than failing the whole
+            # spec fetch and falling back to a hardcoded, wrong-category spec.
+            console.print(f"[yellow]Spec-table fetch failed for {model_code} ({e}); continuing with name/price only")
 
-    spec_dict = _map_to_product_spec_dict(model_code, product_entry, spec_groups, spec_highlights)
+    category = _category_from_url(target_url)
+    spec_dict = _map_to_product_spec_dict(model_code, product_entry, spec_groups, spec_highlights, category=category)
     spec_dict["spec_source"] = "live_scrape"
     return ProductSpec(**spec_dict)
 
@@ -622,17 +554,24 @@ def parse_u7900f_spec_pdf(pdf_path: Path) -> dict:
 _COMMERCE_OTHER_KEYS = ("price_usd", "msrp_usd", "stock_status", "delivery_availability")
 
 
-def get_samsung_spec(model_code: str) -> ProductSpec:
+def get_samsung_spec(model_code: str, url: Optional[str] = None) -> ProductSpec:
     """Build the product spec from the assignment-provided PDF (authoritative
     for static spec fields) merged with a live scrape or cached snapshot
     (the only source for commerce-dynamic fields: price, stock, delivery,
     account requirement). Falls back to live-scrape-only, then hardcoded,
-    if the PDF file isn't present."""
+    if the PDF file isn't present.
+
+    `url` is the product page to live-scrape (defaults to
+    settings.samsung_product_url if omitted). The PDF path is keyed off
+    settings.samsung_model_code regardless, so it only ever applies to that
+    one assignment TV — any other model_code naturally skips straight to
+    live-scrape-only.
+    """
     spec_path = settings.raw_product_dir(model_code) / "spec.json"
     pdf_path = settings.samsung_spec_pdf_path
 
     pdf_dict: Optional[dict] = None
-    if pdf_path.exists():
+    if model_code.upper() == settings.samsung_model_code.upper() and pdf_path.exists():
         try:
             pdf_dict = parse_u7900f_spec_pdf(pdf_path)
             console.print(f"[green]Parsed spec PDF for {model_code} ({pdf_path.name})")
@@ -642,7 +581,7 @@ def get_samsung_spec(model_code: str) -> ProductSpec:
     commerce: Optional[dict] = None
     commerce_source = None
     try:
-        live_spec = asyncio.run(fetch_spec_from_web(model_code))
+        live_spec = asyncio.run(fetch_spec_from_web(model_code, url=url))
         spec_path.write_text(json.dumps(live_spec.model_dump(), indent=2, default=str), encoding="utf-8")
         commerce = live_spec.model_dump()
         commerce_source = "live_scrape"
@@ -678,32 +617,29 @@ def get_samsung_spec(model_code: str) -> ProductSpec:
 _COMPETITOR_STALENESS_DAYS = 90
 
 
-def _safe_competitor_name(name: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
-
-
-def get_competitor_specs() -> dict[str, dict]:
-    """Per competitor, prefer a live-fetched cache (data/raw/competitors/{name}/spec.json,
-    written by `voc refresh-competitors`) over the hardcoded COMPETITOR_SPECS fallback."""
+def get_competitor_specs(model_code: str) -> dict[str, dict]:
+    """Read this product's competitor specs from data/raw/{model_code}/competitors.json,
+    written by `voc refresh-competitors {model_code}`. Returns {} if that command hasn't
+    been run for this product yet — callers (CompetitivePositioningAgent) should skip
+    competitive positioning gracefully in that case rather than fabricate a comparison."""
     from datetime import datetime, timezone
 
-    result: dict[str, dict] = {}
-    for name, fallback in COMPETITOR_SPECS.items():
-        cache_path = settings.raw_data_path / "competitors" / _safe_competitor_name(name) / "spec.json"
-        if cache_path.exists():
-            try:
-                data = json.loads(cache_path.read_text(encoding="utf-8"))
-                fetched_at = data.get("fetched_at")
-                if fetched_at:
-                    age_days = (datetime.now(timezone.utc) - datetime.fromisoformat(fetched_at)).days
-                    if age_days > _COMPETITOR_STALENESS_DAYS:
-                        console.print(
-                            f"[yellow]Cached competitor spec for {name} is {age_days} days old; "
-                            f"consider running `voc refresh-competitors`"
-                        )
-                result[name] = data
-                continue
-            except (json.JSONDecodeError, ValueError) as e:
-                console.print(f"[yellow]Failed to read cached competitor spec for {name} ({e}); using fallback")
-        result[name] = fallback
-    return result
+    cache_path = settings.raw_product_dir(model_code) / "competitors.json"
+    if not cache_path.exists():
+        return {}
+    try:
+        data: dict[str, dict] = json.loads(cache_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        console.print(f"[yellow]Failed to read cached competitors for {model_code} ({e})")
+        return {}
+
+    for name, spec in data.items():
+        fetched_at = spec.get("fetched_at")
+        if fetched_at:
+            age_days = (datetime.now(timezone.utc) - datetime.fromisoformat(fetched_at)).days
+            if age_days > _COMPETITOR_STALENESS_DAYS:
+                console.print(
+                    f"[yellow]Cached competitor spec for {name} is {age_days} days old; "
+                    f"consider re-running `voc refresh-competitors {model_code}`"
+                )
+    return data

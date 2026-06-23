@@ -77,7 +77,7 @@ export default function Dashboard() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">VOC Intelligence Dashboard</h1>
           <p className="text-gray-500 mt-1">
-            Samsung 50&quot; Crystal UHD U7900F · Analyzed {result.analysis_date}
+            {result.model} · Analyzed {result.analysis_date}
           </p>
         </div>
         <Link

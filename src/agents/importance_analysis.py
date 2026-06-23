@@ -1,9 +1,11 @@
 """Task 11: Importance Analysis — frequency vs. business impact, synthesized into an actionable priority list."""
 from __future__ import annotations
 
+from typing import Optional
+
 from src.agents.base import BaseAgent
 from src.config import settings
-from src.data.models import ImportanceItem, Review, VOCAnalysisResult
+from src.data.models import ImportanceItem, ProductSpec, Review, VOCAnalysisResult
 from src.rag.retriever import ReviewRetriever
 
 SYSTEM_PROMPT = """You are a product strategy analyst specializing in customer issue prioritization.
@@ -39,7 +41,13 @@ class ImportanceAnalysisAgent(BaseAgent):
             temperature=0.2,
         )
 
-    def analyze(self, reviews: list[Review], retriever: ReviewRetriever, result: VOCAnalysisResult) -> VOCAnalysisResult:
+    def analyze(
+        self,
+        reviews: list[Review],
+        retriever: ReviewRetriever,
+        result: VOCAnalysisResult,
+        product_spec: Optional[ProductSpec] = None,
+    ) -> VOCAnalysisResult:
         self.log("Synthesizing issue priority from frequency/impact + complaints + gaps + CX actions (Task 11)...")
 
         usable = [r for r in reviews if not r.is_duplicate and not r.is_short]
@@ -73,7 +81,9 @@ class ImportanceAnalysisAgent(BaseAgent):
             high_impact_reviews + low_impact_reviews, max_chars=4000
         )
 
-        prompt = f"""Classify customer issues for Samsung 50" Crystal UHD U7900F by frequency vs. business impact,
+        product_label = product_spec.product_name if product_spec and product_spec.product_name else result.model
+
+        prompt = f"""Classify customer issues for {product_label} by frequency vs. business impact,
 then synthesize a recommended fix and priority rank for each, using ALL the signals below — not the
 quadrant alone.
 
@@ -92,7 +102,7 @@ SAMPLE REVIEWS (high/low impact):
 {all_reviews_context}
 
 Identify ALL issues and classify them. For each issue:
-- issue_type: "product_defect" if it's a defect in the TV itself, "purchase_experience" if it's about
+- issue_type: "product_defect" if it's a defect in the product itself, "purchase_experience" if it's about
   delivery/account/installation/pickup — match against the complaint categories above where possible.
 - recommended_action: ONE concrete next step. If a CX action already covers this issue, say so and
   recommend closing the loop on it (e.g. "publish the existing FAQ on dead pixel claims to the PDP")

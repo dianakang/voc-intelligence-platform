@@ -790,10 +790,8 @@ function MarketingSection({ rec }: { rec: import("@/lib/api").MarketingRecommend
 function CompetitorCard({ comp }: { comp: import("@/lib/api").CompetitorData }) {
   const [expanded, setExpanded] = useState(false);
   const features: [string, string][] = [
-    ["Picture", comp.picture_quality],
-    ["Sound", comp.sound_quality],
     ["UX", comp.ux],
-    ["Smart TV", comp.smart_features],
+    ...Object.entries(comp.key_attributes),
   ];
   return (
     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
@@ -837,7 +835,7 @@ function ReportContent({ result }: { result: VOCResult }) {
     <div className="space-y-12">
       {/* Overview */}
       <div className="bg-gradient-to-r from-brand-600 to-brand-700 rounded-2xl p-6 text-white">
-        <h1 className="text-2xl font-bold mb-1">Samsung TV VOC Intelligence Report</h1>
+        <h1 className="text-2xl font-bold mb-1">Samsung VOC Intelligence Report</h1>
         <p className="text-brand-100 text-sm mb-4">{result.model} · {new Date(result.analysis_date).toLocaleDateString()} · {result.total_reviews} reviews</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[

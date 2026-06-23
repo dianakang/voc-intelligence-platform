@@ -8,8 +8,8 @@ from src.config import settings
 from src.data.models import Review, Sentiment, VOCAnalysisResult
 from src.rag.retriever import ReviewRetriever
 
-SYSTEM_PROMPT = """You are a sentiment analysis expert specializing in consumer electronics product reviews.
-Analyze the sentiment of TV product reviews at both the overall and aspect level.
+SYSTEM_PROMPT = """You are a sentiment analysis expert specializing in consumer product reviews.
+Analyze the sentiment of product reviews at both the overall and aspect level.
 Be precise: distinguish between genuine satisfaction and resigned acceptance.
 Return structured JSON only."""
 
@@ -79,14 +79,22 @@ class SentimentAnalysisAgent(BaseAgent):
         retriever: ReviewRetriever,
         result: VOCAnalysisResult,
     ) -> VOCAnalysisResult:
-        """Use RAG to deeply analyze sentiment for key aspects."""
+        """Use RAG to deeply analyze sentiment for the most-mentioned aspects."""
         self.log("Deep sentiment analysis with RAG evidence...")
 
-        key_aspects = ["picture_quality", "sound", "smart_tv", "reliability"]
+        # Pick the top aspects by mention volume from whatever VOCTaxonomyAgent actually tagged
+        # for this product's reviews (analyze_sentiment_distribution, run just before this, already
+        # built aspect_sentiment_summary keyed by those real tags) — adapts to any product category
+        # automatically instead of assuming a fixed, TV-specific aspect list.
+        key_aspects = sorted(
+            result.aspect_sentiment_summary,
+            key=lambda a: result.aspect_sentiment_summary[a].get("total_mentions", 0),
+            reverse=True,
+        )[:4]
 
         for aspect in key_aspects:
             relevant = retriever.retrieve(
-                query=f"customer experience with {aspect.replace('_', ' ')} of Samsung 4K TV",
+                query=f"customer experience with {aspect.replace('_', ' ')} of this product",
                 top_k=15,
             )
             aspect_reviews = [

@@ -1,17 +1,28 @@
-"""Task 5: Competitive Positioning Analysis vs. TCL Q6, Hisense A7, LG UT70."""
+"""Task 5: Competitive Positioning Analysis.
+
+Competitors are discovered and fetched per analyzed product (any category), via
+`voc refresh-competitors {model_code}` (src/data/competitor_spec_fetcher.py),
+cached at data/raw/{model_code}/competitors.json. That's a deliberate offline
+step, not run automatically here — analyze() simply reads the cache via
+get_competitor_specs(model_code) and skips gracefully (no positioning_analysis)
+if it's empty, rather than blocking every `voc run` on extra web-search-grounded
+LLM calls or fabricating a comparison with no real data.
+"""
 from __future__ import annotations
+
+from typing import Optional
 
 from src.agents.base import BaseAgent
 from src.config import settings
-from src.data.models import CompetitorData, PositioningAnalysis, PositioningAttribute, Review, VOCAnalysisResult
-from src.data.spec_extractor import SAMSUNG_U7900F_SPEC, get_competitor_specs
+from src.data.models import CompetitorData, PositioningAnalysis, PositioningAttribute, ProductSpec, Review, VOCAnalysisResult
+from src.data.spec_extractor import get_competitor_specs
 from src.rag.retriever import ReviewRetriever
 
 SYSTEM_PROMPT = """You are a competitive intelligence analyst for an internal Marketing, Product
 Marketing, CX, and Product team — not an outside reviewer. Your job is to turn raw customer voice
 into prioritization and decision support, not just observations.
 
-A flat list like "Tizen ads are annoying" is not useful on its own. For every attribute you assess,
+A flat list like "the app is laggy" is not useful on its own. For every attribute you assess,
 you must answer:
 1. How many customers mention it (mention_volume: high/medium/low) — ground this in the real
    frequency_pct / positive_rate numbers provided below, don't invent percentages.
@@ -34,16 +45,26 @@ Return structured JSON only."""
 
 
 def _describe_competitor(spec: dict) -> str:
-    """Render a competitor's spec dict (hardcoded fallback or live-fetched, same
-    shape either way — see CompetitorSpec) into the prompt's one-line summary."""
-    hdr = ", ".join(spec.get("hdr", [])) or "N/A"
-    atmos = "Dolby Atmos" if spec.get("dolby_atmos") else "no Dolby Atmos"
-    panel = spec.get("panel") or spec.get("display_type", "N/A")
-    return (
-        f"${spec.get('price_usd', 'N/A')}, {panel} panel, {spec.get('os', 'N/A')}, "
-        f"HDR: {hdr}, {atmos}, VRR: {spec.get('vrr', 'N/A')}, "
-        f"input lag {spec.get('gaming_input_lag', 'N/A')}, {spec.get('wifi', 'N/A')}"
-    )
+    """Render a competitor's spec dict (see CompetitorSpec) into the prompt's one-line summary."""
+    key_specs = spec.get("key_specs", {})
+    specs_str = ", ".join(f"{k}: {v}" for k, v in key_specs.items()) or "N/A"
+    return f"${spec.get('price_usd', 'N/A')} — {specs_str}"
+
+
+def _describe_samsung_spec(product_spec: Optional[ProductSpec]) -> str:
+    """Render the analyzed Samsung product's own spec highlights for the prompt,
+    from whatever real spec data was scraped (no fixed field names — varies by category)."""
+    if not product_spec:
+        return "(no spec data available)"
+    lines = []
+    price = product_spec.other.get("price_usd")
+    if price:
+        lines.append(f"- Price: ${price}")
+    for group in product_spec.raw_spec_groups[:6]:
+        items = ", ".join(f"{k}: {v}" for k, v in list(group.items.items())[:4])
+        if items:
+            lines.append(f"- {group.group_name}: {items}")
+    return "\n".join(lines) if lines else "(no spec data available)"
 
 
 class CompetitivePositioningAgent(BaseAgent):
@@ -55,12 +76,28 @@ class CompetitivePositioningAgent(BaseAgent):
             temperature=0.3,
         )
 
-    def analyze(self, reviews: list[Review], retriever: ReviewRetriever, result: VOCAnalysisResult) -> VOCAnalysisResult:
+    def analyze(
+        self,
+        reviews: list[Review],
+        retriever: ReviewRetriever,
+        result: VOCAnalysisResult,
+        product_spec: Optional[ProductSpec] = None,
+    ) -> VOCAnalysisResult:
+        model_code = result.model
+        comp_specs = get_competitor_specs(model_code)
+        if not comp_specs:
+            self.log(
+                f"[yellow]Skipping competitive positioning — no cached competitor data for "
+                f"{model_code}. Run `voc refresh-competitors {model_code}` first."
+            )
+            return result
+
         self.log("Analyzing competitive positioning (Task 5)...")
 
+        competitor_names = ", ".join(comp_specs.keys())
         # Get reviews mentioning competitors or comparisons
         competitor_reviews = retriever.retrieve(
-            "compared TCL LG Hisense better worse alternative cheaper",
+            f"compared {competitor_names} better worse alternative cheaper",
             top_k=10,
         )
         value_reviews = retriever.retrieve(
@@ -71,9 +108,6 @@ class CompetitivePositioningAgent(BaseAgent):
         pool = list({r.review_id: r for r in competitor_reviews + value_reviews}.values())[:15]
         context = retriever.format_for_context(pool, max_chars=5000)
 
-        samsung_spec = SAMSUNG_U7900F_SPEC
-        comp_specs = get_competitor_specs()  # live-fetched data if `voc refresh-competitors` has run, else hardcoded
-
         complaints_summary = "\n".join(
             f"- {c.category} ({c.frequency_pct:.0f}% of negative reviews, issue_type={c.issue_type}): {c.root_cause}"
             for c in result.complaints[:8]
@@ -83,16 +117,12 @@ class CompetitivePositioningAgent(BaseAgent):
             for s in result.satisfaction_drivers[:6]
         )
 
-        prompt = f"""Analyze Samsung 50" Crystal UHD U7900F competitive positioning vs. TCL Q6, Hisense A7, LG UT70.
+        product_label = product_spec.product_name if product_spec and product_spec.product_name else model_code
+
+        prompt = f"""Analyze {product_label} competitive positioning vs. {competitor_names}.
 
 SAMSUNG PRODUCT SPECS:
-- Price: ${samsung_spec['other']['price_usd']}
-- Display: {samsung_spec['display']['type']}
-- Audio: {samsung_spec['audio']['output_power']} {samsung_spec['audio']['speakers']}
-- OS: {samsung_spec['smart_tv']['os']}
-- Gaming: {samsung_spec['gaming']['vrr']}, {samsung_spec['gaming']['input_lag_4k_60hz']} input lag
-- HDR: {', '.join(samsung_spec['resolution']['hdr_support'])}
-- WiFi: {samsung_spec['connectivity']['wifi']}
+{_describe_samsung_spec(product_spec)}
 
 COMPETITOR OVERVIEW:
 {chr(10).join(f"{name}: {_describe_competitor(spec)}" for name, spec in comp_specs.items())}
@@ -116,25 +146,23 @@ for each attribute in attribute_map — do not output a flat strengths/weaknesse
   "competitive_threats": ["specific threat from competitors"],
   "competitors": [
     {{
-      "name": "TCL Q6",
-      "model": "55Q650G",
-      "price_range": "$330-380",
-      "picture_quality": "assessment",
-      "sound_quality": "assessment",
+      "name": "competitor name from the overview above",
+      "model": "competitor model from the overview above",
+      "price_range": "$X-Y",
       "ux": "assessment",
-      "smart_features": "assessment",
+      "key_attributes": {{"attribute name appropriate to this product category": "assessment vs Samsung", "...": "..."}},
       "strengths": ["vs Samsung strength"],
       "weaknesses": ["vs Samsung weakness"]
     }}
   ],
   "attribute_map": [
     {{
-      "attribute": "Picture Quality",
+      "attribute": "an attribute genuinely relevant to this product category",
       "samsung_assessment": "win|lose|mixed|neutral",
       "mention_volume": "high|medium|low",
       "sentiment_score": 0.82,
       "business_impact": "purchase_driver|purchase_barrier|upsell_opportunity|trust_risk|neutral",
-      "vs_competitor_note": "one-line comparison vs TCL/Hisense/LG on this specific attribute"
+      "vs_competitor_note": "one-line comparison vs the competitors above on this specific attribute"
     }}
   ],
   "defend": ["attribute Samsung already wins on and should protect"],
@@ -154,10 +182,8 @@ for each attribute in attribute_map — do not output a flat strengths/weaknesse
                         name=comp.get("name", ""),
                         model=comp.get("model", ""),
                         price_range=comp.get("price_range", ""),
-                        picture_quality=comp.get("picture_quality", ""),
-                        sound_quality=comp.get("sound_quality", ""),
                         ux=comp.get("ux", ""),
-                        smart_features=comp.get("smart_features", ""),
+                        key_attributes=comp.get("key_attributes", {}),
                         strengths=comp.get("strengths", []),
                         weaknesses=comp.get("weaknesses", []),
                     )

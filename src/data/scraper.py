@@ -193,6 +193,7 @@ class SamsungReviewScraper:
         self,
         model_code: str = SAMSUNG_BV_PRODUCT_ID,
         max_reviews: int = 500,
+        url: Optional[str] = None,
     ) -> tuple[list[Review], list[Review]]:
         """Returns (reviews_to_analyze, all_reviews_fetched).
 
@@ -203,11 +204,15 @@ class SamsungReviewScraper:
         all_reviews_fetched is the complete set discovered during fetch (the raw
         evidence to cache); for the fallback paths the two lists are identical
         since those paths can't discover a larger population.
+
+        `url` is the product page BazaarVoice's browser gateway needs to load
+        (defaults to settings.samsung_product_url if omitted, i.e. the single
+        TV this pipeline originally targeted) — required for any other model.
         """
         # Primary: BazaarVoice's current gateway, via a real browser context. Fetches
         # every real review (uncapped) — sampling down to max_reviews happens below.
         try:
-            raw_results = await self.fetch_reviews_bv_bfd(model_code, max_reviews=None)
+            raw_results = await self.fetch_reviews_bv_bfd(model_code, max_reviews=None, product_url=url)
             if raw_results:
                 all_reviews = [self._parse_bv_review(r, model_code) for r in raw_results]
                 console.print(f"[green]Fetched {len(all_reviews)} real reviews via BazaarVoice (browser gateway)")

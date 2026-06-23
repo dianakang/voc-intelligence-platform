@@ -14,7 +14,7 @@ Your job is to clean and normalize review text while preserving the original mea
 
 For each review, you will:
 1. Fix obvious typos and grammar issues
-2. Expand common abbreviations (e.g., "pic quality" -> "picture quality", "tv" -> "TV")
+2. Expand common abbreviations (e.g., "pic quality" -> "picture quality")
 3. Remove excessive punctuation (e.g., "!!!!" -> "!")
 4. Normalize whitespace
 5. Preserve all substantive content - do not remove complaints or praise

@@ -18,6 +18,9 @@ class Priority(str, Enum):
     LOW = "low"
 
 
+# Canonical example aspects for TVs — used by VOCTaxonomyAgent as illustrative examples in
+# its prompt, not as a validation whitelist. review.aspects is freeform (list[str]) since the
+# relevant aspects vary by product category (see src/agents/voc_taxonomy.py).
 class Aspect(str, Enum):
     PICTURE_QUALITY = "picture_quality"
     SOUND = "sound"
@@ -46,7 +49,7 @@ class Review(BaseModel):
     is_short: bool = False
 
     # Enriched fields (filled during analysis)
-    aspects: list[Aspect] = Field(default_factory=list)
+    aspects: list[str] = Field(default_factory=list)  # freeform tags, see voc_taxonomy.py
     aspect_sentiments: dict[str, str] = Field(default_factory=dict)
     overall_sentiment: Optional[Sentiment] = None
     has_contradiction: bool = False
@@ -67,25 +70,16 @@ class SpecGroup(BaseModel):
 
 
 class CompetitorSpec(BaseModel):
-    """Schema for both the hardcoded COMPETITOR_SPECS fallback and a live,
-    search-grounded fetch (see src/data/competitor_spec_fetcher.py) — kept as
-    a single source of truth so the prompt, the LLM-response validator, and
-    the on-disk cache file all agree on the same shape."""
+    """Schema for a live, search-grounded competitor spec fetch (see
+    src/data/competitor_spec_fetcher.py) — kept as a single source of truth so
+    the prompt, the LLM-response validator, and the on-disk cache file all
+    agree on the same shape. `key_specs` is a flexible dict (not fixed fields)
+    since relevant spec attributes vary by product category (e.g. "Panel"
+    for a TV vs. "Capacity" for a refrigerator)."""
 
     model: str
     price_usd: float
-    display_type: str
-    panel: str
-    refresh_rate: str
-    local_dimming: str
-    hdr: list[str] = Field(default_factory=list)
-    audio_power: str
-    dolby_atmos: bool
-    os: str
-    hdmi: str
-    vrr: str
-    gaming_input_lag: str
-    wifi: str
+    key_specs: dict[str, str] = Field(default_factory=dict)
     strengths: list[str] = Field(default_factory=list)
     weaknesses: list[str] = Field(default_factory=list)
     sources: list[str] = Field(default_factory=list)
@@ -125,6 +119,18 @@ class PageSnapshot(BaseModel):
     title: Optional[str] = None
     model_code: str
     spec_source: str = "live_scrape"
+
+
+class DiscoveredProduct(BaseModel):
+    model_code: str
+    url: str
+    category: str  # discovery category this was found under, e.g. "tvs"
+
+
+class DiscoveryManifest(BaseModel):
+    category: str
+    fetched_at: str
+    products: list[DiscoveredProduct]
 
 
 class ComplaintItem(BaseModel):
@@ -198,10 +204,11 @@ class CompetitorData(BaseModel):
     name: str
     model: str
     price_range: str
-    picture_quality: str
-    sound_quality: str
     ux: str
-    smart_features: str
+    # Category-relevant assessments, e.g. {"Picture Quality": "..."} for a TV or
+    # {"Cooling Performance": "..."} for a refrigerator — flexible since the
+    # relevant attributes vary by product category.
+    key_attributes: dict[str, str] = Field(default_factory=dict)
     strengths: list[str]
     weaknesses: list[str]
 

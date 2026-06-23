@@ -1,0 +1,123 @@
+{
+  "LG": {
+    "model": "LG 50UT7570PUB",
+    "price_usd": 299.95,
+    "key_specs": {
+      "Display": "50-inch Class (49.5\" viewable) UHD 4K LED Panel, 3840x2160 resolution",
+      "Panel_Type": "Direct LED backlight LCD (no local dimming)",
+      "Refresh_Rate": "60 Hz native",
+      "Processor": "\u03b15 AI Processor 4K Gen7",
+      "HDR": "HDR10, HLG compatible",
+      "Smart_Platform": "webOS 24 with LG ThinQ, LG Channels (300+ free channels), FILMMAKER MODE",
+      "Connectivity": "3x HDMI 2.0, 2x USB-A, Wi-Fi, Bluetooth, Ethernet; ALLM & HGiG gaming mode support; no HDMI 2.1",
+      "Voice_Assistants": "Amazon Alexa, Google Assistant, Apple AirPlay 2 & HomeKit"
+    },
+    "strengths": [
+      "Solid 4K UHD resolution at a budget-friendly price point (~$299\u2013$329 street)",
+      "webOS 24 smart platform is polished and easy to navigate",
+      "300+ free LG Channels included out of the box",
+      "\u03b15 AI Gen7 processor handles upscaling and virtual 5.1-ch audio up-mix",
+      "FILMMAKER MODE for director-intended picture accuracy",
+      "LG Game Optimizer hub for quick gaming settings; ALLM & HGiG support",
+      "Includes Magic Remote MR24 in box",
+      "Works with Alexa, Google Assistant, AirPlay 2, and HomeKit",
+      "Slim, minimal-bezel design"
+    ],
+    "weaknesses": [
+      "Only 60 Hz native refresh rate \u2014 no 120 Hz support",
+      "No local dimming, limiting contrast and black levels",
+      "No HDMI 2.1 ports (all HDMI 2.0), limiting 4K/120Hz gaming from PS5/Xbox Series X",
+      "No VRR (FreeSync/G-Sync) support per RTINGS",
+      "No Dolby Vision HDR \u2014 limited to HDR10 and HLG only",
+      "Entry-level panel brightness unlikely to excel in bright rooms",
+      "No optical audio output noted (may limit legacy surround sound connections)"
+    ],
+    "sources": [
+      "https://www.lg.com/us/tvs/lg-50ut7570pub-4k-uhd-tv",
+      "https://www.bhphotovideo.com/c/product/1812633-REG/lg_50ut7570pub_ut75_series_50_4k.html",
+      "https://www.amazon.com/LG-50UT7570PUB-50-Inch-Enhanced-Protection/dp/B0CZSHDRRP",
+      "https://www.rtings.com/tv/reviews/lg/ut7570-ut75-ut7590",
+      "https://www.abt.com/LG-UT7570-Series-UHD-4K-TV-50-Inch-with-webOS-50UT7570PUB/p/205583.html",
+      "https://www.greentoe.com/product/LG_LG_UT75_Series_50_4K_HDR_Smart_LED_TV_50UT7570PUB",
+      "https://www.microcenter.com/product/678827/lg-50ut7570pub-50-class-(495-diag)-4k-ultra-hd-smart-led-tv"
+    ],
+    "fetched_at": "2026-06-23T11:40:16.192193+00:00"
+  },
+  "TCL": {
+    "model": "TCL 50S551G (S5-Series, 50\" \u2014 closest verified match to '50S5'; no discrete model '50S5' found)",
+    "price_usd": 249.99,
+    "key_specs": {
+      "Display Size": "50-inch class (49.5\" diagonal)",
+      "Resolution": "3840x2160 (4K UHD)",
+      "Panel Type": "LED (edge-lit, non-QLED)",
+      "HDR Support": "HDR PRO+ \u2014 Dolby Vision, HDR10+, HDR10, HLG",
+      "Refresh Rate / Motion": "Motion Rate 240 with MEMC frame insertion (native panel rate not officially disclosed)",
+      "Smart Platform": "Google TV",
+      "Gaming": "Game Accelerator 120 with VRR (up to 120Hz VRR), Auto Game Mode (ALLM)",
+      "Audio": "Dolby Atmos, DTS Virtual:X, Enhanced Dialogue Mode"
+    },
+    "strengths": [
+      "Comprehensive HDR format support (Dolby Vision, HDR10+, HDR10, HLG) at an entry-level price",
+      "Google TV smart platform with voice remote, broad app ecosystem, and AirPlay 2 compatibility",
+      "VRR and ALLM support (Game Accelerator 120) make it capable for casual gaming",
+      "MEMC-based motion enhancement (Motion Rate 240) for smoother sports and action",
+      "Strong value proposition at ~$250 for a 50\" 4K set",
+      "TCL AIPQ Processor with deep-learning AI for scene-by-scene picture optimization",
+      "Dolby Atmos and DTS Virtual:X spatial audio from built-in speakers"
+    ],
+    "weaknesses": [
+      "LED edge-lit panel \u2014 no local dimming zones disclosed, limiting contrast vs. QLED/Mini-LED competitors",
+      "Native refresh rate not officially confirmed; 'Motion Rate 240' is a marketing figure",
+      "No QLED/wide color gamut technology (unlike step-up Q5/Q6 series at similar price points)",
+      "Built-in speaker output likely modest (exact wattage not confirmed in available specs)",
+      "Remote battery life complaints noted in user reviews",
+      "Peak brightness figures not officially published, limiting HDR highlight performance assessment"
+    ],
+    "sources": [
+      "https://www.tcl.com/us/en/products/home-theater/s5-class/50-class-4k-uhd-hdr-led-smart-google-tv-50s551g",
+      "https://www.bestbuy.com/site/tcl-50-class-s5-series-4k-uhd-hdr-led-smart-google-tv-2024/6579454.p?skuId=6579454",
+      "https://www.walmart.com/ip/TCL-50-Class-S5-50S551G-4K-UHD-HDR-LED-Smart-TV-with-Google-TV-NEW-2024/5373842526",
+      "https://www.amazon.com/tcl-fire-tv-50-inch-class-s5-4k-smart-tv/dp/B0D4P176B8"
+    ],
+    "fetched_at": "2026-06-23T11:41:10.084392+00:00"
+  },
+  "Hisense": {
+    "model": "Hisense 50A6N",
+    "price_usd": 248.0,
+    "key_specs": {
+      "Display Size": "50 inches (49.5\" actual)",
+      "Resolution": "4K UHD \u2014 3840 x 2160",
+      "Panel Type": "VA (Direct LED backlit LCD)",
+      "Refresh Rate": "60 Hz native",
+      "HDR Support": "Dolby Vision, HDR10+, HDR10, HLG",
+      "Smart OS": "Google TV (US) / VIDAA (EU variant)",
+      "Connectivity": "3x HDMI 2.1 (incl. 1 eARC), 2x USB, Wi-Fi, Bluetooth",
+      "Audio": "2 \u00d7 7W stereo, DTS Virtual:X"
+    },
+    "strengths": [
+      "Very competitive entry-level price for a 50\" 4K TV",
+      "Google TV smart platform with broad app ecosystem and voice control",
+      "Dolby Vision and HDR10+ support at this price tier is above average",
+      "HDMI 2.1 ports with VRR and ALLM (Auto Low Latency Mode) for gaming",
+      "FilmMaker Mode for accurate movie reproduction",
+      "AI 4K Upscaler for non-native 4K content",
+      "DTS Virtual:X simulated surround sound"
+    ],
+    "weaknesses": [
+      "Entry-level VA panel with modest brightness (~300 nits), limiting HDR peak impact",
+      "No local dimming, so black levels are limited for an LCD",
+      "60 Hz native panel \u2014 no 120 Hz support for high-frame-rate gaming",
+      "Limited built-in audio power (14W total); external soundbar recommended",
+      "No QLED or quantum dot color enhancement",
+      "Narrower viewing angles than IPS panels despite VA technology"
+    ],
+    "sources": [
+      "https://www.hisense-usa.com/product-page/televisions-50-class-a6-series-led-4k-uhd-google-smart-tv-50a6n",
+      "https://www.rtings.com/tv/reviews/hisense/a6n-a6-a65n",
+      "https://www.kitele.com/en/tv-hisense-50a6n-eu",
+      "https://www.ldlc.com/en/product/PB00614770.html",
+      "https://www.displayspecifications.com/en/model/765b3a33"
+    ],
+    "fetched_at": "2026-06-23T11:41:56.634573+00:00"
+  }
+}

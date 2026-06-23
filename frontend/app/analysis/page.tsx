@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import { api, JobStatus } from "@/lib/api";
 import { AgentExecutionPanel } from "@/components/agents/AgentExecutionPanel";
 
-const MODEL_OPTIONS = [
-  { value: "UN50U7900FFXZA", label: "Samsung 50\" Crystal UHD U7900F (UN50U7900FFXZA)" },
-];
+const DEFAULT_PRODUCT_URL =
+  "https://www.samsung.com/us/tvs/uhd-4k-tv/50-inch-class-crystal-uhd-u7900f-4k-smart-tv-sku-un50u7900ffxza/";
 
 export default function AnalysisPage() {
   const router = useRouter();
-  const [modelCode, setModelCode] = useState("UN50U7900FFXZA");
+  const [productUrl, setProductUrl] = useState(DEFAULT_PRODUCT_URL);
   const [maxReviews, setMaxReviews] = useState(200);
+  const [skipIfCached, setSkipIfCached] = useState(true);
   const [jobId, setJobId] = useState<string | null>(null);
   const [status, setStatus] = useState<JobStatus | null>(null);
   const [loading, setLoading] = useState(false);
@@ -47,12 +47,16 @@ export default function AnalysisPage() {
   useEffect(() => () => stopPolling(), []);
 
   const handleRun = async () => {
+    if (!productUrl.trim()) {
+      setError("Enter a Samsung product URL.");
+      return;
+    }
     setError(null);
     setLoading(true);
     setStatus(null);
     setJobId(null);
     try {
-      const res = await api.startAnalysis(modelCode, maxReviews);
+      const res = await api.startAnalysis(maxReviews, productUrl.trim(), skipIfCached);
       setJobId(res.job_id);
       startPolling(res.job_id);
     } catch (e: unknown) {
@@ -82,17 +86,20 @@ export default function AnalysisPage() {
         <h2 className="text-base font-semibold text-gray-800">Configuration</h2>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Target Product</label>
-          <select
-            value={modelCode}
-            onChange={(e) => setModelCode(e.target.value)}
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Samsung Product URL
+          </label>
+          <input
+            type="url"
+            value={productUrl}
+            onChange={(e) => setProductUrl(e.target.value)}
             disabled={isRunning}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50 bg-white"
-          >
-            {MODEL_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
+            placeholder="https://www.samsung.com/us/tvs/.../sku-un55.../"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50"
+          />
+          <p className="text-xs text-gray-400 mt-1">
+            The model code is read from the URL&apos;s &quot;-sku-...&quot; segment.
+          </p>
         </div>
 
         <div>
@@ -110,6 +117,23 @@ export default function AnalysisPage() {
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50"
           />
           <p className="text-xs text-gray-400 mt-1">Recommended: 200–500 for best results</p>
+        </div>
+
+        <div>
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+            <input
+              type="checkbox"
+              checked={skipIfCached}
+              onChange={(e) => setSkipIfCached(e.target.checked)}
+              disabled={isRunning}
+              className="rounded border-gray-300 text-brand-600 focus:ring-brand-500 disabled:opacity-50"
+            />
+            Reuse cached result if data unchanged
+          </label>
+          <p className="text-xs text-gray-400 mt-1">
+            Skips all LLM analysis and re-uses the last saved result if this URL, max reviews, and the
+            underlying review/spec data haven&apos;t changed since the last full run. Saves cost on repeat runs.
+          </p>
         </div>
 
         <div className="pt-1">

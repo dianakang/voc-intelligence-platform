@@ -44,7 +44,7 @@ COMPLAINT CLUSTERS (tagged by issue_type — product_defect vs purchase_experien
 {complaint_summary}
 
 {purchase_experience_count} of the top complaint categories are purchase_experience issues
-(account/login, delivery, installation, pickup) rather than defects in the TV itself — these need
+(account/login, delivery, installation, pickup) rather than defects in the product itself — these need
 different handling (proactive notices, setup guides) than product_defect issues (FAQ + escalation
 scripts).
 

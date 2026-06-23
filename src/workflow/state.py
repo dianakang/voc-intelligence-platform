@@ -14,6 +14,7 @@ class VOCWorkflowState(TypedDict):
     model_code: str
     max_reviews: int
     skip_if_cached: bool  # opt-in dev replay cache — see src/workflow/cache.py
+    url: Optional[str]  # product page to scrape; None defaults to settings.samsung_product_url
 
     # Data collection outputs
     reviews: list[Review]  # the analyzed sample (stratified by rating, size = max_reviews)

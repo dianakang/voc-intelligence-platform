@@ -14,14 +14,7 @@ then generate authentic marketing messages grounded in real customer voice.
 Return structured JSON only."""
 
 # Used only if no live-scraped product_spec is available.
-FALLBACK_MESSAGING = """Samsung Crystal UHD U7900F current marketing messages:
-- "Crystal Processor 4K" - AI-powered upscaling for stunning 4K
-- "Crystal Clear Picture" - Purify every pixel
-- "100% Color Volume" - Billions of colors
-- "Motion Xcelerator" - Smooth action scenes
-- "SmartThings ecosystem" - All your devices connected
-- "Samsung Gaming Hub" - Cloud gaming ready
-- "Bixby + Alexa + Google" - Triple voice assistant support"""
+FALLBACK_MESSAGING = "(no verified product marketing copy available — infer current positioning from the customer voice evidence below only)"
 
 
 def _build_current_messaging(product_spec: Optional[ProductSpec]) -> str:
@@ -93,7 +86,7 @@ CUSTOMER VOICE EVIDENCE:
 
 Generate marketing message recommendations:
 {{
-  "current_perception": "how customers currently perceive this TV and brand",
+  "current_perception": "how customers currently perceive this product and brand",
   "actual_value_drivers": [
     "specific value element customers genuinely appreciate"
   ],

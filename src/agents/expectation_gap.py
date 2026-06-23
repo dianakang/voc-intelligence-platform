@@ -1,14 +1,16 @@
 """Task 8: Customer Expectation Gap Analysis — the most important analysis."""
 from __future__ import annotations
 
+from typing import Optional
+
 from src.agents.base import BaseAgent
 from src.config import settings
-from src.data.models import ExpectationGapItem, Review, VOCAnalysisResult
+from src.data.models import ExpectationGapItem, ProductSpec, Review, VOCAnalysisResult
 from src.rag.retriever import ReviewRetriever
 
 SYSTEM_PROMPT = """You are a customer experience strategist specializing in expectation management.
 Your most important task is to identify the gap between what customers EXPECTED when purchasing
-a Samsung TV and what they ACTUALLY experienced after using it.
+a Samsung product and what they ACTUALLY experienced after using it.
 
 Pre-purchase expectations are revealed through:
 - "I expected...", "I thought it would...", "Samsung is known for..."
@@ -35,13 +37,19 @@ class ExpectationGapAgent(BaseAgent):
     def __init__(self):
         super().__init__(
             name="ExpectationGapAgent",
-            model=settings.model_opus,  # Most capable model for this critical task
+            model=settings.model_sonnet,
             system_prompt=SYSTEM_PROMPT,
             temperature=0.3,
         )
 
-    def analyze(self, reviews: list[Review], retriever: ReviewRetriever, result: VOCAnalysisResult) -> VOCAnalysisResult:
-        self.log("Running Expectation Gap Analysis (Task 8) with Claude Opus...")
+    def analyze(
+        self,
+        reviews: list[Review],
+        retriever: ReviewRetriever,
+        result: VOCAnalysisResult,
+        product_spec: Optional[ProductSpec] = None,
+    ) -> VOCAnalysisResult:
+        self.log("Running Expectation Gap Analysis (Task 8) with Claude Sonnet...")
 
         # Targeted retrieval for expectation signals
         expectation_reviews = retriever.retrieve(
@@ -73,8 +81,9 @@ class ExpectationGapAgent(BaseAgent):
 
         complaints_str = "\n".join(f"- {c.category}: {c.root_cause}" for c in result.complaints[:6])
         satisfaction_str = "\n".join(f"- {s.factor}" for s in result.satisfaction_drivers[:5])
+        product_label = product_spec.product_name if product_spec and product_spec.product_name else result.model
 
-        prompt = f"""Perform a deep Customer Expectation Gap Analysis for Samsung 50" Crystal UHD U7900F.
+        prompt = f"""Perform a deep Customer Expectation Gap Analysis for {product_label}.
 
 This is the most strategic analysis. Identify EXACTLY where customer expectations diverge from reality.
 
@@ -107,15 +116,15 @@ Identify 7-8 key expectation dimensions. For each:
   "overall_gap_insight": "strategic insight: what is the single biggest expectation gap?"
 }}
 
-Dimensions to consider (use these topics, but name each field with just the short topic, not this full phrasing):
+Dimensions to consider — adapt these to what's actually relevant for this specific product
+(name each field with just the short topic, not this full phrasing):
 - Brand quality
-- Picture quality
-- Audio quality
-- Smart TV / UX
+- Core product performance (the attributes this product category is bought for, e.g. picture
+  quality for a TV, cooling/temperature consistency for a refrigerator)
 - Price-value
 - Reliability
-- Gaming performance
-- Setup / ease-of-use"""
+- Setup / ease-of-use
+- Any other dimension the reviews surface as a recurring expectation theme"""
 
         try:
             data = self.call_json(prompt, max_tokens=5000)

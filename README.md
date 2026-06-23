@@ -98,7 +98,6 @@ flowchart TD
 ```
 
 - **#7 Contradiction** scans the *full* population, not just the sample, catching rare cases like a 1★ review that praises the product
-- **#8 Expectation Gap** runs on Claude Opus for higher-quality gap reasoning
 - **#11 Importance** runs last, deliberately, so it can reference complaints/gaps/CX actions from earlier agents
 
 ## Prerequisites

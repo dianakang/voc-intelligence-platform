@@ -1,0 +1,716 @@
+{
+  "category": "tvs",
+  "fetched_at": "2026-06-23T00:30:36.133215+00:00",
+  "products": [
+    {
+      "model_code": "UN32F6000FFXZA",
+      "url": "https://www.samsung.com/us/tvs/full-hd-tv/32-inch-fhd-f6000f-smart-tv-sku-un32f6000ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN40F6000FFXZA",
+      "url": "https://www.samsung.com/us/tvs/full-hd-tv/40-inch-fhd-f6000f-smart-tv-sku-un40f6000ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN32H5000FFXZA",
+      "url": "https://www.samsung.com/us/tvs/hd-tv/32-class-hd-tv-h5000f-sku-un32h5000ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "MNA101MS1BCXZA",
+      "url": "https://www.samsung.com/us/tvs/micro-led/101-class-micro-led-sku-mna101ms1bcxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "MNA89MS1BACXZA",
+      "url": "https://www.samsung.com/us/tvs/micro-led/89-class-micro-led-sku-mna89ms1bacxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "MRN100R85HFXZA",
+      "url": "https://www.samsung.com/us/tvs/micro-rgb/100-inch-micro-rgb-4k-tv-r85h-sku-mrn100r85hfxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "MRN115MR95FXZA",
+      "url": "https://www.samsung.com/us/tvs/micro-rgb/115-inch-class-micro-rgb-4k-tv-sku-mrn115mr95fxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "MRN55R85HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/micro-rgb/55-inch-micro-rgb-4k-tv-r85h-sku-mrn55r85hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "MRN65R85HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/micro-rgb/65-inch-micro-rgb-4k-tv-r85h-sku-mrn65r85hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "MRN65R95HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/micro-rgb/65-inch-micro-rgb-4k-tv-r95h-sku-mrn65r95hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "MRN75R85HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/micro-rgb/75-inch-micro-rgb-4k-tv-r85h-sku-mrn75r85hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "MRN75R95HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/micro-rgb/75-inch-micro-rgb-4k-tv-r95h-sku-mrn75r95hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "MRN85R85HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/micro-rgb/85-inch-micro-rgb-4k-tv-r85h-sku-mrn85r85hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "MRN85R95HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/micro-rgb/85-inch-micro-rgb-4k-tv-r95h-sku-mrn85r95hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN100M90HFXZA",
+      "url": "https://www.samsung.com/us/tvs/mini-led-tv/100-inch-mini-led-4k-tv-m90h-sku-un100m90hfxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN43M70HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/mini-led-tv/43-inch-mini-led-4k-tv-m70h-sku-un43m70hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN50M70HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/mini-led-tv/50-inch-mini-led-4k-tv-m70h-sku-un50m70hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN55M70HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/mini-led-tv/55-inch-mini-led-4k-tv-m70h-sku-un55m70hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN55M80HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/mini-led-tv/55-inch-mini-led-4k-tv-m80h-sku-un55m80hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN65M70HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/mini-led-tv/65-inch-mini-led-4k-tv-m70h-sku-un65m70hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN65M80HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/mini-led-tv/65-inch-mini-led-4k-tv-m80h-sku-un65m80hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN75M70HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/mini-led-tv/75-inch-mini-led-4k-tv-m70h-sku-un75m70hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN75M80HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/mini-led-tv/75-inch-mini-led-4k-tv-m80h-sku-un75m80hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN85M70HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/mini-led-tv/85-inch-mini-led-4k-tv-m70h-sku-un85m70hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN85M80HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/mini-led-tv/85-inch-mini-led-4k-tv-m80h-sku-un85m80hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN100QN80FFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/100-class-neo-qled-4k-tv-qn80f-sku-qn100qn80ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN115QN90FFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/115-class-neo-qled-4k-tv-qn90f-sku-qn115qn90ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN43QN90FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/43-class-neo-qled-4k-tv-qn90f-sku-qn43qn90fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN50QN90FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/50-class-neo-qled-4k-tv-qn90f-sku-qn50qn90fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55QN70FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/55-class-neo-qled-4k-tv-qn70f-sku-qn55qn70fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55QN80FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/55-class-neo-qled-4k-tv-qn80f-sku-qn55qn80fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55QN90FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/55-class-neo-qled-4k-tv-qn90f-sku-qn55qn90fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55QN1EFAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/55-inch-neo-qled-4k-qn1ef-vision-ai-smart-tv-sku-qn55qn1efafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65QN70FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/65-class-neo-qled-4k-tv-qn70f-sku-qn65qn70fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65QN80FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/65-class-neo-qled-4k-tv-qn80f-sku-qn65qn80fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65QN90FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/65-class-neo-qled-4k-tv-qn90f-sku-qn65qn90fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65QN900FFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/65-class-neo-qled-8k-tv-qn900f-sku-qn65qn900ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65QN990FFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/65-class-neo-qled-8k-tv-qn990f-sku-qn65qn990ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65QN1EFAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/65-inch-neo-qled-4k-qn1ef-vision-ai-smart-tv-sku-qn65qn1efafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75QN70FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/75-class-neo-qled-4k-tv-qn70f-sku-qn75qn70fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75QN80FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/75-class-neo-qled-4k-tv-qn80f-sku-qn75qn80fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75QN90FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/75-class-neo-qled-4k-tv-qn90f-sku-qn75qn90fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75QN900FFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/75-class-neo-qled-8k-tv-qn900f-sku-qn75qn900ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75QN990FFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/75-class-neo-qled-8k-tv-qn990f-sku-qn75qn990ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75QN1EFAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/75-inch-neo-qled-4k-qn1ef-vision-ai-smart-tv-sku-qn75qn1efafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85QN70FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/85-class-neo-qled-4k-tv-qn70f-sku-qn85qn70fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85QN80FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/85-class-neo-qled-4k-tv-qn80f-sku-qn85qn80fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85QN90FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/85-class-neo-qled-4k-tv-qn90f-sku-qn85qn90fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85QN900FFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/85-class-neo-qled-8k-tv-qn900f-sku-qn85qn900ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85QN990FFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/85-class-neo-qled-8k-tv-qn990f-sku-qn85qn990ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85QN1EFAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/85-inch-neo-qled-4k-qn1ef-vision-ai-smart-tv-sku-qn85qn1efafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN98QN90FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/98-class-neo-qled-4k-tv-qn90f-sku-qn98qn90fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN98QN990FFXZA",
+      "url": "https://www.samsung.com/us/tvs/neo-qled/98-class-neo-qled-8k-tv-qn990f-sku-qn98qn990ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN42S90FAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/42-class-oled-tvs90f-sku-qn42s90faexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN42S90HAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/42-inch-oled-4k-tv-s90h-sku-qn42s90haexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN48S90FAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/48-class-oled-tvs90f-sku-qn48s90faexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN48S85HAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/48-inch-oled-4k-tv-s85h-sku-qn48s85haexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN48S90HAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/48-inch-oled-4k-tv-s90h-sku-qn48s90haexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55S95FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/55-class-oled-tv-s95f-sku-qn55s95fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55S85FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/55-class-oled-tvs85f-sku-qn55s85fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55S90FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/55-class-oled-tvs90f-sku-qn55s90fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55S85HAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/55-inch-oled-4k-tv-s85h-sku-qn55s85haexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55S90HAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/55-inch-oled-4k-tv-s90h-sku-qn55s90haexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55S95HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/55-inch-oled-4k-tv-s95h-sku-qn55s95hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65S90DAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/65-class-oled-s90d-sku-qn65s90dafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65S95FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/65-class-oled-tv-s95f-sku-qn65s95fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65S85FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/65-class-oled-tvs85f-sku-qn65s85fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65S90FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/65-class-oled-tvs90f-sku-qn65s90fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65S85HAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/65-inch-oled-4k-tv-s85h-sku-qn65s85haexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65S90HAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/65-inch-oled-4k-tv-s90h-sku-qn65s90haexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65S95HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/65-inch-oled-4k-tv-s95h-sku-qn65s95hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN77S90DAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/77-class-oled-s90d-sku-qn77s90dafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN77S95DAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/77-class-oled-s95d-sku-qn77s95dafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN77S95FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/77-class-oled-tv-s95f-sku-qn77s95fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN77S85FAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/77-class-oled-tvs85f-sku-qn77s85faexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN77S90FAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/77-class-oled-tvs90f-sku-qn77s90fafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN77S84FAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/77-inch-class-oled-tvs-s84f-sku-qn77s84faexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN77S85HAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/77-inch-oled-4k-tv-s85h-sku-qn77s85haexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN77S90HAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/77-inch-oled-4k-tv-s90h-sku-qn77s90haexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN77S95HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/77-inch-oled-4k-tv-s95h-sku-qn77s95hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN83S90DAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/83-class-oled-s90d-sku-qn83s90daexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN83S95FAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/83-class-oled-tv-s95f-sku-qn83s95faexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN83S85FAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/83-class-oled-tvs85f-sku-qn83s85faexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN83S90FAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/83-class-oled-tvs90f-sku-qn83s90faexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN83S85HAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/83-inch-oled-4k-tv-s85h-sku-qn83s85haexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN83S90HAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/83-inch-oled-4k-tv-s90h-sku-qn83s90haexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN83S95HAEXZA",
+      "url": "https://www.samsung.com/us/tvs/oled-tv/83-inch-oled-4k-tv-s95h-sku-qn83s95haexza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN100QN80HFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/100-inch-neo-qled-4k-tv-qn80h-sku-qn100qn80hfxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN32Q8FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/32-inch-qled-q8f-4k-tv-sku-qn32q8faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN43QEF1AFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/43-class-qled-4k-tv-qef1-sku-qn43qef1afxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN43Q7FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/43-class-qled-tv-q7f-sku-qn43q7faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN43Q8FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/43-inch-qled-q8f-4k-tv-sku-qn43q8faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN50QEF1AFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/50-class-qled-4k-tv-qef1-sku-qn50qef1afxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN50Q7FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/50-class-qled-tv-q7f-sku-qn50q7faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN50Q8FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/50-inch-qled-q8f-4k-tv-sku-qn50q8faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55QE1DAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/55-class-qled-4k-qe1d-sku-qn55qe1dafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55QEF1AFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/55-class-qled-4k-tv-qef1-sku-qn55qef1afxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55Q7FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/55-class-qled-tv-q7f-sku-qn55q7faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55Q6FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/55-inch-class-qled-4k-tv-sku-qn55q6faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55QN80HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/55-inch-neo-qled-4k-tv-qn80h-sku-qn55qn80hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN55Q8FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/55-inch-qled-q8f-4k-tv-sku-qn55q8faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65QEF1AFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/65-class-qled-4k-tv-qef1-sku-qn65qef1afxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65Q7FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/65-class-qled-tv-q7f-sku-qn65q7faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65Q6FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/65-inch-class-qled-4k-tv-sku-qn65q6faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65QN70HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/65-inch-neo-qled-4k-qn70h-sku-qn65qn70hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65QN1EHAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/65-inch-neo-qled-4k-tv-qn1eh-sku-qn65qn1ehafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65QN80HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/65-inch-neo-qled-4k-tv-qn80h-sku-qn65qn80hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN65Q8FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/65-inch-qled-q8f-4k-tv-sku-qn65q8faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75QE1DAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/75-class-qled-4k-qe1d-sku-qn75qe1dafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75QEF1AFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/75-class-qled-4k-tv-qef1-sku-qn75qef1afxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75Q7FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/75-class-qled-tv-q7f-sku-qn75q7faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75Q6FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/75-inch-class-qled-4k-tv-sku-qn75q6faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75QN1EHAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/75-inch-neo-qled-4k-tv-qn1eh-sku-qn75qn1ehafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75QN80HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/75-inch-neo-qled-4k-tv-qn80h-sku-qn75qn80hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75Q8FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/75-inch-qled-q8f-4k-tv-sku-qn75q8faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75Q8FDAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/75-inch-qled-q8fd-4k-tv-sku-qn75q8fdafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85QE1DAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/85-class-qled-4k-qe1d-sku-qn85qe1dafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85QEF1AFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/85-class-qled-4k-tv-qef1-sku-qn85qef1afxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85Q7FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/85-class-qled-tv-q7f-sku-qn85q7faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85Q6FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/85-inch-class-qled-4k-tv-sku-qn85q6faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85QN1EHAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/85-inch-neo-qled-4k-tv-qn1eh-sku-qn85qn1ehafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85QN80HAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/85-inch-neo-qled-4k-tv-qn80h-sku-qn85qn80hafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85QN990HFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/85-inch-neo-qled-8k-tv-qn990h-sku-qn85qn990hfxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85Q8FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/85-inch-qled-q8f-4k-tv-sku-qn85q8faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN98Q7FAAFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/98-class-qled-tv-q7f-sku-qn98q7faafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN75QN900DFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/qn900d-75-inch-neo-qled-8k-tizen-os-smart-tv-sku-qn75qn900dfxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "QN85QN900DFXZA",
+      "url": "https://www.samsung.com/us/tvs/qled-tv/qn900d-85-inch-neo-qled-8k-tizen-os-smart-tv-sku-qn85qn900dfxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN43DUX1EAFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/43-class-crystal-uhd-dux1e-sku-un43dux1eafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN43U8000FFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/43-inch-class-crystal-uhd-u8000f-4k-smart-tv-sku-un43u8000ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN43U8000HFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/43-inch-crystal-uhd-4k-tv-u8000h-sku-un43u8000hfxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN50DUX1EAFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/50-class-crystal-uhd-dux1e-sku-un50dux1eafxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN50U8000FFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/50-inch-class-crystal-uhd-u8000f-4k-smart-tv-sku-un50u8000ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN50U8000HFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/50-inch-crystal-uhd-4k-tv-u8000h-sku-un50u8000hfxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN55U7900FFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/55-inch-class-crystal-uhd-u7900f-4k-smart-tv-sku-un55u7900ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN55U8000FFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/55-inch-class-crystal-uhd-u8000f-4k-smart-tv-sku-un55u8000ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN58U8000FFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/58-inch-class-crystal-uhd-u8000f-4k-smart-tv-sku-un58u8000ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN65U8000FFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/65-inch-class-crystal-uhd-u8000f-4k-smart-tv-sku-un65u8000ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN70U8000FFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/70-inch-class-crystal-uhd-u8000f-4k-smart-tv-sku-un70u8000ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN75U8000FFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/75-inch-class-crystal-uhd-u8000f-4k-smart-tv-sku-un75u8000ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN85U8000FFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/85-inch-class-crystal-uhd-u8000f-4k-smart-tv-sku-un85u8000ffxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN98DU9000FXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/98-class-crystal-uhd-du9000-sku-un98du9000fxza/",
+      "category": "tvs"
+    },
+    {
+      "model_code": "UN98U9000HFXZA",
+      "url": "https://www.samsung.com/us/tvs/uhd-4k-tv/98-inch-crystal-uhd-4k-tv-u9000h-sku-un98u9000hfxza/",
+      "category": "tvs"
+    }
+  ]
+}

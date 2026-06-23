@@ -1,0 +1,294 @@
+{
+  "product_name": "40\" Class FHD Smart TV F6000F (2025)",
+  "model": "UN40F6000FFXZA",
+  "category": "TV",
+  "screen_size": "40\"",
+  "series": "{Size}\" Full HD F6000 Smart TV (2025)",
+  "display": {
+    "Screen Size": "40\"",
+    "Refresh Rate": "60Hz",
+    "Diagonal Screen Size": "39.5\"",
+    "Resolution": "FHD (1,920 x 1,080)"
+  },
+  "resolution": {
+    "Resolution": "FHD (1,920 x 1,080)"
+  },
+  "hdr": {
+    "Picture Engine": "Hyper Real",
+    "Motion Rate": "60Hz",
+    "HDR (High Dynamic Range)": "HDR",
+    "HDR 10+": "Support",
+    "Contrast": "Mega Contrast",
+    "Micro Dimming": "Micro Dimming Pro",
+    "Contrast Enhancer": "Yes",
+    "Film Mode": "Yes"
+  },
+  "smart_tv": {
+    "Operating System": "Tizen\u2122 Smart TV",
+    "Bixby": "Yes (Voice Ready)",
+    "Works with AI Speaker": "Alexa, Google Assistant",
+    "Samsung TV Plus": "Yes",
+    "Web Browser": "Yes",
+    "SmartThings Hub / Matter Hub / IoT-Sensor Functionality / Quick Remote": "Quick Remote only",
+    "Universal Guide": "Yes",
+    "Multi Device Experience": "Mobile to TV, Sound Mirroring, Wireless TV On",
+    "Apple AirPlay": "Yes",
+    "account_requirement": "Samsung Account required to use streaming apps, SmartThings, and other network-based smart features"
+  },
+  "gaming": {
+    "Gaming Hub": "Yes (KR, US, CA, BR, GB, FR, DE, IT, ES, MX, AU)"
+  },
+  "audio": {
+    "Object Tracking Sound": "OTS Lite",
+    "Q-Symphony": "Yes",
+    "Sound Output (RMS)": "20W",
+    "Speaker Type": "2CH",
+    "Bluetooth Audio": "Yes",
+    "Adaptive Sound": "Adaptive Sound"
+  },
+  "connectivity": {
+    "Wi-Fi": "Yes (Wi-Fi 5)",
+    "Bluetooth": "Yes",
+    "HDMI": "2",
+    "HDMI Audio Return Channel": "eARC",
+    "Anynet+ (HDMI-CEC)": "Yes",
+    "USB": "1 x USB-A",
+    "Ethernet (LAN)": "1",
+    "RF In (Terrestrial / Cable input / Satellite input)": "1/1(Common Use for Terrestrial)/0"
+  },
+  "design": {
+    "Design": "Slim Look",
+    "Bezel Type": "3 Bezel-less",
+    "Front Color": "BLACK",
+    "Stand Type": "LOW FEET",
+    "Stand Color": "BLACK"
+  },
+  "energy": {
+    "Power Supply": "AC110-120V~ 50/60Hz",
+    "Power Consumption (Max)": "65 W",
+    "Power Consumption (Stand-by)": "0.5 W",
+    "Power Consumption (Typical)": "54 W",
+    "Auto Power Off": "Yes"
+  },
+  "other": {
+    "Digital Broadcasting": "ATSC/Clear QAM",
+    "Analog Tuner": "Yes",
+    "DTV Sound System": "Dolby",
+    "ConnectShare\u2122": "Yes",
+    "Embeded POP": "No",
+    "EPG": "Yes",
+    "IP Control": "Yes",
+    "OSD Language": "English, Spanish, French",
+    "V-Chip": "Yes",
+    "Accessibility - Voice Guide": "Czech (Czech Republic),Danish (Denmark),Dutch (Netherlands),English (US),Finnish (Finland),French (Canada),German (Germany),Greek (Greece),Hungarian (Hungary),Italian (Italy),Korean (Korea),Norwegian (Norway),Polish (Poland).Portuguese (Portugal),Romanian (Romania),Slovak (Slovakia),Spanish (Mexico),Swedish (Sweden)",
+    "Low Vision Support": "Audio Description, Zoom Menu and Text, High Contrast, SeeColors, Grayscale, Auto Picture Off",
+    "Hearing Impaired Support": "Closed Caption (Subtitle), Multi-output Audio, Caption Position, Sign Language Zoom, Separate Closed Caption, Sign Language Guide, Auto Caption Position",
+    "Motor Impaired Support": "Slow Button Repeat, Remote Control App. for All",
+    "Package Size (WxHxD)(inch)": "38.9 x 23.1 x 4.6 inch",
+    "Set Size with Stand (WxHxD)": "35.6 x 21.5 x 6.2 in",
+    "Set Size without Stand (WxHxD)": "35.7 x 20.4 x 2.9 in",
+    "Stand (Basic) (WxD)": "25.5 x 4.6 in",
+    "VESA Spec": "200 x 200 mm",
+    "Screw Size": "M8",
+    "Screw Depth": "21-23",
+    "Stand Size (inch)": "0.7 x 2.2 x 6.2",
+    "Distance between the two ends of the Stand (Basic)(inch)": "25.5",
+    "Distance between the two ends of the Stand (Minimum)(inch)": "24.1",
+    "Shipping Weight": "16.8 lb",
+    "Set Weight with Stand": "13.0 lb",
+    "Set Weight without Stand": "12.8 lb",
+    "Remote Controller Type": "IR Basic Remote",
+    "Remote Controller Model": "TM1240A",
+    "Remote Controller Code No": "BN59-01483A",
+    "Battery Chemistry (for Remote Control)": "Yes",
+    "Mini Wall Mount Support": "Yes",
+    "User Manual": "Yes",
+    "Power Cable": "Yes",
+    "Power Cable Connector Type": "2-pin",
+    "Country of Origin": "Mexico",
+    "40ft HC": "800",
+    "53ft": "1188",
+    "price_usd": 199.99,
+    "msrp_usd": 199.99,
+    "stock_status": "in_stock",
+    "delivery_availability": "Get it by Jun. 20 ",
+    "marketing_highlights": [
+      "HDR",
+      "OTS Lite",
+      "Samsung Knox Security",
+      "One UI Tizen"
+    ]
+  },
+  "raw_spec_groups": [
+    {
+      "group_name": "Display",
+      "items": {
+        "Screen Size": "40\"",
+        "Refresh Rate": "60Hz",
+        "Diagonal Screen Size": "39.5\"",
+        "Resolution": "FHD (1,920 x 1,080)"
+      }
+    },
+    {
+      "group_name": "Video",
+      "items": {
+        "Picture Engine": "Hyper Real",
+        "Motion Rate": "60Hz",
+        "HDR (High Dynamic Range)": "HDR",
+        "HDR 10+": "Support",
+        "Contrast": "Mega Contrast",
+        "Micro Dimming": "Micro Dimming Pro",
+        "Contrast Enhancer": "Yes",
+        "Film Mode": "Yes"
+      }
+    },
+    {
+      "group_name": "Audio",
+      "items": {
+        "Object Tracking Sound": "OTS Lite",
+        "Q-Symphony": "Yes",
+        "Sound Output (RMS)": "20W",
+        "Speaker Type": "2CH",
+        "Bluetooth Audio": "Yes",
+        "Adaptive Sound": "Adaptive Sound"
+      }
+    },
+    {
+      "group_name": "Smart Service",
+      "items": {
+        "Operating System": "Tizen\u2122 Smart TV",
+        "Bixby": "Yes (Voice Ready)",
+        "Works with AI Speaker": "Alexa, Google Assistant",
+        "Samsung TV Plus": "Yes",
+        "Web Browser": "Yes",
+        "SmartThings Hub / Matter Hub / IoT-Sensor Functionality / Quick Remote": "Quick Remote only",
+        "Universal Guide": "Yes"
+      }
+    },
+    {
+      "group_name": "Smart Feature",
+      "items": {
+        "Multi Device Experience": "Mobile to TV, Sound Mirroring, Wireless TV On",
+        "Apple AirPlay": "Yes"
+      }
+    },
+    {
+      "group_name": "Game Feature",
+      "items": {
+        "Gaming Hub": "Yes (KR, US, CA, BR, GB, FR, DE, IT, ES, MX, AU)"
+      }
+    },
+    {
+      "group_name": "Tuner/Broadcasting",
+      "items": {
+        "Digital Broadcasting": "ATSC/Clear QAM",
+        "Analog Tuner": "Yes",
+        "DTV Sound System": "Dolby"
+      }
+    },
+    {
+      "group_name": "Connectivity",
+      "items": {
+        "Wi-Fi": "Yes (Wi-Fi 5)",
+        "Bluetooth": "Yes",
+        "HDMI": "2",
+        "HDMI Audio Return Channel": "eARC",
+        "Anynet+ (HDMI-CEC)": "Yes",
+        "USB": "1 x USB-A",
+        "Ethernet (LAN)": "1",
+        "RF In (Terrestrial / Cable input / Satellite input)": "1/1(Common Use for Terrestrial)/0"
+      }
+    },
+    {
+      "group_name": "Design",
+      "items": {
+        "Design": "Slim Look",
+        "Bezel Type": "3 Bezel-less",
+        "Front Color": "BLACK",
+        "Stand Type": "LOW FEET",
+        "Stand Color": "BLACK"
+      }
+    },
+    {
+      "group_name": "Additional Feature",
+      "items": {
+        "ConnectShare\u2122": "Yes",
+        "Embeded POP": "No",
+        "EPG": "Yes",
+        "IP Control": "Yes",
+        "OSD Language": "English, Spanish, French",
+        "V-Chip": "Yes"
+      }
+    },
+    {
+      "group_name": "Accessibility",
+      "items": {
+        "Accessibility - Voice Guide": "Czech (Czech Republic),Danish (Denmark),Dutch (Netherlands),English (US),Finnish (Finland),French (Canada),German (Germany),Greek (Greece),Hungarian (Hungary),Italian (Italy),Korean (Korea),Norwegian (Norway),Polish (Poland).Portuguese (Portugal),Romanian (Romania),Slovak (Slovakia),Spanish (Mexico),Swedish (Sweden)",
+        "Low Vision Support": "Audio Description, Zoom Menu and Text, High Contrast, SeeColors, Grayscale, Auto Picture Off",
+        "Hearing Impaired Support": "Closed Caption (Subtitle), Multi-output Audio, Caption Position, Sign Language Zoom, Separate Closed Caption, Sign Language Guide, Auto Caption Position",
+        "Motor Impaired Support": "Slow Button Repeat, Remote Control App. for All"
+      }
+    },
+    {
+      "group_name": "Power & Eco Solution",
+      "items": {
+        "Power Supply": "AC110-120V~ 50/60Hz",
+        "Power Consumption (Max)": "65 W",
+        "Power Consumption (Stand-by)": "0.5 W",
+        "Power Consumption (Typical)": "54 W",
+        "Auto Power Off": "Yes"
+      }
+    },
+    {
+      "group_name": "Dimensions",
+      "items": {
+        "Package Size (WxHxD)(inch)": "38.9 x 23.1 x 4.6 inch",
+        "Set Size with Stand (WxHxD)": "35.6 x 21.5 x 6.2 in",
+        "Set Size without Stand (WxHxD)": "35.7 x 20.4 x 2.9 in",
+        "Stand (Basic) (WxD)": "25.5 x 4.6 in",
+        "VESA Spec": "200 x 200 mm",
+        "Screw Size": "M8",
+        "Screw Depth": "21-23",
+        "Stand Size (inch)": "0.7 x 2.2 x 6.2",
+        "Distance between the two ends of the Stand (Basic)(inch)": "25.5",
+        "Distance between the two ends of the Stand (Minimum)(inch)": "24.1"
+      }
+    },
+    {
+      "group_name": "Weight",
+      "items": {
+        "Shipping Weight": "16.8 lb",
+        "Set Weight with Stand": "13.0 lb",
+        "Set Weight without Stand": "12.8 lb"
+      }
+    },
+    {
+      "group_name": "Accessory",
+      "items": {
+        "Remote Controller Type": "IR Basic Remote",
+        "Remote Controller Model": "TM1240A",
+        "Remote Controller Code No": "BN59-01483A",
+        "Battery Chemistry (for Remote Control)": "Yes",
+        "Mini Wall Mount Support": "Yes",
+        "User Manual": "Yes",
+        "Power Cable": "Yes",
+        "Power Cable Connector Type": "2-pin"
+      }
+    },
+    {
+      "group_name": "General Information",
+      "items": {
+        "Country of Origin": "Mexico"
+      }
+    },
+    {
+      "group_name": "Loading Quantity",
+      "items": {
+        "40ft HC": "800",
+        "53ft": "1188"
+      }
+    }
+  ],
+  "spec_highlights": [],
+  "spec_source": "live_scrape"
+}

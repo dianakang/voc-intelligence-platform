@@ -105,10 +105,8 @@ export interface CompetitorData {
   name: string;
   model: string;
   price_range: string;
-  picture_quality: string;
-  sound_quality: string;
   ux: string;
-  smart_features: string;
+  key_attributes: Record<string, string>;
   strengths: string[];
   weaknesses: string[];
 }
@@ -188,11 +186,11 @@ async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  startAnalysis: (modelCode: string, maxReviews: number) =>
+  startAnalysis: (maxReviews: number, url: string, skipIfCached: boolean) =>
     fetchAPI<{ job_id: string; status: string }>("/analysis/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model_code: modelCode, max_reviews: maxReviews }),
+      body: JSON.stringify({ max_reviews: maxReviews, url, skip_if_cached: skipIfCached }),
     }),
 
   getStatus: (jobId: string) => fetchAPI<JobStatus>(`/analysis/status/${jobId}`),

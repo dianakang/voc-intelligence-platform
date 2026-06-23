@@ -1,0 +1,317 @@
+{
+  "product_name": "55 Inch Class Crystal UHD U7900F 4K Smart TV (2025)",
+  "model": "UN55U7900FFXZA",
+  "category": "TV",
+  "screen_size": "55\"",
+  "series": "Crystal UHD U7900F 4K Smart TV (2025)",
+  "display": {
+    "Screen Size": "55\"",
+    "Refresh Rate": "60Hz",
+    "Real Inch": "54.6\"",
+    "Resolution": "4K (3,840 x 2,160)"
+  },
+  "resolution": {
+    "Resolution": "4K (3,840 x 2,160)",
+    "Upscaling": "4K Upscaling"
+  },
+  "hdr": {
+    "Picture Engine": "Crystal Processor 4K",
+    "HDR (High Dynamic Range)": "HDR",
+    "HDR 10+": "Support",
+    "HLG (Hybrid Log Gamma)": "Yes",
+    "Contrast": "Mega Contrast",
+    "Contrast Enhancer": "Yes",
+    "Motion Technology": "Motion Xcelerator",
+    "Film Mode": "Yes",
+    "Picture Upscale": "4K Upscaling",
+    "Color Booster": "Yes",
+    "Filmmaker Mode": "Yes"
+  },
+  "smart_tv": {
+    "Operating System": "Tizen\u2122 Smart TV",
+    "Bixby": "Yes (Voice Ready)",
+    "Works with AI Speaker": "Alexa, Google Assistant",
+    "Samsung TV Plus": "Yes",
+    "Web Browser": "Yes",
+    "SmartThings Hub / Matter Hub / IoT-Sensor Functionality / Quick Remote": "Yes",
+    "Samsung Health": "Yes",
+    "Universal Guide": "Yes",
+    "Multi Device Experience": "Mobile to TV, Sound Mirroring, Wireless TV On",
+    "Buds Auto Switch": "Yes",
+    "Apple AirPlay": "Yes",
+    "Daily+": "Yes",
+    "Workout Tracker": "Yes",
+    "Multi Control": "Yes",
+    "Storage Share": "Yes",
+    "Click to Search": "Yes (US only)",
+    "account_requirement": "Samsung Account required to use streaming apps, SmartThings, and other network-based smart features"
+  },
+  "gaming": {
+    "Auto Game Mode (ALLM)": "Yes",
+    "VRR": "Yes",
+    "HGiG": "Yes",
+    "Gaming Hub": "Yes (KR, US, CA, BR, GB, FR, DE, IT, ES, MX, AU)"
+  },
+  "audio": {
+    "Object Tracking Sound": "OTS Lite",
+    "Q-Symphony": "Yes",
+    "Sound Output (RMS)": "20W",
+    "Speaker Type": "2CH",
+    "Bluetooth Audio": "Yes"
+  },
+  "connectivity": {
+    "Wi-Fi": "Yes (Wi-Fi 5)",
+    "Bluetooth": "Yes(5.3)",
+    "HDMI": "2",
+    "HDMI Maximum Input Rate": "4K 60Hz (for HDMI 1/2)",
+    "HDMI Audio Return Channel": "eARC/ARC",
+    "Anynet+ (HDMI-CEC)": "Yes",
+    "USB": "1 x USB-A",
+    "Ethernet (LAN)": "1",
+    "RF In (Terrestrial / Cable input / Satellite Input)": "1/1(Common Use for Terrestrial)/0"
+  },
+  "design": {
+    "Design": "Metal Stream",
+    "Bezel Type": "3 Bezel-less",
+    "Front Color": "BLACK",
+    "Stand Type": "BASIC FEET",
+    "Stand Color": "BLACK"
+  },
+  "energy": {
+    "Power Supply": "AC110-120V~ 50/60Hz",
+    "Power Consumption (Max)": "120 W",
+    "Power Consumption (Stand-by)": "0.5 W",
+    "Eco Sensor": "Yes",
+    "Power Consumption (Typical)": "97 W",
+    "Auto Power Off": "Yes",
+    "Auto Power Saving": "Yes"
+  },
+  "other": {
+    "Digital Broadcasting": "ATSC/Clear QAM",
+    "Analog Tuner": "Yes",
+    "DTV Sound System": "Dolby",
+    "ConnectShare\u2122": "Yes",
+    "Embeded POP": "Yes",
+    "EPG": "Yes",
+    "IP Control": "Yes",
+    "OSD Language": "English, Spanish, French",
+    "V-Chip": "Yes",
+    "MBR Support": "Yes",
+    "Voice Guide": "Czech (Czech Republic),Danish (Denmark),Dutch (Netherlands),English (US),Finnish (Finland),French (Canada),German (Germany),Greek (Greece),Hungarian (Hungary),Italian (Italy),Korean (Korea),Norwegian (Norway),Polish (Poland).Portuguese (Portugal),Romanian (Romania),Slovak (Slovakia),Spanish (Mexico),Swedish (Sweden)",
+    "Low Vision Support": "Audio Description, Zoom Menu and Text, High Contrast, SeeColors, Color Inversion, Grayscale, Auto Picture Off",
+    "Hearing Impaired Support": "Closed Caption (Subtitle), Multi-output Audio, Caption Position, Sign Language Zoom, Separate Closed Caption, Sign Language Guide",
+    "Motor Impaired Support": "Slow Button Repeat, Remote Control App. for All",
+    "Package Size (WxHxD)": "53.3 x 31.9 x 5 inch",
+    "Set Size with Stand (WxHxD)": "48.2 x 29.9 x 7.8 inch",
+    "Set Size without Stand (WxHxD)": "48.2 x 27.9 x 3 inch",
+    "Stand (Basic) (WxD)": "40.0 x 7.8 inch",
+    "VESA Spec": "200 x 200 mm",
+    "Screw Size": "M8",
+    "Screw Depth": "23-25",
+    "Stand Size (inch)": "1 x 6.6 x 7.8",
+    "Distance between the two ends of the Stand (Basic)(inch)": "32",
+    "Shipping Weight": "31.7 lb",
+    "Set Weight with Stand (lb)": "21.8 lb",
+    "Set Weight without Stand (lb)": "21.2 lb",
+    "Remote Controller Type": "IR Simple Remote",
+    "Remote Controller Model": "TM2240A",
+    "Remote Controller Code No": "BN59-01484A",
+    "Battery Chemistry (for Remote Control)": "Yes",
+    "Full Motion Slim Wall Mount Support (Y22)": "Yes",
+    "SlimFit Cam Support": "Yes",
+    "Zigbee / Thread Module": "Dongle Support",
+    "User Manual": "Yes",
+    "Power Cable": "Yes",
+    "Power Cable Connector Type": "2-pin",
+    "price_usd": 279.99,
+    "msrp_usd": 379.99,
+    "stock_status": "limited_or_unavailable",
+    "delivery_availability": "Delivery/pickup availability limited",
+    "marketing_highlights": [
+      "Crystal Processor 4K",
+      "MetalStream Design",
+      "Samsung Knox Security",
+      "Endless Free Content"
+    ]
+  },
+  "raw_spec_groups": [
+    {
+      "group_name": "Display",
+      "items": {
+        "Screen Size": "55\"",
+        "Refresh Rate": "60Hz",
+        "Real Inch": "54.6\"",
+        "Resolution": "4K (3,840 x 2,160)"
+      }
+    },
+    {
+      "group_name": "Video",
+      "items": {
+        "Picture Engine": "Crystal Processor 4K",
+        "HDR (High Dynamic Range)": "HDR",
+        "HDR 10+": "Support",
+        "HLG (Hybrid Log Gamma)": "Yes",
+        "Contrast": "Mega Contrast",
+        "Contrast Enhancer": "Yes",
+        "Motion Technology": "Motion Xcelerator",
+        "Film Mode": "Yes",
+        "Picture Upscale": "4K Upscaling",
+        "Color Booster": "Yes",
+        "Filmmaker Mode": "Yes"
+      }
+    },
+    {
+      "group_name": "Audio",
+      "items": {
+        "Object Tracking Sound": "OTS Lite",
+        "Q-Symphony": "Yes",
+        "Sound Output (RMS)": "20W",
+        "Speaker Type": "2CH",
+        "Bluetooth Audio": "Yes"
+      }
+    },
+    {
+      "group_name": "Smart Service",
+      "items": {
+        "Operating System": "Tizen\u2122 Smart TV",
+        "Bixby": "Yes (Voice Ready)",
+        "Works with AI Speaker": "Alexa, Google Assistant",
+        "Samsung TV Plus": "Yes",
+        "Web Browser": "Yes",
+        "SmartThings Hub / Matter Hub / IoT-Sensor Functionality / Quick Remote": "Yes",
+        "Samsung Health": "Yes",
+        "Universal Guide": "Yes"
+      }
+    },
+    {
+      "group_name": "Smart Feature",
+      "items": {
+        "Multi Device Experience": "Mobile to TV, Sound Mirroring, Wireless TV On",
+        "Buds Auto Switch": "Yes",
+        "Apple AirPlay": "Yes",
+        "Daily+": "Yes",
+        "Workout Tracker": "Yes",
+        "Multi Control": "Yes",
+        "Storage Share": "Yes",
+        "Click to Search": "Yes (US only)"
+      }
+    },
+    {
+      "group_name": "Game Feature",
+      "items": {
+        "Auto Game Mode (ALLM)": "Yes",
+        "VRR": "Yes",
+        "HGiG": "Yes",
+        "Gaming Hub": "Yes (KR, US, CA, BR, GB, FR, DE, IT, ES, MX, AU)"
+      }
+    },
+    {
+      "group_name": "Tuner/Broadcasting",
+      "items": {
+        "Digital Broadcasting": "ATSC/Clear QAM",
+        "Analog Tuner": "Yes",
+        "DTV Sound System": "Dolby"
+      }
+    },
+    {
+      "group_name": "Connectivity",
+      "items": {
+        "Wi-Fi": "Yes (Wi-Fi 5)",
+        "Bluetooth": "Yes(5.3)",
+        "HDMI": "2",
+        "HDMI Maximum Input Rate": "4K 60Hz (for HDMI 1/2)",
+        "HDMI Audio Return Channel": "eARC/ARC",
+        "Anynet+ (HDMI-CEC)": "Yes",
+        "USB": "1 x USB-A",
+        "Ethernet (LAN)": "1",
+        "RF In (Terrestrial / Cable input / Satellite Input)": "1/1(Common Use for Terrestrial)/0"
+      }
+    },
+    {
+      "group_name": "Design",
+      "items": {
+        "Design": "Metal Stream",
+        "Bezel Type": "3 Bezel-less",
+        "Front Color": "BLACK",
+        "Stand Type": "BASIC FEET",
+        "Stand Color": "BLACK"
+      }
+    },
+    {
+      "group_name": "Additional Feature",
+      "items": {
+        "ConnectShare\u2122": "Yes",
+        "Embeded POP": "Yes",
+        "EPG": "Yes",
+        "IP Control": "Yes",
+        "OSD Language": "English, Spanish, French",
+        "V-Chip": "Yes",
+        "MBR Support": "Yes"
+      }
+    },
+    {
+      "group_name": "Accessibility",
+      "items": {
+        "Voice Guide": "Czech (Czech Republic),Danish (Denmark),Dutch (Netherlands),English (US),Finnish (Finland),French (Canada),German (Germany),Greek (Greece),Hungarian (Hungary),Italian (Italy),Korean (Korea),Norwegian (Norway),Polish (Poland).Portuguese (Portugal),Romanian (Romania),Slovak (Slovakia),Spanish (Mexico),Swedish (Sweden)",
+        "Low Vision Support": "Audio Description, Zoom Menu and Text, High Contrast, SeeColors, Color Inversion, Grayscale, Auto Picture Off",
+        "Hearing Impaired Support": "Closed Caption (Subtitle), Multi-output Audio, Caption Position, Sign Language Zoom, Separate Closed Caption, Sign Language Guide",
+        "Motor Impaired Support": "Slow Button Repeat, Remote Control App. for All"
+      }
+    },
+    {
+      "group_name": "Power & Eco Solution",
+      "items": {
+        "Power Supply": "AC110-120V~ 50/60Hz",
+        "Power Consumption (Max)": "120 W",
+        "Power Consumption (Stand-by)": "0.5 W",
+        "Eco Sensor": "Yes",
+        "Power Consumption (Typical)": "97 W",
+        "Auto Power Off": "Yes",
+        "Auto Power Saving": "Yes"
+      }
+    },
+    {
+      "group_name": "Dimensions",
+      "items": {
+        "Package Size (WxHxD)": "53.3 x 31.9 x 5 inch",
+        "Set Size with Stand (WxHxD)": "48.2 x 29.9 x 7.8 inch",
+        "Set Size without Stand (WxHxD)": "48.2 x 27.9 x 3 inch",
+        "Stand (Basic) (WxD)": "40.0 x 7.8 inch",
+        "VESA Spec": "200 x 200 mm",
+        "Screw Size": "M8",
+        "Screw Depth": "23-25",
+        "Stand Size (inch)": "1 x 6.6 x 7.8",
+        "Distance between the two ends of the Stand (Basic)(inch)": "32"
+      }
+    },
+    {
+      "group_name": "Weight",
+      "items": {
+        "Shipping Weight": "31.7 lb",
+        "Set Weight with Stand (lb)": "21.8 lb",
+        "Set Weight without Stand (lb)": "21.2 lb"
+      }
+    },
+    {
+      "group_name": "Accessory",
+      "items": {
+        "Remote Controller Type": "IR Simple Remote",
+        "Remote Controller Model": "TM2240A",
+        "Remote Controller Code No": "BN59-01484A",
+        "Battery Chemistry (for Remote Control)": "Yes",
+        "Full Motion Slim Wall Mount Support (Y22)": "Yes",
+        "SlimFit Cam Support": "Yes",
+        "Zigbee / Thread Module": "Dongle Support",
+        "User Manual": "Yes",
+        "Power Cable": "Yes",
+        "Power Cable Connector Type": "2-pin"
+      }
+    }
+  ],
+  "spec_highlights": [
+    "4K (3,840 x 2,160)",
+    "2",
+    "1 x USB-A"
+  ],
+  "spec_source": "live_scrape"
+}

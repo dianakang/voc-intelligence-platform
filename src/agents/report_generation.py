@@ -1,11 +1,12 @@
-"""Report Generation Agent: executive summary + key insights using Claude Opus."""
+"""Report Generation Agent: executive summary + key insights using Claude Sonnet."""
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Optional
 
 from src.agents.base import BaseAgent
 from src.config import settings
-from src.data.models import VOCAnalysisResult
+from src.data.models import ProductSpec, VOCAnalysisResult
 
 SYSTEM_PROMPT = """You are a senior management consultant generating executive-level reports
 for Samsung's product intelligence team. Your audience is senior product managers, VP-level
@@ -24,7 +25,7 @@ class ReportGenerationAgent(BaseAgent):
     def __init__(self):
         super().__init__(
             name="ReportGenerationAgent",
-            model=settings.model_opus,
+            model=settings.model_sonnet,
             system_prompt=SYSTEM_PROMPT,
             temperature=0.4,
         )
@@ -57,8 +58,10 @@ class ReportGenerationAgent(BaseAgent):
             finally:
                 self.model = original
 
-    def generate_executive_summary(self, result: VOCAnalysisResult) -> VOCAnalysisResult:
-        self.log("Generating executive summary with Claude Opus...")
+    def generate_executive_summary(
+        self, result: VOCAnalysisResult, product_spec: Optional[ProductSpec] = None
+    ) -> VOCAnalysisResult:
+        self.log("Generating executive summary with Claude Sonnet...")
 
         top_complaints = "\n".join(
             f"{c.rank}. {c.category} ({c.frequency_pct:.0f}% of complaints): {c.root_cause}"
@@ -95,7 +98,9 @@ class ReportGenerationAgent(BaseAgent):
         sentiment = result.sentiment_distribution
         total = sum(sentiment.values()) or 1
 
-        prompt = f"""Generate an executive summary for Samsung 50" Crystal UHD U7900F VOC Intelligence Report.
+        product_label = product_spec.product_name if product_spec and product_spec.product_name else result.model
+
+        prompt = f"""Generate an executive summary for {product_label} VOC Intelligence Report.
 
 ANALYSIS DATE: {result.analysis_date}
 TOTAL REVIEWS ANALYZED: {result.total_reviews}

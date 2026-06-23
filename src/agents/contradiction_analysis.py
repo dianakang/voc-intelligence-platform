@@ -7,7 +7,7 @@ from src.data.models import ContradictionCase, Review, VOCAnalysisResult
 from src.rag.retriever import ReviewRetriever
 
 SYSTEM_PROMPT = """You are an expert in behavioral economics and consumer psychology analyzing
-TV product reviews. Your task is to detect contradictions between a review's star rating and
+consumer product reviews. Your task is to detect contradictions between a review's star rating and
 the actual content of the review.
 
 Type A contradiction: High rating (4-5 stars) BUT the text contains significant complaints,
