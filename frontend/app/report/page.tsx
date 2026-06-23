@@ -1,56 +1,170 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { api, VOCResult, ExpectationGapItem, ContradictionCase, ImprovementPoint, SegmentInsight, CXActionItem } from "@/lib/api";
 import { SentimentPieChart } from "@/components/charts/SentimentPieChart";
 import { AspectBarChart } from "@/components/charts/AspectBarChart";
 import { ImportanceMatrix } from "@/components/charts/ImportanceMatrix";
 
-interface TocEntry {
+interface SectionMeta {
   id: string;
   label: string;
+  stat: (result: VOCResult) => string;
 }
 
-function ReportSidebarNav({ sections }: { sections: TocEntry[] }) {
-  const [activeId, setActiveId] = useState(sections[0]?.id);
+function pct(n: number, total: number) {
+  return total === 0 ? 0 : Math.round((n / total) * 100);
+}
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting);
-        if (visible.length > 0) {
-          setActiveId(visible[0].target.id);
+function stripEmDashes<T>(value: T): T {
+  if (typeof value === "string") {
+    return value.replace(/\s*—\s*/g, ", ") as unknown as T;
+  }
+  if (Array.isArray(value)) {
+    return value.map((v) => stripEmDashes(v)) as unknown as T;
+  }
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      out[k] = stripEmDashes(v);
+    }
+    return out as T;
+  }
+  return value;
+}
+
+// A few fields use " — " as a deliberate label/explanation delimiter that
+// downstream parsing splits on (see MessagesToAvoid, actual_value_drivers
+// rendering, and parsePositioningPriorities). Those are kept raw here; each
+// consumer cleans its own derived output strings after splitting on the dash.
+function sanitizeReport(raw: VOCResult): VOCResult {
+  const sanitized = stripEmDashes(raw);
+  return {
+    ...sanitized,
+    marketing_recommendations: raw.marketing_recommendations
+      ? {
+          ...sanitized.marketing_recommendations!,
+          actual_value_drivers: raw.marketing_recommendations.actual_value_drivers,
+          messages_to_avoid: raw.marketing_recommendations.messages_to_avoid,
         }
-      },
-      { rootMargin: "-96px 0px -70% 0px", threshold: 0 }
-    );
-    sections.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
-  }, [sections]);
+      : sanitized.marketing_recommendations,
+    positioning_analysis: raw.positioning_analysis
+      ? {
+          ...sanitized.positioning_analysis!,
+          positioning_recommendation: raw.positioning_analysis.positioning_recommendation,
+          defend: raw.positioning_analysis.defend,
+          differentiate: raw.positioning_analysis.differentiate,
+          fix: raw.positioning_analysis.fix,
+          monitor: raw.positioning_analysis.monitor,
+        }
+      : sanitized.positioning_analysis,
+  };
+}
 
+// Splits "Headline — supporting detail" (or "Headline. detail" as a fallback)
+// into a bold headline and a lighter detail line, the way samsung_strengths/
+// weaknesses already render below the quadrant.
+function splitHeadlineDetail(item: string): { headline: string; detail: string | null } {
+  const dashIdx = item.indexOf(" — ");
+  if (dashIdx > 0) {
+    return { headline: stripEmDashes(item.slice(0, dashIdx)), detail: stripEmDashes(item.slice(dashIdx + 3)) };
+  }
+  const dot = item.indexOf(". ");
+  if (dot > 0) {
+    return { headline: stripEmDashes(item.slice(0, dot + 1)), detail: stripEmDashes(item.slice(dot + 2)) };
+  }
+  return { headline: stripEmDashes(item), detail: null };
+}
+
+const SECTION_META: SectionMeta[] = [
+  { id: "sentiment", label: "Sentiment Overview", stat: (r) => `${pct(r.sentiment_distribution.positive ?? 0, r.total_reviews)}% positive overall` },
+  {
+    id: "complaints",
+    label: "Top Complaints",
+    stat: (r) => {
+      const product = r.complaints.filter((c) => c.issue_type !== "purchase_experience").length;
+      const purchase = r.complaints.length - product;
+      return `${r.complaints.length} complaints · ${product} product / ${purchase} purchase`;
+    },
+  },
+  { id: "satisfaction", label: "Satisfaction Drivers", stat: (r) => `${r.satisfaction_drivers.length} drivers identified` },
+  {
+    id: "improvements",
+    label: "Improvement Priorities",
+    stat: (r) => `${r.improvement_points.length} priorities · ${r.improvement_points.filter((p) => p.priority === "high").length} high priority`,
+  },
+  {
+    id: "segment-divergence",
+    label: "Segment / Use-Case Divergence",
+    stat: (r) => `${r.segment_divergence_analysis?.segment_insights.length ?? 0} segments analyzed`,
+  },
+  { id: "marketing", label: "Marketing Recommendations", stat: () => "Messaging and positioning ideas" },
+  { id: "positioning", label: "Competitive Positioning", stat: (r) => `${r.positioning_analysis?.competitors.length ?? 0} competitors compared` },
+  {
+    id: "contradictions",
+    label: "Paradox Reviews",
+    stat: (r) => {
+      const product = r.contradictions.filter((c) => c.counts_as_product_issue).length;
+      return `${r.contradictions.length} cases found · ${product} count as product issues`;
+    },
+  },
+  { id: "importance", label: "Importance-Frequency Matrix", stat: (r) => `${r.importance_matrix.length} issues ranked by priority` },
+  {
+    id: "expectation-gaps",
+    label: "Customer Expectation Gap Analysis",
+    stat: (r) => `${r.expectation_gaps.length} gaps · ${r.expectation_gaps.filter((g) => g.gap_severity === "high").length} high severity`,
+  },
+  {
+    id: "cx-actions",
+    label: "CX Action Toolkit",
+    stat: (r) => `${r.cx_actions?.length ?? 0} action items ready`,
+  },
+];
+
+function activeSections(result: VOCResult): SectionMeta[] {
+  return SECTION_META.filter((s) => {
+    if (s.id === "segment-divergence") return !!result.segment_divergence_analysis && result.segment_divergence_analysis.segment_insights.length > 0;
+    if (s.id === "marketing") return !!result.marketing_recommendations;
+    if (s.id === "positioning") return !!result.positioning_analysis;
+    if (s.id === "cx-actions") return !!result.cx_actions && result.cx_actions.length > 0;
+    return true;
+  });
+}
+
+function IssueTypeFilter({
+  value,
+  onChange,
+}: {
+  value: "all" | "product" | "purchase";
+  onChange: (v: "all" | "product" | "purchase") => void;
+}) {
+  const options: { key: "all" | "product" | "purchase"; label: string }[] = [
+    { key: "all", label: "All" },
+    { key: "product", label: "Product Issues" },
+    { key: "purchase", label: "Purchase Experience" },
+  ];
   return (
-    <nav className="hidden lg:block w-56 flex-shrink-0">
-      <div className="sticky top-24 space-y-0.5">
-        {sections.map(({ id, label }) => (
-          <a
-            key={id}
-            href={`#${id}`}
-            className={`block text-sm px-3 py-1.5 rounded-lg border-l-2 transition-colors ${
-              activeId === id
-                ? "border-brand-600 text-brand-700 bg-brand-50 font-medium"
-                : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50"
-            }`}
-          >
-            {label}
-          </a>
-        ))}
-      </div>
-    </nav>
+    <div className="flex items-center gap-2 mb-4">
+      {options.map((o) => (
+        <button
+          key={o.key}
+          onClick={() => onChange(o.key)}
+          className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
+            value === o.key
+              ? o.key === "product"
+                ? "bg-red-50 text-red-700 border-red-200"
+                : o.key === "purchase"
+                ? "bg-gray-100 text-gray-700 border-gray-300"
+                : "bg-brand-600 text-white border-brand-600"
+              : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"
+          }`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -208,6 +322,26 @@ const QUADRANT_BOXES: { key: "defend" | "differentiate" | "fix" | "monitor"; lab
   { key: "monitor", label: "Monitor", hint: "Lower volume but high severity, worth watching" },
 ];
 
+function QuadrantItem({ item }: { item: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const { headline, detail } = splitHeadlineDetail(item);
+  const snippet = detail ? firstSentence(detail) : null;
+  const hasMore = !!detail && snippet !== detail;
+  return (
+    <li className="pl-2.5 border-l-2 border-brand-100">
+      <p className="text-xs font-semibold text-gray-900 leading-snug">{headline}</p>
+      {detail && (
+        <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">{expanded ? detail : snippet}</p>
+      )}
+      {hasMore && (
+        <button onClick={() => setExpanded(!expanded)} className="text-[11px] text-brand-600 hover:underline mt-0.5">
+          {expanded ? "Show less ↑" : "Read more ↓"}
+        </button>
+      )}
+    </li>
+  );
+}
+
 function ExecutiveQuadrant({ analysis }: { analysis: import("@/lib/api").PositioningAnalysis }) {
   return (
     <div>
@@ -220,9 +354,9 @@ function ExecutiveQuadrant({ analysis }: { analysis: import("@/lib/api").Positio
               <p className="text-sm font-semibold text-brand-800">{label}</p>
               <p className="text-[11px] text-gray-400 mb-2">{hint}</p>
               {items.length > 0 ? (
-                <ul className="space-y-1">
+                <ul className="space-y-2">
                   {items.map((item, i) => (
-                    <li key={i} className="text-xs text-gray-700 pl-2 border-l-2 border-brand-100">{item}</li>
+                    <QuadrantItem key={i} item={item} />
                   ))}
                 </ul>
               ) : (
@@ -570,9 +704,12 @@ function parseInsight(raw: string): { headline: string; detail: string } {
 
 function ExecutiveSummarySection({ summary, insights }: { summary: string; insights: string[] }) {
   const [expanded, setExpanded] = useState(false);
+  const [insightsExpanded, setInsightsExpanded] = useState(false);
   const paragraphs = parseParagraphs(summary);
   const visible = expanded ? paragraphs : paragraphs.slice(0, 2);
   const cleanInsights = insights.filter(i => i.trim().length > 10);
+  const insightsLimit = 4;
+  const visibleInsights = insightsExpanded ? cleanInsights : cleanInsights.slice(0, insightsLimit);
 
   return (
     <div className="space-y-4">
@@ -598,7 +735,7 @@ function ExecutiveSummarySection({ summary, insights }: { summary: string; insig
         <div className="bg-white border border-gray-200 rounded-xl p-5">
           <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-4">Key Insights</h3>
           <div className="grid sm:grid-cols-2 gap-3">
-            {cleanInsights.map((raw, i) => {
+            {visibleInsights.map((raw, i) => {
               const { headline, detail } = parseInsight(raw);
               return (
                 <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
@@ -613,6 +750,14 @@ function ExecutiveSummarySection({ summary, insights }: { summary: string; insig
               );
             })}
           </div>
+          {cleanInsights.length > insightsLimit && (
+            <button
+              onClick={() => setInsightsExpanded(!insightsExpanded)}
+              className="mt-3 text-xs text-brand-600 hover:underline"
+            >
+              {insightsExpanded ? "Show less ↑" : `Show ${cleanInsights.length - insightsLimit} more insights ↓`}
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -626,7 +771,7 @@ function parsePositioningPriorities(text: string) {
   const numbered = [...text.matchAll(/\((\d+)\)\s+([^—]+?)\s+—\s+([^:]+):\s+([\s\S]*?)(?=\s*\(\d+\)|$)/g)];
   if (numbered.length > 0) {
     const introEnd = text.search(/\s*\(\d+\)/);
-    return {
+    return stripEmDashes({
       intro: introEnd > 0 ? text.slice(0, introEnd).trim() : "",
       priorities: numbered.map((m, i) => ({
         num: String(i + 1),
@@ -634,13 +779,13 @@ function parsePositioningPriorities(text: string) {
         topic: m[3].trim(),
         body: m[4].trim(),
       })),
-    };
+    });
   }
   // Try format: TIMEFRAME (period): text  e.g. "IMMEDIATE (0-3 months):"
   const timeboxed = [...text.matchAll(/([A-Z][A-Z\s-]+?)\s*\([^)]+\):\s*([\s\S]*?)(?=[A-Z]{3,}[^a-z]*\([^)]+\):|$)/g)];
   if (timeboxed.length > 0) {
     const introEnd = text.search(/[A-Z]{3,}[^a-z]*\([^)]+\):/);
-    return {
+    return stripEmDashes({
       intro: introEnd > 0 ? text.slice(0, introEnd).trim() : "",
       priorities: timeboxed.map((m, i) => ({
         num: String(i + 1),
@@ -648,9 +793,9 @@ function parsePositioningPriorities(text: string) {
         topic: "",
         body: m[2].trim(),
       })),
-    };
+    });
   }
-  return { intro: text, priorities: [] };
+  return stripEmDashes({ intro: text, priorities: [] });
 }
 
 const PRIORITY_PALETTE: Record<number, { bg: string; border: string; badge: string; num: string }> = {
@@ -690,15 +835,27 @@ function PriorityCard({ num, label, topic, body }: { num: string; label: string;
 
 // ── Marketing sub-components ──────────────────────────────────────────────────
 
+function parseMessageToAvoid(raw: string): { label: string; explanation: string } {
+  let m = raw.trim();
+  if (m.length > 1 && ((m[0] === "'" && m[m.length - 1] === "'") || (m[0] === '"' && m[m.length - 1] === '"'))) {
+    m = m.slice(1, -1).trim();
+  }
+  const dashIdx = m.indexOf(" — ");
+  if (dashIdx > 0) {
+    return { label: m.slice(0, dashIdx).trim(), explanation: m.slice(dashIdx + 3).trim() };
+  }
+  const colon = m.indexOf(": ");
+  if (colon > 0 && colon < 100) {
+    return { label: m.slice(0, colon).trim(), explanation: m.slice(colon + 2).trim() };
+  }
+  return { label: m, explanation: m };
+}
+
 function MessagesToAvoid({ messages }: { messages: string[] }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
-  const parsed = messages.map(m => {
-    const quoted = m.match(/^'([^']+)':\s*([\s\S]*)/);
-    if (quoted) return { label: quoted[1], explanation: quoted[2].trim() };
-    const colon = m.indexOf(": ");
-    return colon > 0
-      ? { label: m.slice(0, colon), explanation: m.slice(colon + 2) }
-      : { label: m.slice(0, 60), explanation: m };
+  const parsed = messages.map((m) => {
+    const { label, explanation } = parseMessageToAvoid(m);
+    return { label: stripEmDashes(label), explanation: stripEmDashes(explanation) };
   });
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-5">
@@ -727,8 +884,10 @@ function MessagesToAvoid({ messages }: { messages: string[] }) {
 }
 
 function MarketingSection({ rec }: { rec: import("@/lib/api").MarketingRecommendation }) {
-  const quoteMatch = rec.current_perception.match(/'([^']{10,80}?)'/);
-  const dominantQuote = quoteMatch ? quoteMatch[1] : null;
+  // The lookbehind-style `(?:^|\s)` keeps this from matching apostrophes in
+  // contractions/possessives (e.g. "brand's"), which always sit right after a letter.
+  const quoteMatch = rec.current_perception.match(/(?:^|\s)'([^']{6,80}?)'(?=[\s,.;:!?]|$)/);
+  const dominantQuote = quoteMatch ? stripEmDashes(quoteMatch[1]) : null;
   return (
     <div className="space-y-4">
       {/* Current perception */}
@@ -755,11 +914,11 @@ function MarketingSection({ rec }: { rec: import("@/lib/api").MarketingRecommend
             return (
               <span
                 key={i}
-                title={v}
+                title={stripEmDashes(v)}
                 className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-800 text-sm font-medium px-3 py-1.5 rounded-full cursor-default"
               >
                 <span className="text-green-500 text-xs">✓</span>
-                {label}
+                {stripEmDashes(label)}
               </span>
             );
           })}
@@ -782,7 +941,6 @@ function MarketingSection({ rec }: { rec: import("@/lib/api").MarketingRecommend
       </div>
 
       <MessagesToAvoid messages={rec.messages_to_avoid} />
-      <EvidenceQuotes quotes={rec.evidence} limit={2} />
     </div>
   );
 }
@@ -830,133 +988,162 @@ function CompetitorCard({ comp }: { comp: import("@/lib/api").CompetitorData }) 
   );
 }
 
-function ReportContent({ result }: { result: VOCResult }) {
+function SectionOverviewList({ result, onSelect }: { result: VOCResult; onSelect: (id: string) => void }) {
   return (
-    <div className="space-y-12">
-      {/* Overview */}
-      <div className="bg-gradient-to-r from-brand-600 to-brand-700 rounded-2xl p-6 text-white">
-        <h1 className="text-2xl font-bold mb-1">Samsung VOC Intelligence Report</h1>
-        <p className="text-brand-100 text-sm mb-4">{result.model} · {new Date(result.analysis_date).toLocaleDateString()} · {result.total_reviews} reviews</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[
-            ["Avg Rating", `${result.avg_rating.toFixed(1)} / 5.0`],
-            [
-              "Total Reviews",
-              result.total_reviews_available > result.total_reviews
-                ? `${result.total_reviews.toLocaleString()} of ${result.total_reviews_available.toLocaleString()}`
-                : result.total_reviews.toLocaleString(),
-            ],
-            ["Complaint Issues", result.complaints.length.toString()],
-            ["Expectation Gaps", result.expectation_gaps.length.toString()],
-          ].map(([label, value]) => (
-            <div key={label} className="bg-brand-500/30 rounded-xl p-3">
-              <p className="text-xs text-brand-200">{label}</p>
-              <p className="text-xl font-bold">{value}</p>
+    <div>
+      <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Explore the Report</h2>
+      <div className="divide-y divide-gray-100 bg-white border border-gray-200 rounded-xl overflow-hidden">
+        {activeSections(result).map((s, i) => (
+          <button
+            key={s.id}
+            onClick={() => onSelect(s.id)}
+            className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-7 h-7 rounded-full bg-brand-100 text-brand-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                {i + 1}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900">{s.label}</p>
+                <p className="text-xs text-gray-500 mt-0.5 truncate">{s.stat(result)}</p>
+              </div>
             </div>
-          ))}
-        </div>
+            <span className="text-gray-300 text-sm flex-shrink-0">→</span>
+          </button>
+        ))}
       </div>
+    </div>
+  );
+}
 
-      {/* Executive Summary */}
-      <section id="summary" className="scroll-mt-24">
-        <SectionHeader number="1" title="Executive Summary" />
-        <ExecutiveSummarySection summary={result.executive_summary} insights={result.key_insights} />
-      </section>
+function SectionDetail({
+  result,
+  sectionId,
+  onBack,
+}: {
+  result: VOCResult;
+  sectionId: string;
+  onBack: () => void;
+}) {
+  const [complaintsFilter, setComplaintsFilter] = useState<"all" | "product" | "purchase">("all");
+  const [paradoxFilter, setParadoxFilter] = useState<"all" | "product" | "purchase">("all");
+  const [cxFilter, setCxFilter] = useState<"all" | "product" | "purchase">("all");
 
-      {/* Sentiment Distribution */}
-      <section id="sentiment" className="scroll-mt-24">
-        <SectionHeader number="2" title="Sentiment Overview" />
-        <div className="grid sm:grid-cols-2 gap-5">
-          <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-gray-700 mb-4">Overall Sentiment</h3>
-            <SentimentPieChart data={Object.entries(result.sentiment_distribution).map(([name, value]) => ({ name, value }))} />
-          </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-gray-700 mb-4">Aspect Sentiment Breakdown</h3>
-            <AspectBarChart
-              data={Object.entries(result.aspect_sentiment_summary)
-                .map(([aspect, s]) => ({ aspect, positive: s.positive, negative: s.negative, neutral: s.neutral }))
-                .sort((a, b) => (b.positive + b.negative + b.neutral) - (a.positive + a.negative + a.neutral))}
-            />
-          </div>
-        </div>
-      </section>
+  const filteredComplaints = result.complaints.filter((c) =>
+    complaintsFilter === "all" ? true : complaintsFilter === "product" ? c.issue_type !== "purchase_experience" : c.issue_type === "purchase_experience"
+  );
+  const filteredContradictions = result.contradictions.filter((c) =>
+    paradoxFilter === "all" ? true : paradoxFilter === "product" ? c.counts_as_product_issue : !c.counts_as_product_issue
+  );
+  const filteredCxActions = (result.cx_actions ?? []).filter((a) =>
+    cxFilter === "all" ? true : cxFilter === "product" ? a.issue_type !== "purchase_experience" : a.issue_type === "purchase_experience"
+  );
 
-      {/* Section 3: Complaints */}
-      <section id="complaints" className="scroll-mt-24">
-        <SectionHeader number="3" title="Top Complaints" />
-        <p className="text-xs text-gray-500 -mt-3 mb-4">
-          Tagged by type: <span className="font-semibold text-red-600">Product Issue</span> (a defect routed to engineering)
-          vs. <span className="font-semibold text-gray-600">Purchase Experience</span> (delivery, account, or setup issues routed to CX).
-        </p>
-        <div className="space-y-3">
-          {result.complaints.map((c) => (
-            <div key={c.rank} className="bg-white border border-gray-200 rounded-xl p-5">
-              <div className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-full bg-red-100 text-red-700 text-sm font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
-                  {c.rank}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-2">
-                    <span className="font-semibold text-gray-900">{c.category}</span>
-                    <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{c.aspect}</span>
-                    <span
-                      className={`text-xs px-1.5 py-0.5 rounded font-medium ${
-                        c.issue_type === "purchase_experience" ? "bg-gray-100 text-gray-600" : "bg-red-50 text-red-600"
-                      }`}
-                    >
-                      {c.issue_type === "purchase_experience" ? "Purchase Experience" : "Product Issue"}
-                    </span>
-                    <span className="text-xs text-red-600 font-medium">{c.frequency_pct.toFixed(1)}% of reviews</span>
-                  </div>
-                  <p className="text-sm text-gray-600 leading-relaxed">{c.root_cause}</p>
-                  <EvidenceQuotes quotes={c.representative_reviews} />
-                </div>
-              </div>
+  return (
+    <div>
+      <button onClick={onBack} className="text-sm text-brand-600 hover:underline mb-5 inline-block">
+        ← Back to Report
+      </button>
+
+      {sectionId === "sentiment" && (
+        <section>
+          <SectionHeader number="2" title="Sentiment Overview" />
+          <div className="grid sm:grid-cols-2 gap-5">
+            <div className="bg-white border border-gray-200 rounded-xl p-5">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4">Overall Sentiment</h3>
+              <SentimentPieChart data={Object.entries(result.sentiment_distribution).map(([name, value]) => ({ name, value }))} />
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Section 4: Satisfaction Drivers */}
-      <section id="satisfaction" className="scroll-mt-24">
-        <SectionHeader number="4" title="Satisfaction Drivers" />
-        <div className="space-y-3">
-          {result.satisfaction_drivers.map((d) => (
-            <div key={d.rank} className="bg-white border border-gray-200 rounded-xl p-5">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-full bg-green-100 text-green-700 text-sm font-bold flex items-center justify-center flex-shrink-0">
-                    {d.rank}
-                  </div>
-                  <div>
-                    <span className="font-semibold text-gray-900">{d.factor}</span>
-                    <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded ml-2">{d.aspect}</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-bold text-green-700">{d.positive_rate.toFixed(0)}%</div>
-                  <div className="text-xs text-gray-400">{d.mention_count} mentions</div>
-                </div>
-              </div>
-              <div className="w-full bg-gray-100 rounded-full h-1.5">
-                <div className="bg-green-500 h-1.5 rounded-full" style={{ width: `${Math.min(d.positive_rate, 100)}%` }} />
-              </div>
-              <EvidenceQuotes quotes={d.representative_reviews} />
+            <div className="bg-white border border-gray-200 rounded-xl p-5">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4">Aspect Sentiment Breakdown</h3>
+              <AspectBarChart
+                data={Object.entries(result.aspect_sentiment_summary)
+                  .map(([aspect, s]) => ({ aspect, positive: s.positive, negative: s.negative, neutral: s.neutral }))
+                  .sort((a, b) => (b.positive + b.negative + b.neutral) - (a.positive + a.negative + a.neutral))}
+              />
             </div>
-          ))}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
-      {/* Section 5: Improvements */}
-      <section id="improvements" className="scroll-mt-24">
-        <SectionHeader number="5" title="Improvement Priorities" />
-        <ImprovementSection improvements={result.improvement_points} />
-      </section>
+      {sectionId === "complaints" && (
+        <section>
+          <SectionHeader number="3" title="Top Complaints" />
+          <p className="text-xs text-gray-500 mb-4">
+            Tagged by type: <span className="font-semibold text-red-600">Product Issue</span> (a defect routed to engineering)
+            vs. <span className="font-semibold text-gray-600">Purchase Experience</span> (delivery, account, or setup issues routed to CX).
+          </p>
+          <IssueTypeFilter value={complaintsFilter} onChange={setComplaintsFilter} />
+          <div className="space-y-3">
+            {filteredComplaints.map((c) => (
+              <div key={c.rank} className="bg-white border border-gray-200 rounded-xl p-5">
+                <div className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full bg-red-100 text-red-700 text-sm font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                    {c.rank}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-2">
+                      <span className="font-semibold text-gray-900">{c.category}</span>
+                      <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{c.aspect}</span>
+                      <span
+                        className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+                          c.issue_type === "purchase_experience" ? "bg-gray-100 text-gray-600" : "bg-red-50 text-red-600"
+                        }`}
+                      >
+                        {c.issue_type === "purchase_experience" ? "Purchase Experience" : "Product Issue"}
+                      </span>
+                      <span className="text-xs text-red-600 font-medium">{c.frequency_pct.toFixed(1)}% of reviews</span>
+                    </div>
+                    <p className="text-sm text-gray-600 leading-relaxed">{c.root_cause}</p>
+                    <EvidenceQuotes quotes={c.representative_reviews} />
+                  </div>
+                </div>
+              </div>
+            ))}
+            {filteredComplaints.length === 0 && <p className="text-sm text-gray-400">No complaints match this filter.</p>}
+          </div>
+        </section>
+      )}
 
-      {/* Section 6: Segment divergence */}
-      {result.segment_divergence_analysis && result.segment_divergence_analysis.segment_insights.length > 0 && (
-        <section id="segment-divergence" className="scroll-mt-24">
+      {sectionId === "satisfaction" && (
+        <section>
+          <SectionHeader number="4" title="Satisfaction Drivers" />
+          <div className="space-y-3">
+            {result.satisfaction_drivers.map((d) => (
+              <div key={d.rank} className="bg-white border border-gray-200 rounded-xl p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-full bg-green-100 text-green-700 text-sm font-bold flex items-center justify-center flex-shrink-0">
+                      {d.rank}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-900">{d.factor}</span>
+                      <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded ml-2">{d.aspect}</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-bold text-green-700">{d.positive_rate.toFixed(0)}%</div>
+                    <div className="text-xs text-gray-400">{d.mention_count} mentions</div>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-1.5">
+                  <div className="bg-green-500 h-1.5 rounded-full" style={{ width: `${Math.min(d.positive_rate, 100)}%` }} />
+                </div>
+                <EvidenceQuotes quotes={d.representative_reviews} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {sectionId === "improvements" && (
+        <section>
+          <SectionHeader number="5" title="Improvement Priorities" />
+          <ImprovementSection improvements={result.improvement_points} />
+        </section>
+      )}
+
+      {sectionId === "segment-divergence" && result.segment_divergence_analysis && result.segment_divergence_analysis.segment_insights.length > 0 && (
+        <section>
           <SectionHeader number="6" title="Segment / Use-Case Divergence" />
           <SegmentDivergenceSection
             items={result.segment_divergence_analysis.segment_insights}
@@ -967,17 +1154,15 @@ function ReportContent({ result }: { result: VOCResult }) {
         </section>
       )}
 
-      {/* Section 7: Marketing */}
-      {result.marketing_recommendations && (
-        <section id="marketing" className="scroll-mt-24">
+      {sectionId === "marketing" && result.marketing_recommendations && (
+        <section>
           <SectionHeader number="7" title="Marketing Recommendations" />
           <MarketingSection rec={result.marketing_recommendations} />
         </section>
       )}
 
-      {/* Section 8: Competitive Positioning */}
-      {result.positioning_analysis && (
-        <section id="positioning" className="scroll-mt-24">
+      {sectionId === "positioning" && result.positioning_analysis && (
+        <section>
           <SectionHeader number="8" title="Competitive Positioning" />
           <div className="space-y-5">
             {result.positioning_analysis.attribute_map.length > 0 && (
@@ -1048,7 +1233,7 @@ function ReportContent({ result }: { result: VOCResult }) {
               ) : (
                 <div className="bg-brand-50 border border-brand-200 rounded-xl p-5">
                   <h3 className="text-sm font-semibold text-brand-800 mb-2">Positioning Recommendation</h3>
-                  <p className="text-sm text-brand-700 leading-relaxed">{result.positioning_analysis.positioning_recommendation}</p>
+                  <p className="text-sm text-brand-700 leading-relaxed">{stripEmDashes(result.positioning_analysis.positioning_recommendation)}</p>
                 </div>
               );
             })()}
@@ -1056,61 +1241,115 @@ function ReportContent({ result }: { result: VOCResult }) {
         </section>
       )}
 
-      {/* Section 9: Contradictions */}
-      <section id="contradictions" className="scroll-mt-24">
-        <SectionHeader number="9" title="Paradox Reviews" />
-        <p className="text-xs text-gray-500 -mt-3 mb-4">
-          A star rating doesn't always reflect product quality. These reviews separate <span className="font-semibold text-gray-700">emotional rating</span> from
-          <span className="font-semibold text-gray-700"> actual product experience</span>, which helps tell roadmap priorities apart from service fixes.
-        </p>
-        <ContradictionSection cases={result.contradictions} />
-      </section>
+      {sectionId === "contradictions" && (
+        <section>
+          <SectionHeader number="9" title="Paradox Reviews" />
+          <p className="text-xs text-gray-500 mb-4">
+            A star rating doesn't always reflect product quality. These reviews separate <span className="font-semibold text-gray-700">emotional rating</span> from
+            <span className="font-semibold text-gray-700"> actual product experience</span>, which helps tell roadmap priorities apart from service fixes.
+          </p>
+          <IssueTypeFilter value={paradoxFilter} onChange={setParadoxFilter} />
+          <ContradictionSection cases={filteredContradictions} />
+        </section>
+      )}
 
-      {/* Section 10: Importance Matrix */}
-      <section id="importance" className="scroll-mt-24">
-        <SectionHeader number="10" title="Importance-Frequency Matrix" />
-        <p className="text-xs text-gray-500 -mt-3 mb-4">
-          Each dot is an issue, plotted by how often it's mentioned (x-axis) against its business impact
-          (y-axis) — defects that drive returns or warranty claims score high impact even if rarely
-          mentioned, while common-but-minor annoyances score low impact even at high frequency. The number
-          on each dot matches its rank in the priority list below, which orders every issue by overall
-          priority and points to where its fix is already detailed elsewhere in this report (Expectation
-          Gaps, CX Actions), or gives a new recommendation if nothing covers it yet.
-        </p>
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <ImportanceMatrix data={result.importance_matrix} />
-        </div>
-      </section>
+      {sectionId === "importance" && (
+        <section>
+          <SectionHeader number="10" title="Importance-Frequency Matrix" />
+          <p className="text-xs text-gray-500 mb-4">
+            Each dot is an issue, plotted by how often it's mentioned (x-axis) against its business impact
+            (y-axis). Defects that drive returns or warranty claims score high impact even if rarely
+            mentioned, while common-but-minor annoyances score low impact even at high frequency. The number
+            on each dot matches its rank in the priority list below, which orders every issue by overall
+            priority and points to where its fix is already detailed elsewhere in this report (Expectation
+            Gaps, CX Actions), or gives a new recommendation if nothing covers it yet.
+          </p>
+          <div className="bg-white border border-gray-200 rounded-xl p-5">
+            <ImportanceMatrix data={result.importance_matrix} />
+          </div>
+        </section>
+      )}
 
-      {/* Section 11: Expectation Gap */}
-      <section id="expectation-gaps" className="scroll-mt-24">
-        <SectionHeader number="11" title="Customer Expectation Gap Analysis" />
-        {(() => {
-          const nonProductMismatches = result.contradictions.filter((c) => !c.counts_as_product_issue);
-          if (nonProductMismatches.length === 0) return null;
-          return (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-xs text-amber-800">
-              <span className="font-semibold">{nonProductMismatches.length} flagged rating/text mismatch{nonProductMismatches.length > 1 ? "es are" : " is"} excluded</span> from
-              the gaps below — these are reviews where the product itself was praised but the rating was low for
-              an unrelated reason (delivery, warranty, support, or likely a mistaken rating), so they're tracked as
-              contradictions rather than genuine expectation gaps.{" "}
-              <a href="#contradictions" className="underline font-medium">See Paradox Reviews →</a>
-            </div>
-          );
-        })()}
-        <ExpectationGapSection gaps={result.expectation_gaps} />
-      </section>
+      {sectionId === "expectation-gaps" && (
+        <section>
+          <SectionHeader number="11" title="Customer Expectation Gap Analysis" />
+          {(() => {
+            const nonProductMismatches = result.contradictions.filter((c) => !c.counts_as_product_issue);
+            if (nonProductMismatches.length === 0) return null;
+            return (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-xs text-amber-800">
+                <span className="font-semibold">{nonProductMismatches.length} flagged rating/text mismatch{nonProductMismatches.length > 1 ? "es are" : " is"} excluded</span> from
+                the gaps below. These are reviews where the product itself was praised but the rating was low for
+                an unrelated reason (delivery, warranty, support, or likely a mistaken rating), so they're tracked as
+                contradictions rather than genuine expectation gaps.{" "}
+                <button onClick={onBack} className="underline font-medium">See Paradox Reviews on the overview →</button>
+              </div>
+            );
+          })()}
+          <ExpectationGapSection gaps={result.expectation_gaps} />
+        </section>
+      )}
 
-      {/* Section 12: CX Action Toolkit */}
-      {result.cx_actions && result.cx_actions.length > 0 && (
-        <section id="cx-actions" className="scroll-mt-24">
+      {sectionId === "cx-actions" && result.cx_actions && result.cx_actions.length > 0 && (
+        <section>
           <SectionHeader number="12" title="CX Action Toolkit" />
-          <p className="text-xs text-gray-500 -mt-3 mb-4">
+          <p className="text-xs text-gray-500 mb-4">
             Ready-to-use <span className="font-semibold text-gray-700">FAQ entries, support scripts, and proactive notices</span> generated
             directly from the complaint clusters above, ready for customer support and help-center publishing.
           </p>
-          <CXActionSection actions={result.cx_actions} />
+          <IssueTypeFilter value={cxFilter} onChange={setCxFilter} />
+          <CXActionSection actions={filteredCxActions} />
         </section>
+      )}
+    </div>
+  );
+}
+
+function ReportContent({
+  result,
+  activeSection,
+  onSelectSection,
+}: {
+  result: VOCResult;
+  activeSection: string | null;
+  onSelectSection: (id: string | null) => void;
+}) {
+  return (
+    <div className="space-y-8">
+      {/* Hero */}
+      <div className="bg-gradient-to-r from-brand-600 to-brand-700 rounded-2xl p-6 text-white">
+        <h1 className="text-2xl font-bold mb-1">{result.model}</h1>
+        <p className="text-brand-100 text-sm mb-4">{new Date(result.analysis_date).toLocaleDateString()} · {result.total_reviews} reviews</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            ["Avg Rating", `${result.avg_rating.toFixed(1)} / 5.0`],
+            [
+              "Total Reviews",
+              result.total_reviews_available > result.total_reviews
+                ? `${result.total_reviews.toLocaleString()} of ${result.total_reviews_available.toLocaleString()}`
+                : result.total_reviews.toLocaleString(),
+            ],
+            ["Complaint Issues", result.complaints.length.toString()],
+            ["Expectation Gaps", result.expectation_gaps.length.toString()],
+          ].map(([label, value]) => (
+            <div key={label} className="bg-brand-500/30 rounded-xl p-3">
+              <p className="text-xs text-brand-200">{label}</p>
+              <p className="text-xl font-bold">{value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Executive Summary always visible as the orienting section */}
+      <section>
+        <SectionHeader number="1" title="Executive Summary" />
+        <ExecutiveSummarySection summary={result.executive_summary} insights={result.key_insights} />
+      </section>
+
+      {activeSection === null ? (
+        <SectionOverviewList result={result} onSelect={onSelectSection} />
+      ) : (
+        <SectionDetail result={result} sectionId={activeSection} onBack={() => onSelectSection(null)} />
       )}
     </div>
   );
@@ -1118,8 +1357,18 @@ function ReportContent({ result }: { result: VOCResult }) {
 
 function ReportPageInner() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const jobId = searchParams.get("jobId");
   const filename = searchParams.get("filename");
+  const activeSection = searchParams.get("section");
+
+  const goToSection = (id: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (id) params.set("section", id);
+    else params.delete("section");
+    router.push(`${pathname}?${params.toString()}`, { scroll: true });
+  };
 
   const [result, setResult] = useState<VOCResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -1134,7 +1383,7 @@ function ReportPageInner() {
     (async () => {
       try {
         const data = jobId ? await api.getResult(jobId) : await api.getReport(filename!);
-        setResult(data);
+        setResult(sanitizeReport(data));
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Failed to load report");
       } finally {
@@ -1167,37 +1416,15 @@ function ReportPageInner() {
 
   if (!result) return null;
 
-  const tocSections: TocEntry[] = [
-    { id: "summary", label: "Executive Summary" },
-    { id: "sentiment", label: "Sentiment Overview" },
-    { id: "complaints", label: "Top Complaints" },
-    { id: "satisfaction", label: "Satisfaction Drivers" },
-    { id: "improvements", label: "Improvement Priorities" },
-    ...(result.segment_divergence_analysis && result.segment_divergence_analysis.segment_insights.length > 0
-      ? [{ id: "segment-divergence", label: "Segment Divergence" }]
-      : []),
-    ...(result.marketing_recommendations ? [{ id: "marketing", label: "Marketing Recommendations" }] : []),
-    ...(result.positioning_analysis ? [{ id: "positioning", label: "Competitive Positioning" }] : []),
-    { id: "contradictions", label: "Paradox Reviews" },
-    { id: "importance", label: "Importance-Frequency Matrix" },
-    { id: "expectation-gaps", label: "Expectation Gap Analysis" },
-    ...(result.cx_actions && result.cx_actions.length > 0 ? [{ id: "cx-actions", label: "CX Action Toolkit" }] : []),
-  ];
-
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
+    <div className="max-w-4xl mx-auto px-4 py-10">
       <div className="flex items-center justify-between mb-8">
         <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">← Dashboard</Link>
         <Link href="/analysis" className="text-sm bg-brand-600 text-white px-3 py-1.5 rounded-lg hover:bg-brand-700">
           New Analysis
         </Link>
       </div>
-      <div className="flex gap-10">
-        <ReportSidebarNav sections={tocSections} />
-        <div className="flex-1 min-w-0 max-w-4xl">
-          <ReportContent result={result} />
-        </div>
-      </div>
+      <ReportContent result={result} activeSection={activeSection} onSelectSection={goToSection} />
     </div>
   );
 }

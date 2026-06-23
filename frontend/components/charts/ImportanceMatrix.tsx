@@ -15,8 +15,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const ISSUE_TYPE_LABEL: Record<string, string> = {
-  product_defect: "Product defect — engineering/QA",
-  purchase_experience: "Purchase experience — CX/ops/marketing",
+  product_defect: "Product defect (engineering/QA)",
+  purchase_experience: "Purchase experience (CX/ops/marketing)",
 };
 
 export function ImportanceMatrix({ data }: Props) {
