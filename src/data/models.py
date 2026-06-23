@@ -249,11 +249,20 @@ class ExpectationGapItem(BaseModel):
     supporting_reviews: list[str]
 
 
+class TargetAudienceProfile(BaseModel):
+    persona_name: str
+    demographic_profile: str
+    psychographic_traits: list[str]
+    why_product_fits: str
+    recommended_channels: list[str]
+    evidence: list[str]
+
+
 class MarketingRecommendation(BaseModel):
     current_perception: str
     actual_value_drivers: list[str]
     new_message_proposals: list[str]
-    messages_to_avoid: list[str]
+    target_audience: list[TargetAudienceProfile]
     evidence: list[str]
 
 

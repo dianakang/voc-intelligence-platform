@@ -271,37 +271,117 @@
     }
   ],
   "marketing_recommendations": {
-    "current_perception": "Customers perceive the Samsung U7900F as a high-value, visually impressive TV that punches above its $249.99 price point, particularly celebrated for vivid picture quality, vibrant colors, and brightness. Brand loyalty runs deep, with many reviewers identifying as long-term Samsung households. However, the brand's premium tech-forward marketing language \u2014 'Crystal Processor 4K,' 'MetalStream Design,' 'Q-Symphony,' 'Object Tracking Sound Lite' \u2014 creates an expectation gap: customers discover the built-in audio is underwhelming for dialogue clarity, the smart TV platform can buffer under load, viewing angles are limited, and wired audio connectivity is absent. Most critically, a subset of customers experience severe fulfillment failures (shattered-on-arrival units, replacement runaround) that permanently damage brand trust and contradict Samsung's premium positioning. The net result is a brand that earns genuine love for its picture and value story, but loses credibility when its feature-marketing vocabulary overpromises on audio, smart performance, and post-purchase support.",
+    "current_perception": "Customers perceive this TV primarily as a high-value, visually impressive screen at a budget-friendly price point, anchored by Samsung's trusted brand reputation. The 'Crystal Processor 4K' and 'MetalStream Design' marketing language largely fails to resonate \u2014 buyers talk about brightness, color vibrancy, and picture clarity in plain terms, not processor branding. Samsung Knox Security appears meaningful only to a niche subset. The 'Endless Free Content' claim is undercut by real complaints about buffering and app performance, creating a credibility gap. The brand halo ('Samsung lover all my life') carries significant weight and often overrides technical shortcomings, but delivery damage incidents and poor post-purchase support represent a serious trust-breaking failure that marketing cannot paper over.",
     "actual_value_drivers": [
-      "Exceptional 4K picture clarity and resolution that customers describe as 'unreal' and 'crystal clear' \u2014 the single strongest and most consistent satisfaction driver at 94% positive sentiment",
-      "Vivid, adjustable brightness and color vibrancy that satisfies diverse viewing environments, including users with light-sensitivity conditions like migraines",
-      "Immersive large-screen experience for live sports and entertainment, particularly football and World Cup viewing, where the sense of presence is frequently cited",
-      "Outstanding price-to-performance ratio at $249.99 \u2014 customers repeatedly frame this as a premium-feeling TV at a budget price, especially compared to Sony and Android TV alternatives",
-      "Improved audio relative to customers' prior TVs \u2014 while not audiophile-grade, many first-time Samsung buyers perceive the sound as a step up from their previous sets",
-      "Lightweight, fast setup and clean aesthetic design that reduces friction from unboxing to first use",
-      "Trusted brand equity built over years of household loyalty, which lowers purchase hesitation and drives repeat buying"
+      "Exceptional 4K picture clarity and sharpness that feels immersive, especially for sports and movies \u2014 customers describe it as 'unreal' and 'feels like you're right there'",
+      "Vivid, adjustable brightness that satisfies diverse needs, from migraine-sensitive viewers to sports fans in bright rooms",
+      "Strong perceived value at $249.99 \u2014 buyers consistently frame this as a premium visual experience at a budget price",
+      "Samsung brand trust and ecosystem loyalty built over years of ownership, driving repeat purchase intent",
+      "Lightweight, easy setup experience that reduces friction for first-time or replacement buyers",
+      "Solid performance for antenna/OTA broadcast viewing, delivering crystal-clear local channels without a subscription",
+      "Adequate built-in sound quality that exceeds expectations relative to prior budget TVs owned by the same customers"
     ],
     "new_message_proposals": [
-      "See Every Detail. Feel Every Moment. \u2014 4K picture so clear, customers say it feels like you're right there. At $249.99, it's the picture quality you'd expect to pay twice as much for.",
-      "Built for the Big Game. Priced for Real Life. \u2014 Whether it's the World Cup or movie night, the U7900F delivers the vivid, bright, immersive screen your living room deserves \u2014 without the premium TV price tag.",
-      "Colors That Come Alive. Brightness You Control. \u2014 Vibrant, adjustable display tuned to your environment \u2014 from bright afternoon sports to late-night streaming \u2014 so every scene looks exactly the way you want it.",
-      "Setup in Minutes. Samsung Quality for Years. \u2014 Lightweight design, intuitive remote, and the trusted Samsung ecosystem you already know. From unboxing to watching in under 10 minutes."
+      "See Every Detail. Feel Every Moment. \u2014 4K Crystal clarity so sharp, it puts you inside the game, the film, and the action.",
+      "Big-Screen Brilliance Under $250. \u2014 Premium Samsung picture quality without the premium price tag. Real value, real resolution.",
+      "Built for the Way You Watch. \u2014 Bright, vivid, and easy to set up. Whether it's Sunday football, movie night, or the World Cup, this screen delivers.",
+      "The Samsung You Trust. The Price You'll Love. \u2014 Decades of display expertise, now in a 50-inch 4K TV that fits your room and your budget."
     ],
-    "messages_to_avoid": [
-      "'Object Tracking Sound Lite' and 'Q-Symphony' as headline audio claims \u2014 customers consistently flag dialogue clarity and speaker quality as disappointments; leading with audio innovation sets an expectation the built-in speakers cannot meet and triggers negative post-purchase dissonance",
-      "'Endless Free Content' as a primary smart TV differentiator \u2014 buffering complaints tied to insufficient RAM and processor limitations mean the streaming experience is unreliable for some users; this claim risks becoming a punchline for customers who experience app lag or repeated buffering",
-      "Any claim implying seamless or premium post-purchase service \u2014 the delivery damage and replacement runaround experience is severe enough (glass slivers, no resolution, customer abandonment) that service-quality messaging would be perceived as tone-deaf and dishonest by affected customers",
-      "'MetalStream Design' as a standalone value proposition \u2014 customers respond to aesthetics positively but in functional terms ('looks great in the room,' 'lightweight'); abstract design branding language does not map to how real buyers describe or value the physical product",
-      "Implying wide-room or multi-angle viewing suitability \u2014 the VA/budget LCD panel produces documented color shift and brightness loss off-axis; marketing imagery or copy suggesting group viewing from wide seating arrangements will generate credibility-damaging reviews from customers who experience this limitation firsthand"
+    "target_audience": [
+      {
+        "persona_name": "Loyal Samsung Upgrader",
+        "demographic_profile": "Ages 35\u201360, middle-income households ($45K\u2013$85K), existing Samsung ecosystem owners (phones, appliances, or prior TVs), suburban or mid-tier urban, replacing an aging TV rather than buying a first one",
+        "psychographic_traits": [
+          "Deep brand loyalty rooted in years of positive Samsung ownership \u2014 'Samsung lover all my life'",
+          "Values reliability and familiarity over cutting-edge specs",
+          "Emotionally invested in the Samsung ecosystem; sees a new Samsung purchase as adding to a 'family' of devices",
+          "Risk-averse: prefers a known brand over an unfamiliar alternative at the same price"
+        ],
+        "why_product_fits": "This persona already trusts Samsung and is not shopping on specs \u2014 they are shopping on brand. The $249.99 price point makes upgrading feel low-risk. The picture quality improvement over older sets reinforces their loyalty narrative. Knox Security resonates with this group as a reassuring ecosystem feature.",
+        "recommended_channels": [
+          "Samsung.com direct email to existing registered device owners",
+          "Samsung Members app push notifications",
+          "In-store endcaps at Best Buy with 'Upgrade Your Samsung Family' messaging",
+          "YouTube pre-roll targeting Samsung device owners"
+        ],
+        "evidence": [
+          "Always have had Samsung TVs all my life. I am a Samsung lover, and they're the best.",
+          "The picture is unreal. It feels like you're right next to whatever you're watching. The resolution is so clear. I'm so happy I made this purchase. Another great product to add to my Samsung family.",
+          "Security is perfect as it is just what I need. Everything is just perfect. Going to purchase another one, but bigger for the living room."
+        ]
+      },
+      {
+        "persona_name": "Value-Driven Sports & Entertainment Fan",
+        "demographic_profile": "Ages 25\u201345, budget-conscious but entertainment-focused households ($35K\u2013$70K), renters or first-home owners, likely in shared living situations or setting up a dedicated media room on a tight budget",
+        "psychographic_traits": [
+          "Prioritizes immersive viewing for live sports and movies above all other features",
+          "Motivated by getting the most visual impact per dollar spent",
+          "Excited by major sporting events as a purchase trigger \u2014 World Cup, NFL season, playoffs",
+          "Not deeply technical; evaluates TVs by how they look and feel in use, not by spec sheets"
+        ],
+        "why_product_fits": "The 50-inch screen size, vivid brightness, and 4K resolution deliver the immersive sports experience this persona craves at a price that doesn't require financing. The lightweight design and easy setup mean they can have it running before kickoff. The viewing angle limitation is a real risk if their seating arrangement is wide, but for a single-couch or focused viewing setup it is a non-issue.",
+        "recommended_channels": [
+          "YouTube and streaming pre-roll ads tied to sports event calendars (Super Bowl, World Cup, NBA Finals)",
+          "Reddit r/Frugal, r/hometheater, r/cordcutters targeted ads",
+          "Costco in-store placement and Costco.com with bundle framing",
+          "Facebook and Instagram video ads showing sports viewing scenarios"
+        ],
+        "evidence": [
+          "I love the display and screen size. Watching movies or football games feels amazing. The screen is bright and the speakers sound good.",
+          "I am excited about the resolution and the beauty of the product. Happy I have this for the World Cup football. Enjoy watching my favorite team Portugal play.",
+          "Good TV to buy. Great picture and sound. Fun to play games on."
+        ]
+      },
+      {
+        "persona_name": "Practical Replacement Buyer",
+        "demographic_profile": "Ages 30\u201355, mixed income ($40K\u2013$90K), replacing a dead or dying TV under time pressure, not a planned purchase \u2014 triggered by sudden device failure, often shopping at warehouse clubs or big-box retailers for immediate availability",
+        "psychographic_traits": [
+          "Decision is driven by urgency and practicality, not aspiration",
+          "Values ease of setup, lightweight handling, and fast out-of-box experience",
+          "Pleasantly surprised when the product exceeds low expectations set by the budget price",
+          "Likely to become a brand advocate if the purchase experience is smooth"
+        ],
+        "why_product_fits": "The $249.99 price point removes financial hesitation in an unplanned purchase scenario. The lightweight build and straightforward setup reduce the stress of a rushed replacement. The picture quality consistently exceeds expectations for the price, converting a reluctant buyer into a satisfied one. Costco availability specifically matches this persona's shopping behavior.",
+        "recommended_channels": [
+          "Costco.com and in-warehouse placement with 'Ready Today' availability messaging",
+          "Google Shopping ads targeting 'TV replacement' and 'TV under $300' search queries",
+          "Best Buy in-store with 'Easy Setup, Today' shelf signage",
+          "Amazon product listing optimized for 'replacement TV' search intent"
+        ],
+        "evidence": [
+          "I had two older Android TVs literally die within hours of each other and found myself in need of a new television... Under $350. Perfect size (not an Android) and loved all the features. The setup and unpacking were a breeze - minutes. It was extremely lightweight compared to the Sony I replaced.",
+          "Great Product - Great Value... you won't be disappointed."
+        ]
+      },
+      {
+        "persona_name": "Accessibility-Aware Home Viewer",
+        "demographic_profile": "Ages 40\u201365, any income level, individuals with specific sensory or health needs (light sensitivity, hearing considerations) who require precise display control, often purchasing for a bedroom or secondary room rather than a main living space",
+        "psychographic_traits": [
+          "Prioritizes adjustable brightness and display comfort over raw performance metrics",
+          "Appreciates intuitive controls and simple remote navigation",
+          "Values security and privacy features as genuine quality-of-life benefits, not marketing fluff",
+          "Likely to research carefully before buying and to leave detailed, appreciative reviews when needs are met"
+        ],
+        "why_product_fits": "The TV's highly adjustable brightness range is a documented differentiator for this persona \u2014 one reviewer explicitly cited migraine management. Knox Security resonates as a real feature rather than a buzzword. The simple remote and straightforward Tizen OS reduce cognitive load. The $249.99 price makes a dedicated bedroom or personal-use TV financially accessible.",
+        "recommended_channels": [
+          "Pinterest boards targeting home comfort and wellness-oriented decorating audiences",
+          "AARP digital advertising and partnerships",
+          "Samsung.com product page with accessibility feature callouts",
+          "Caregiver and health-focused Facebook groups and community forums"
+        ],
+        "evidence": [
+          "The brightness is perfect for me to adjust how I need to be, being that I have migraines. Resolution amazing. Security is perfect as it is just what I need. Everything is just perfect. Going to purchase another one, but bigger for the living room.",
+          "The TV remote is super easy to use, and the brightness is just perfect. The colors are vibrant too."
+        ]
+      }
     ],
     "evidence": [
-      "\"The picture is unreal. It feels like you're right next to whatever you're watching. The resolution is so clear. I'm so happy I made this purchase.\" \u2014 5-star review, March 2026 [supports: immersive presence messaging and 4K clarity claim]",
-      "\"The brightness and vibrancy truly sets the TV apart. The resolution and contrast difference helps with whatever personal preference you may have.\" \u2014 5-star review, June 2026 [supports: vivid colors and adjustable brightness messaging]",
-      "\"I am excited about the resolution and the beauty of the product. Happy I have this for the World Cup football. Enjoy watching my favorite team Portugal play.\" \u2014 5-star review, June 2026 [supports: sports and live entertainment immersion messaging]",
-      "\"Under $350. Perfect size... you won't be disappointed.\" \u2014 5-star review, April 2026, Costco buyer [supports: price-to-performance and value messaging]",
-      "\"The setup and unpacking were a breeze \u2014 minutes. It was extremely lightweight compared to the Sony I replaced.\" \u2014 5-star review, April 2026 [supports: effortless setup and lightweight design messaging]",
-      "\"The brightness is perfect for me to adjust how I need to be, being that I have migraines.\" \u2014 5-star review, June 2026 [supports: adjustable brightness as a genuine, human-centered differentiator]",
-      "\"The dialogues are sometimes not very clear when there are some background noises.\" \u2014 4-star review, February 2026 [supports: avoiding audio innovation as a headline claim]"
+      "The picture is unreal. It feels like you're right next to whatever you're watching. The resolution is so clear.",
+      "The brightness and vibrancy truly sets the TV apart. The resolution and contrast difference helps with whatever personal preference you may have.",
+      "Great Product - Great Value... Under $350. Perfect size... you won't be disappointed.",
+      "I am excited about the resolution and the beauty of the product. Happy I have this for the World Cup football.",
+      "Great resolution. I use an air antenna and most of the channels I get are crystal clear resolution.",
+      "The brightness is perfect for me to adjust how I need to be, being that I have migraines."
     ]
   },
   "positioning_analysis": {

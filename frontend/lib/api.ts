@@ -80,11 +80,20 @@ export interface ImprovementPoint {
   supporting_evidence: string[];
 }
 
+export interface TargetAudienceProfile {
+  persona_name: string;
+  demographic_profile: string;
+  psychographic_traits: string[];
+  why_product_fits: string;
+  recommended_channels: string[];
+  evidence: string[];
+}
+
 export interface MarketingRecommendation {
   current_perception: string;
   actual_value_drivers: string[];
   new_message_proposals: string[];
-  messages_to_avoid: string[];
+  target_audience: TargetAudienceProfile[];
   evidence: string[];
 }
 

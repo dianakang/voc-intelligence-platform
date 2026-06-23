@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { api, VOCResult, ExpectationGapItem, ContradictionCase, ImprovementPoint, SegmentInsight, CXActionItem } from "@/lib/api";
+import { api, VOCResult, ExpectationGapItem, ContradictionCase, ImprovementPoint, SegmentInsight, CXActionItem, Complaint, SatisfactionDriver } from "@/lib/api";
 import { SentimentPieChart } from "@/components/charts/SentimentPieChart";
 import { AspectBarChart } from "@/components/charts/AspectBarChart";
 import { ImportanceMatrix } from "@/components/charts/ImportanceMatrix";
@@ -11,6 +11,7 @@ import { ImportanceMatrix } from "@/components/charts/ImportanceMatrix";
 interface SectionMeta {
   id: string;
   label: string;
+  group: string;
   stat: (result: VOCResult) => string;
 }
 
@@ -36,9 +37,9 @@ function stripEmDashes<T>(value: T): T {
 }
 
 // A few fields use " — " as a deliberate label/explanation delimiter that
-// downstream parsing splits on (see MessagesToAvoid, actual_value_drivers
-// rendering, and parsePositioningPriorities). Those are kept raw here; each
-// consumer cleans its own derived output strings after splitting on the dash.
+// downstream parsing splits on (see actual_value_drivers rendering and
+// parsePositioningPriorities). Those are kept raw here; each consumer cleans
+// its own derived output strings after splitting on the dash.
 function sanitizeReport(raw: VOCResult): VOCResult {
   const sanitized = stripEmDashes(raw);
   return {
@@ -47,7 +48,6 @@ function sanitizeReport(raw: VOCResult): VOCResult {
       ? {
           ...sanitized.marketing_recommendations!,
           actual_value_drivers: raw.marketing_recommendations.actual_value_drivers,
-          messages_to_avoid: raw.marketing_recommendations.messages_to_avoid,
         }
       : sanitized.marketing_recommendations,
     positioning_analysis: raw.positioning_analysis
@@ -78,48 +78,59 @@ function splitHeadlineDetail(item: string): { headline: string; detail: string |
   return { headline: stripEmDashes(item), detail: null };
 }
 
+const GROUP_VOC = "Voice of the Customer";
+const GROUP_ACTIONS = "Recommended Actions";
+const GROUP_STRATEGY = "Strategic Analysis";
+const GROUP_DATA_QUALITY = "Data Quality Checks";
+
 const SECTION_META: SectionMeta[] = [
-  { id: "sentiment", label: "Sentiment Overview", stat: (r) => `${pct(r.sentiment_distribution.positive ?? 0, r.total_reviews)}% positive overall` },
+  { id: "sentiment", label: "Sentiment Overview", group: GROUP_VOC, stat: (r) => `${pct(r.sentiment_distribution.positive ?? 0, r.total_reviews)}% positive overall` },
   {
     id: "complaints",
     label: "Top Complaints",
+    group: GROUP_VOC,
     stat: (r) => {
       const product = r.complaints.filter((c) => c.issue_type !== "purchase_experience").length;
       const purchase = r.complaints.length - product;
       return `${r.complaints.length} complaints · ${product} product / ${purchase} purchase`;
     },
   },
-  { id: "satisfaction", label: "Satisfaction Drivers", stat: (r) => `${r.satisfaction_drivers.length} drivers identified` },
+  { id: "satisfaction", label: "Satisfaction Drivers", group: GROUP_VOC, stat: (r) => `${r.satisfaction_drivers.length} drivers identified` },
   {
     id: "improvements",
     label: "Improvement Priorities",
+    group: GROUP_ACTIONS,
     stat: (r) => `${r.improvement_points.length} priorities · ${r.improvement_points.filter((p) => p.priority === "high").length} high priority`,
   },
+  { id: "marketing", label: "Marketing Recommendations", group: GROUP_ACTIONS, stat: () => "Messaging and positioning ideas" },
+  {
+    id: "cx-actions",
+    label: "CX Action Toolkit",
+    group: GROUP_ACTIONS,
+    stat: (r) => `${r.cx_actions?.length ?? 0} action items ready`,
+  },
+  { id: "positioning", label: "Competitive Positioning", group: GROUP_STRATEGY, stat: (r) => `${r.positioning_analysis?.competitors.length ?? 0} competitors compared` },
   {
     id: "segment-divergence",
     label: "Segment / Use-Case Divergence",
+    group: GROUP_STRATEGY,
     stat: (r) => `${r.segment_divergence_analysis?.segment_insights.length ?? 0} segments analyzed`,
   },
-  { id: "marketing", label: "Marketing Recommendations", stat: () => "Messaging and positioning ideas" },
-  { id: "positioning", label: "Competitive Positioning", stat: (r) => `${r.positioning_analysis?.competitors.length ?? 0} competitors compared` },
+  { id: "importance", label: "Importance-Frequency Matrix", group: GROUP_STRATEGY, stat: (r) => `${r.importance_matrix.length} issues ranked by priority` },
   {
     id: "contradictions",
     label: "Paradox Reviews",
+    group: GROUP_DATA_QUALITY,
     stat: (r) => {
       const product = r.contradictions.filter((c) => c.counts_as_product_issue).length;
       return `${r.contradictions.length} cases found · ${product} count as product issues`;
     },
   },
-  { id: "importance", label: "Importance-Frequency Matrix", stat: (r) => `${r.importance_matrix.length} issues ranked by priority` },
   {
     id: "expectation-gaps",
     label: "Customer Expectation Gap Analysis",
+    group: GROUP_DATA_QUALITY,
     stat: (r) => `${r.expectation_gaps.length} gaps · ${r.expectation_gaps.filter((g) => g.gap_severity === "high").length} high severity`,
-  },
-  {
-    id: "cx-actions",
-    label: "CX Action Toolkit",
-    stat: (r) => `${r.cx_actions?.length ?? 0} action items ready`,
   },
 ];
 
@@ -431,15 +442,16 @@ const ROUTE_TO_LABEL: Record<string, string> = {
   no_action_needed: "No action needed",
 };
 
-function ContradictionSection({ cases }: { cases: ContradictionCase[] }) {
-  if (cases.length === 0) {
-    return <p className="text-sm text-gray-400">No contradictions detected.</p>;
-  }
+function ContradictionCard({ c }: { c: ContradictionCase }) {
+  const [open, setOpen] = useState(false);
   return (
-    <div className="space-y-4">
-      {cases.map((c, i) => (
-        <div key={i} className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-start gap-3 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             <div className={`text-xs font-bold px-2 py-0.5 rounded-full ${c.contradiction_type === "type_a" ? "bg-orange-100 text-orange-700" : "bg-brand-100 text-brand-700"}`}>
               {c.contradiction_type === "type_a" ? "High rating, hidden complaint" : "Low rating, praises product"}
             </div>
@@ -457,13 +469,19 @@ function ContradictionSection({ cases }: { cases: ContradictionCase[] }) {
             >
               {c.counts_as_product_issue ? "Counts as product issue" : "Excluded from product metrics"}
             </span>
-            <div className="flex gap-0.5 ml-auto">
+            <div className="flex gap-0.5 ml-auto flex-shrink-0">
               {Array.from({ length: 5 }).map((_, j) => (
                 <span key={j} className={j < c.rating ? "text-yellow-400" : "text-gray-200"}>★</span>
               ))}
             </div>
           </div>
-          <blockquote className="text-sm text-gray-700 italic border-l-2 border-gray-300 pl-3 mb-3">
+          <p className="text-sm text-gray-600 italic line-clamp-1">"{c.review_text}"</p>
+        </div>
+        <span className="text-xs text-gray-400 flex-shrink-0 mt-1">{open ? "↑" : "↓"}</span>
+      </button>
+      {open && (
+        <div className="border-t border-gray-100 px-5 py-4 space-y-3">
+          <blockquote className="text-sm text-gray-700 italic border-l-2 border-gray-300 pl-3">
             "{c.review_text.slice(0, 280)}{c.review_text.length > 280 ? "…" : ""}"
           </blockquote>
           <div className="grid sm:grid-cols-2 gap-3 text-xs">
@@ -481,42 +499,81 @@ function ContradictionSection({ cases }: { cases: ContradictionCase[] }) {
             </div>
           </div>
           {c.implication && (
-            <p className="text-xs text-gray-500 mt-3 italic">{c.implication}</p>
+            <p className="text-xs text-gray-500 italic">{c.implication}</p>
           )}
           {c.route_to && (
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-xs text-gray-600">
               <span className="font-medium text-gray-700">{ROUTE_TO_LABEL[c.route_to] || c.route_to}</span>
             </p>
           )}
           {c.suggested_public_response && (
-            <div className="mt-3 bg-brand-50 border border-brand-100 rounded-lg p-3">
+            <div className="bg-brand-50 border border-brand-100 rounded-lg p-3">
               <p className="text-[11px] font-semibold text-brand-700 uppercase tracking-wide mb-1">Suggested public response</p>
               <p className="text-xs text-gray-700 leading-relaxed">{c.suggested_public_response}</p>
             </div>
           )}
         </div>
-      ))}
+      )}
+    </div>
+  );
+}
+
+function ContradictionSection({ cases }: { cases: ContradictionCase[] }) {
+  const [expanded, setExpanded] = useState(false);
+  if (cases.length === 0) {
+    return <p className="text-sm text-gray-400">No contradictions detected.</p>;
+  }
+  const limit = 4;
+  const visible = expanded ? cases : cases.slice(0, limit);
+  return (
+    <div className="space-y-3">
+      {visible.map((c, i) => <ContradictionCard key={i} c={c} />)}
+      {cases.length > limit && (
+        <button onClick={() => setExpanded(!expanded)} className="text-xs text-brand-600 hover:underline">
+          {expanded ? "Show less ↑" : `Show ${cases.length - limit} more ↓`}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ImprovementCard({ imp }: { imp: ImprovementPoint }) {
+  const [expanded, setExpanded] = useState(false);
+  const snippet = firstSentence(imp.expected_effect);
+  const hasMore = snippet !== imp.expected_effect;
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <h3 className="font-semibold text-gray-900">{imp.area}</h3>
+        <PriorityBadge priority={imp.priority} />
+      </div>
+      <p className="text-sm text-gray-700">{expanded ? imp.expected_effect : snippet}</p>
+      {hasMore && (
+        <button onClick={() => setExpanded(!expanded)} className="text-xs text-brand-600 hover:underline mt-1 mb-1 block">
+          {expanded ? "Show less ↑" : "Read more ↓"}
+        </button>
+      )}
+      <div className="flex items-center gap-4 text-xs text-gray-500 mt-2">
+        <span>Frequency: {imp.frequency} mentions</span>
+        <span>Impact score: {imp.impact_score}/10</span>
+      </div>
+      <EvidenceQuotes quotes={imp.supporting_evidence} />
     </div>
   );
 }
 
 function ImprovementSection({ improvements }: { improvements: ImprovementPoint[] }) {
+  const [expanded, setExpanded] = useState(false);
+  const limit = 4;
+  const visible = expanded ? improvements : improvements.slice(0, limit);
   return (
     <div className="space-y-3">
-      {improvements.map((imp, i) => (
-        <div key={i} className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <h3 className="font-semibold text-gray-900">{imp.area}</h3>
-            <PriorityBadge priority={imp.priority} />
-          </div>
-          <p className="text-sm text-gray-700 mb-2">{imp.expected_effect}</p>
-          <div className="flex items-center gap-4 text-xs text-gray-500">
-            <span>Frequency: {imp.frequency} mentions</span>
-            <span>Impact score: {imp.impact_score}/10</span>
-          </div>
-          <EvidenceQuotes quotes={imp.supporting_evidence} />
-        </div>
-      ))}
+      {visible.map((imp, i) => <ImprovementCard key={i} imp={imp} />)}
+      {improvements.length > limit && (
+        <button onClick={() => setExpanded(!expanded)} className="text-xs text-brand-600 hover:underline">
+          {expanded ? "Show less ↑" : `Show ${improvements.length - limit} more ↓`}
+        </button>
+      )}
     </div>
   );
 }
@@ -835,48 +892,56 @@ function PriorityCard({ num, label, topic, body }: { num: string; label: string;
 
 // ── Marketing sub-components ──────────────────────────────────────────────────
 
-function parseMessageToAvoid(raw: string): { label: string; explanation: string } {
-  let m = raw.trim();
-  if (m.length > 1 && ((m[0] === "'" && m[m.length - 1] === "'") || (m[0] === '"' && m[m.length - 1] === '"'))) {
-    m = m.slice(1, -1).trim();
-  }
-  const dashIdx = m.indexOf(" — ");
-  if (dashIdx > 0) {
-    return { label: m.slice(0, dashIdx).trim(), explanation: m.slice(dashIdx + 3).trim() };
-  }
-  const colon = m.indexOf(": ");
-  if (colon > 0 && colon < 100) {
-    return { label: m.slice(0, colon).trim(), explanation: m.slice(colon + 2).trim() };
-  }
-  return { label: m, explanation: m };
+function TargetAudienceProfileCard({ profile }: { profile: import("@/lib/api").TargetAudienceProfile }) {
+  const [expanded, setExpanded] = useState(false);
+  const snippet = firstSentence(profile.why_product_fits);
+  const hasMore = snippet !== profile.why_product_fits;
+  return (
+    <div className="border border-gray-200 rounded-lg p-4">
+      <h4 className="text-sm font-semibold text-gray-900">{profile.persona_name}</h4>
+      <p className="text-xs text-brand-600 font-medium mt-0.5 mb-2 line-clamp-2">{profile.demographic_profile}</p>
+
+      {profile.psychographic_traits.length > 0 && (
+        <ul className="text-xs text-gray-600 space-y-1 mb-3 list-disc list-inside marker:text-gray-300">
+          {profile.psychographic_traits.slice(0, 3).map((t, i) => (
+            <li key={i}>{t}</li>
+          ))}
+        </ul>
+      )}
+
+      <p className="text-sm text-gray-700 leading-relaxed">{expanded ? profile.why_product_fits : snippet}</p>
+      {hasMore && (
+        <button onClick={() => setExpanded(!expanded)} className="text-xs text-brand-600 hover:underline mt-1 mb-2 block">
+          {expanded ? "Show less ↑" : "Read more ↓"}
+        </button>
+      )}
+
+      {profile.recommended_channels.length > 0 && (
+        <div className="mt-2 mb-2">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Best reached via</p>
+          <ul className="text-xs text-gray-600 space-y-0.5 list-disc list-inside marker:text-gray-300">
+            {profile.recommended_channels.slice(0, 2).map((c, i) => (
+              <li key={i}>{c}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <EvidenceQuotes quotes={profile.evidence} limit={1} />
+    </div>
+  );
 }
 
-function MessagesToAvoid({ messages }: { messages: string[] }) {
-  const [openIdx, setOpenIdx] = useState<number | null>(null);
-  const parsed = messages.map((m) => {
-    const { label, explanation } = parseMessageToAvoid(m);
-    return { label: stripEmDashes(label), explanation: stripEmDashes(explanation) };
-  });
+function TargetAudienceSection({ profiles }: { profiles: import("@/lib/api").TargetAudienceProfile[] }) {
+  if (profiles.length === 0) {
+    return <p className="text-sm text-gray-400">No target audience data generated.</p>;
+  }
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-5">
-      <h3 className="text-[10px] font-semibold text-red-500 uppercase tracking-wider mb-3">Messages to Avoid</h3>
-      <div className="space-y-1.5">
-        {parsed.map(({ label, explanation }, i) => (
-          <div key={i} className="border border-red-100 rounded-lg overflow-hidden">
-            <button
-              onClick={() => setOpenIdx(openIdx === i ? null : i)}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-red-50/70 transition-colors"
-            >
-              <span className="text-red-400 text-xs flex-shrink-0">✗</span>
-              <span className="text-sm font-medium text-gray-800 flex-1 text-left">'{label}'</span>
-              <span className="text-xs text-gray-400 flex-shrink-0">{openIdx === i ? "↑" : "↓"}</span>
-            </button>
-            {openIdx === i && (
-              <div className="px-4 pb-3 pt-0 bg-red-50/50 border-t border-red-100">
-                <p className="text-xs text-gray-600 leading-relaxed pt-2">{explanation}</p>
-              </div>
-            )}
-          </div>
+      <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Target Audience</h3>
+      <div className="grid sm:grid-cols-2 gap-3">
+        {profiles.map((p, i) => (
+          <TargetAudienceProfileCard key={i} profile={p} />
         ))}
       </div>
     </div>
@@ -940,7 +1005,7 @@ function MarketingSection({ rec }: { rec: import("@/lib/api").MarketingRecommend
         </div>
       </div>
 
-      <MessagesToAvoid messages={rec.messages_to_avoid} />
+      <TargetAudienceSection profiles={rec.target_audience} />
     </div>
   );
 }
@@ -988,6 +1053,68 @@ function CompetitorCard({ comp }: { comp: import("@/lib/api").CompetitorData }) 
   );
 }
 
+function ComplaintCard({ c }: { c: Complaint }) {
+  const [expanded, setExpanded] = useState(false);
+  const snippet = firstSentence(c.root_cause);
+  const hasMore = snippet !== c.root_cause;
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <div className="flex items-start gap-3">
+        <div className="w-7 h-7 rounded-full bg-red-100 text-red-700 text-sm font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+          {c.rank}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-2">
+            <span className="font-semibold text-gray-900">{c.category}</span>
+            <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{c.aspect}</span>
+            <span
+              className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+                c.issue_type === "purchase_experience" ? "bg-gray-100 text-gray-600" : "bg-red-50 text-red-600"
+              }`}
+            >
+              {c.issue_type === "purchase_experience" ? "Purchase Experience" : "Product Issue"}
+            </span>
+            <span className="text-xs text-red-600 font-medium">{c.frequency_pct.toFixed(1)}% of reviews</span>
+          </div>
+          <p className="text-sm text-gray-600 leading-relaxed">{expanded ? c.root_cause : snippet}</p>
+          {hasMore && (
+            <button onClick={() => setExpanded(!expanded)} className="text-xs text-brand-600 hover:underline mt-1 mb-1 block">
+              {expanded ? "Show less ↑" : "Read more ↓"}
+            </button>
+          )}
+          <EvidenceQuotes quotes={c.representative_reviews} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SatisfactionDriverCard({ d }: { d: SatisfactionDriver }) {
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <div className="w-7 h-7 rounded-full bg-green-100 text-green-700 text-sm font-bold flex items-center justify-center flex-shrink-0">
+            {d.rank}
+          </div>
+          <div>
+            <span className="font-semibold text-gray-900">{d.factor}</span>
+            <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded ml-2">{d.aspect}</span>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-sm font-bold text-green-700">{d.positive_rate.toFixed(0)}%</div>
+          <div className="text-xs text-gray-400">{d.mention_count} mentions</div>
+        </div>
+      </div>
+      <div className="w-full bg-gray-100 rounded-full h-1.5">
+        <div className="bg-green-500 h-1.5 rounded-full" style={{ width: `${Math.min(d.positive_rate, 100)}%` }} />
+      </div>
+      <EvidenceQuotes quotes={d.representative_reviews} />
+    </div>
+  );
+}
+
 function SectionAccordion({
   result,
   activeSection,
@@ -1000,6 +1127,9 @@ function SectionAccordion({
   const [complaintsFilter, setComplaintsFilter] = useState<"all" | "product" | "purchase">("all");
   const [paradoxFilter, setParadoxFilter] = useState<"all" | "product" | "purchase">("all");
   const [cxFilter, setCxFilter] = useState<"all" | "product" | "purchase">("all");
+  const [complaintsExpanded, setComplaintsExpanded] = useState(false);
+  const [satisfactionExpanded, setSatisfactionExpanded] = useState(false);
+  const LIST_LIMIT = 4;
 
   const filteredComplaints = result.complaints.filter((c) =>
     complaintsFilter === "all" ? true : complaintsFilter === "product" ? c.issue_type !== "purchase_experience" : c.issue_type === "purchase_experience"
@@ -1015,11 +1145,17 @@ function SectionAccordion({
     <div>
       <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Explore the Report</h2>
       <div className="divide-y divide-gray-100 bg-white border border-gray-200 rounded-xl overflow-hidden">
-        {activeSections(result).map((s, i) => {
+        {activeSections(result).map((s, i, arr) => {
           const sectionId = s.id;
           const isOpen = activeSection === sectionId;
+          const showGroupHeader = i === 0 || arr[i - 1].group !== s.group;
           return (
             <div key={sectionId}>
+              {showGroupHeader && (
+                <div className="px-5 pt-4 pb-1.5 bg-gray-50/60">
+                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{s.group}</p>
+                </div>
+              )}
               <button
                 onClick={() => onToggleSection(sectionId)}
                 className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors"
@@ -1065,32 +1201,15 @@ function SectionAccordion({
           </p>
           <IssueTypeFilter value={complaintsFilter} onChange={setComplaintsFilter} />
           <div className="space-y-3">
-            {filteredComplaints.map((c) => (
-              <div key={c.rank} className="bg-white border border-gray-200 rounded-xl p-5">
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-full bg-red-100 text-red-700 text-sm font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
-                    {c.rank}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-2">
-                      <span className="font-semibold text-gray-900">{c.category}</span>
-                      <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{c.aspect}</span>
-                      <span
-                        className={`text-xs px-1.5 py-0.5 rounded font-medium ${
-                          c.issue_type === "purchase_experience" ? "bg-gray-100 text-gray-600" : "bg-red-50 text-red-600"
-                        }`}
-                      >
-                        {c.issue_type === "purchase_experience" ? "Purchase Experience" : "Product Issue"}
-                      </span>
-                      <span className="text-xs text-red-600 font-medium">{c.frequency_pct.toFixed(1)}% of reviews</span>
-                    </div>
-                    <p className="text-sm text-gray-600 leading-relaxed">{c.root_cause}</p>
-                    <EvidenceQuotes quotes={c.representative_reviews} />
-                  </div>
-                </div>
-              </div>
+            {(complaintsExpanded ? filteredComplaints : filteredComplaints.slice(0, LIST_LIMIT)).map((c) => (
+              <ComplaintCard key={c.rank} c={c} />
             ))}
             {filteredComplaints.length === 0 && <p className="text-sm text-gray-400">No complaints match this filter.</p>}
+            {filteredComplaints.length > LIST_LIMIT && (
+              <button onClick={() => setComplaintsExpanded(!complaintsExpanded)} className="text-xs text-brand-600 hover:underline">
+                {complaintsExpanded ? "Show less ↑" : `Show ${filteredComplaints.length - LIST_LIMIT} more ↓`}
+              </button>
+            )}
           </div>
         </section>
       )}
@@ -1098,29 +1217,14 @@ function SectionAccordion({
       {sectionId === "satisfaction" && (
         <section>
           <div className="space-y-3">
-            {result.satisfaction_drivers.map((d) => (
-              <div key={d.rank} className="bg-white border border-gray-200 rounded-xl p-5">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-green-100 text-green-700 text-sm font-bold flex items-center justify-center flex-shrink-0">
-                      {d.rank}
-                    </div>
-                    <div>
-                      <span className="font-semibold text-gray-900">{d.factor}</span>
-                      <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded ml-2">{d.aspect}</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-bold text-green-700">{d.positive_rate.toFixed(0)}%</div>
-                    <div className="text-xs text-gray-400">{d.mention_count} mentions</div>
-                  </div>
-                </div>
-                <div className="w-full bg-gray-100 rounded-full h-1.5">
-                  <div className="bg-green-500 h-1.5 rounded-full" style={{ width: `${Math.min(d.positive_rate, 100)}%` }} />
-                </div>
-                <EvidenceQuotes quotes={d.representative_reviews} />
-              </div>
+            {(satisfactionExpanded ? result.satisfaction_drivers : result.satisfaction_drivers.slice(0, LIST_LIMIT)).map((d) => (
+              <SatisfactionDriverCard key={d.rank} d={d} />
             ))}
+            {result.satisfaction_drivers.length > LIST_LIMIT && (
+              <button onClick={() => setSatisfactionExpanded(!satisfactionExpanded)} className="text-xs text-brand-600 hover:underline">
+                {satisfactionExpanded ? "Show less ↑" : `Show ${result.satisfaction_drivers.length - LIST_LIMIT} more ↓`}
+              </button>
+            )}
           </div>
         </section>
       )}

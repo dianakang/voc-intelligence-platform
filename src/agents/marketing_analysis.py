@@ -5,7 +5,7 @@ from typing import Optional
 
 from src.agents.base import BaseAgent
 from src.config import settings
-from src.data.models import MarketingRecommendation, ProductSpec, Review, VOCAnalysisResult
+from src.data.models import MarketingRecommendation, ProductSpec, Review, TargetAudienceProfile, VOCAnalysisResult
 from src.rag.retriever import ReviewRetriever
 
 SYSTEM_PROMPT = """You are a marketing strategist with expertise in consumer electronics branding.
@@ -28,6 +28,23 @@ def _build_current_messaging(product_spec: Optional[ProductSpec]) -> str:
     price = product_spec.other.get("price_usd")
     if price:
         lines.append(f"- Priced at ${price} (MSRP ${product_spec.other.get('msrp_usd', price)})")
+    return "\n".join(lines)
+
+
+def _build_product_profile(product_spec: Optional[ProductSpec]) -> str:
+    """Surface the product facts (category/series/size/price) that matter for inferring who
+    actually buys this, distinct from _build_current_messaging's marketing-copy block."""
+    if not product_spec:
+        return "(no verified product spec available — infer category/price tier from customer voice evidence only)"
+
+    lines = [f"Category: {product_spec.category}"]
+    if product_spec.series:
+        lines.append(f"Series: {product_spec.series}")
+    if product_spec.screen_size:
+        lines.append(f"Screen size: {product_spec.screen_size}")
+    price = product_spec.other.get("price_usd")
+    if price:
+        lines.append(f"Price: ${price}")
     return "\n".join(lines)
 
 
@@ -71,9 +88,13 @@ class MarketingAnalysisAgent(BaseAgent):
             for c in result.complaints[:5]
         )
 
-        prompt = f"""Analyze the gap between Samsung's marketing messages and actual customer experience.
+        prompt = f"""Analyze the gap between Samsung's marketing messages and actual customer experience,
+and identify who this product's real target audience is.
 
 {_build_current_messaging(product_spec)}
+
+PRODUCT PROFILE:
+{_build_product_profile(product_spec)}
 
 WHAT CUSTOMERS ACTUALLY VALUE (from VOC):
 {satisfaction_summary}
@@ -83,6 +104,12 @@ MAIN COMPLAINTS:
 
 CUSTOMER VOICE EVIDENCE:
 {context}
+
+For target_audience, identify 2-4 personas the way a consumer-goods marketing team would:
+segment by demographics, geography, psychographics (values/lifestyle/attitudes), and behavior
+(purchase/usage patterns), but ground every persona strictly in patterns actually visible in
+the product profile and customer voice evidence above — never generic market-research
+boilerplate, and never a persona you can't support with at least one real customer quote.
 
 Generate marketing message recommendations:
 {{
@@ -96,8 +123,15 @@ Generate marketing message recommendations:
     "new marketing message 3",
     "new marketing message 4"
   ],
-  "messages_to_avoid": [
-    "message/claim that backfires due to customer experience gap"
+  "target_audience": [
+    {{
+      "persona_name": "short descriptive persona label, e.g. 'Budget-Conscious First-Time Smart TV Buyer'",
+      "demographic_profile": "age range / income / household descriptors grounded in price tier + review language",
+      "psychographic_traits": ["value/lifestyle/attitude trait visible in the reviews"],
+      "why_product_fits": "why this product specifically fits this persona, tying spec facts to review evidence",
+      "recommended_channels": ["where/how to reach this persona"],
+      "evidence": ["actual customer quote supporting this persona"]
+    }}
   ],
   "evidence": [
     "actual customer quote supporting a new message"
@@ -105,12 +139,14 @@ Generate marketing message recommendations:
 }}"""
 
         try:
-            data = self.call_json(prompt, max_tokens=2048)
+            data = self.call_json(prompt, max_tokens=4096)
             result.marketing_recommendations = MarketingRecommendation(
                 current_perception=data.get("current_perception", ""),
                 actual_value_drivers=data.get("actual_value_drivers", []),
                 new_message_proposals=data.get("new_message_proposals", []),
-                messages_to_avoid=data.get("messages_to_avoid", []),
+                target_audience=[
+                    TargetAudienceProfile(**p) for p in data.get("target_audience", [])
+                ],
                 evidence=data.get("evidence", []),
             )
             self.log("Marketing analysis complete")
