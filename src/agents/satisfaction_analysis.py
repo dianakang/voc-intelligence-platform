@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Optional
 
 from src.agents.base import BaseAgent
+from src.agents.voc_taxonomy import _aspect_list_for_category
 from src.config import settings
 from src.data.models import ImprovementPoint, Priority, ProductSpec, Review, SatisfactionDriver, VOCAnalysisResult
 from src.rag.retriever import ReviewRetriever
@@ -46,6 +47,7 @@ class SatisfactionAnalysisAgent(BaseAgent):
 
         context = retriever.format_for_context(pool[:20], max_chars=7000)
         product_label = product_spec.product_name if product_spec and product_spec.product_name else result.model
+        category = product_spec.category if product_spec and product_spec.category else None
 
         prompt = f"""Analyze these positive reviews to identify the TOP 6 satisfaction drivers.
 
@@ -61,7 +63,7 @@ Return:
     {{
       "rank": 1,
       "factor": "specific satisfaction factor",
-      "aspect": "a short aspect tag appropriate to this specific product type, or other",
+      "aspect": "the matching tag from this same aspect list used elsewhere in this pipeline (so this driver can be cross-referenced against aspect-level sentiment) — do not invent a different tag:\n{_aspect_list_for_category(category)}",
       "positive_rate": <percentage 0-100>,
       "mention_count": <estimated count>,
       "representative_reviews": ["actual quote 1", "actual quote 2", "actual quote 3"]

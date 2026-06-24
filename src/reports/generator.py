@@ -47,7 +47,7 @@ REPORT_TEMPLATE = """# Samsung VOC Intelligence Report
 
 ## Task 1: Customer Complaint Analysis
 
-| Rank | Category | Issue Type | Frequency | Root Cause |
+| Rank | Category | Issue Type | Frequency (% of negative reviews) | Root Cause |
 |------|----------|-----------|-----------|------------|
 {% for c in result.complaints %}
 | {{ c.rank }} | {{ c.category }} | {{ "Product Defect" if c.issue_type == "product_defect" else "Purchase Experience" }} | {{ c.frequency }} ({{ "%.0f"|format(c.frequency_pct) }}%) | {{ c.root_cause }} |
@@ -202,7 +202,7 @@ of repeating it.
 
 ### Priority Order
 {% for i in result.importance_matrix|sort(attribute='priority_rank') %}
-{{ loop.index }}. **{{ i.issue }}** — [{{ i.issue_type }}] ({{ i.frequency }} mentions, {{ "%.1f"|format(i.frequency_pct) }}%, {{ i.category|replace('_', ' ') }})
+{{ loop.index }}. **{{ i.issue }}** — [{{ i.issue_type }}] ({{ i.frequency }} mentions, {{ "%.1f"|format(i.frequency_pct) }}% of all analyzed reviews, {{ i.category|replace('_', ' ') }})
    - Business Risk: {{ i.business_risk }}
    {%- if i.linked_expectation_gap %}
    - → Fix detailed under Task 8, Expectation Gap: {{ i.linked_expectation_gap }}
@@ -217,19 +217,19 @@ of repeating it.
 
 ### 🔴 Low Frequency / High Impact (Critical Quality Issues)
 {% for i in result.importance_matrix if i.category == 'low_freq_high_impact' %}
-- **{{ i.issue }}** ({{ i.frequency }} mentions, {{ "%.1f"|format(i.frequency_pct) }}%)
+- **{{ i.issue }}** ({{ i.frequency }} mentions, {{ "%.1f"|format(i.frequency_pct) }}% of all analyzed reviews)
   - Business Risk: {{ i.business_risk }}
 {% endfor %}
 
 ### 🟡 High Frequency / Low Impact (UX Annoyances)
 {% for i in result.importance_matrix if i.category == 'high_freq_low_impact' %}
-- **{{ i.issue }}** ({{ i.frequency }} mentions, {{ "%.1f"|format(i.frequency_pct) }}%)
+- **{{ i.issue }}** ({{ i.frequency }} mentions, {{ "%.1f"|format(i.frequency_pct) }}% of all analyzed reviews)
   - Business Risk: {{ i.business_risk }}
 {% endfor %}
 
 ### 🔴 High Frequency / High Impact (Top Priorities)
 {% for i in result.importance_matrix if i.category == 'high_freq_high_impact' %}
-- **{{ i.issue }}** ({{ i.frequency }} mentions, {{ "%.1f"|format(i.frequency_pct) }}%)
+- **{{ i.issue }}** ({{ i.frequency }} mentions, {{ "%.1f"|format(i.frequency_pct) }}% of all analyzed reviews)
   - Business Risk: {{ i.business_risk }}
 {% endfor %}
 

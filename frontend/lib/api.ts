@@ -112,7 +112,7 @@ export interface PositioningAnalysis {
   competitive_advantages: string[];
   competitive_threats: string[];
   competitors: CompetitorData[];
-  positioning_recommendation: string;
+  positioning_recommendation: string[];
   attribute_map: PositioningAttribute[];
   defend: string[];
   differentiate: string[];

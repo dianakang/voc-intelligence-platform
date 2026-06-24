@@ -169,7 +169,9 @@ for each attribute in attribute_map — do not output a flat strengths/weaknesse
   "differentiate": ["attribute Samsung wins on but underleverages in marketing"],
   "fix": ["attribute Samsung loses on that is a purchase barrier or trust risk"],
   "monitor": ["lower-volume but high-severity risk worth watching"],
-  "positioning_recommendation": "strategic recommendation for Samsung marketing and product team"
+  "positioning_recommendation": [
+    "one self-contained strategic recommendation, each its own bullet (e.g. one on the strongest asset and its risk, one on the most defensible differentiator and how to message it, one on the most urgent fix and why it's not cosmetic, one on a spec gap and a low-cost mitigation, one closing call on overall positioning strategy) — 4-6 bullets total, each 1-3 sentences"
+  ]
 }}"""
 
         try:
@@ -207,7 +209,7 @@ for each attribute in attribute_map — do not output a flat strengths/weaknesse
                 competitive_advantages=data.get("competitive_advantages", []),
                 competitive_threats=data.get("competitive_threats", []),
                 competitors=competitors,
-                positioning_recommendation=data.get("positioning_recommendation", ""),
+                positioning_recommendation=data.get("positioning_recommendation", []),
                 attribute_map=attribute_map,
                 defend=data.get("defend", []),
                 differentiate=data.get("differentiate", []),

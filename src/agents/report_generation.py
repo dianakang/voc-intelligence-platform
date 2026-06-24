@@ -1,6 +1,7 @@
 """Report Generation Agent: executive summary + key insights using Claude Sonnet."""
 from __future__ import annotations
 
+import re
 from datetime import datetime
 from typing import Optional
 
@@ -147,15 +148,19 @@ KEY INSIGHTS:
             # Split into summary and insights
             if "KEY INSIGHTS:" in response:
                 parts = response.split("KEY INSIGHTS:")
-                result.executive_summary = parts[0].replace("EXECUTIVE SUMMARY:", "").strip()
+                result.executive_summary = self._clean_markdown_noise(
+                    parts[0].replace("EXECUTIVE SUMMARY:", "").strip()
+                )
                 insights_text = parts[1].strip()
                 result.key_insights = [
-                    line.lstrip("•-* ").strip()
-                    for line in insights_text.split("\n")
-                    if line.strip() and line.strip() not in ("", "KEY INSIGHTS:")
+                    cleaned for line in insights_text.split("\n")
+                    # Strip markdown bold markers before the bullet/dash, not after — a
+                    # naive lstrip("•-* ") would also eat the LLM's "**Headline.**" bold
+                    # opener and leave the closing "**" stranded mid-sentence.
+                    if (cleaned := re.sub(r"\*\*", "", line).lstrip("•- ").strip())
                 ][:10]
             else:
-                result.executive_summary = response
+                result.executive_summary = self._clean_markdown_noise(response)
                 result.key_insights = []
 
             self.log(f"Executive summary generated ({len(result.executive_summary)} chars, {len(result.key_insights)} insights)")
@@ -166,3 +171,10 @@ KEY INSIGHTS:
             result.key_insights = ["Analysis complete — see individual sections for details."]
 
         return result
+
+    @staticmethod
+    def _clean_markdown_noise(text: str) -> str:
+        """Drop stray bare-asterisk lines the LLM occasionally emits as an unclosed/empty
+        bold span (e.g. a lead-in label like "**Bottom Line:**" that came out as "****")."""
+        text = re.sub(r"(?m)^\s*\*{2,4}\s*$", "", text)
+        return re.sub(r"\n{3,}", "\n\n", text).strip()

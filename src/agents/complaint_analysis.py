@@ -5,6 +5,7 @@ from collections import defaultdict
 from typing import Optional
 
 from src.agents.base import BaseAgent
+from src.agents.voc_taxonomy import _aspect_list_for_category
 from src.config import settings
 from src.data.models import ComplaintItem, ProductSpec, Review, VOCAnalysisResult
 from src.rag.retriever import ReviewRetriever
@@ -69,9 +70,15 @@ class ComplaintAnalysisAgent(BaseAgent):
         ]
         self.log(f"Found {len(negative_reviews)} negative/neutral reviews")
 
-        # Get additional evidence via RAG
-        rag_complaints = retriever.retrieve(
+        # Get additional evidence via RAG, restricted to the same rating <= 3 band as
+        # negative_reviews above — otherwise a 4-5 star review with one passing gripe
+        # gets pulled into the complaint pool and that gripe surfaces as a top complaint
+        # even though the aspect sentiment breakdown (which scores by overall review
+        # sentiment) correctly shows that aspect as positive overall.
+        rag_complaints = retriever.retrieve_by_rating(
             "product defects problems issues complaints disappointments",
+            min_rating=1,
+            max_rating=3,
             top_k=20,
         )
         complaint_pool = list({r.review_id: r for r in negative_reviews + rag_complaints}.values())
@@ -100,7 +107,7 @@ Identify the TOP 8 complaint categories. For each, provide:
     {{
       "rank": 1,
       "category": "category name",
-      "aspect": "a short aspect tag appropriate to this specific product type (e.g. picture_quality/sound/smart_tv/gaming for a TV; cooling/ice_maker/noise/capacity for a refrigerator), or other",
+      "aspect": "the matching tag from this same aspect list used elsewhere in this pipeline for {category} (so this complaint can be cross-referenced against aspect-level sentiment) — do not invent a different tag:\n{_aspect_list_for_category(category if category != 'consumer product' else None)}",
       "issue_type": "product_defect|purchase_experience",
       "frequency": <estimated count>,
       "frequency_pct": <percentage of negative reviews>,

@@ -228,7 +228,7 @@ class PositioningAnalysis(BaseModel):
     competitive_advantages: list[str]
     competitive_threats: list[str]
     competitors: list[CompetitorData]
-    positioning_recommendation: str
+    positioning_recommendation: list[str]
 
     # Quantified positioning map (volume/sentiment/gap/business impact per attribute)
     # and the 4-box executive summary, instead of a flat strengths/weaknesses list.

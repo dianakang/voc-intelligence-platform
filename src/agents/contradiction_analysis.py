@@ -82,13 +82,16 @@ class ContradictionAnalysisAgent(BaseAgent):
         type_b_pool = type_b[:10]
         type_a_pool = type_a[: max(CONTEXT_CAP - len(type_b_pool), 5)]
         context_pool = type_b_pool + type_a_pool
-        context = retriever.format_for_context(context_pool, max_chars=6000)
+        context = retriever.format_for_context(context_pool, max_chars=6000, include_ids=True)
 
         prompt = f"""Analyze these {len(context_pool)} TV reviews that show rating-content contradictions
 (out of {len(flagged)} candidates found across {len(reviews)} reviews scanned).
 
 Type A (high rating + complaint): {len(type_a_pool)} reviews in context ({len(type_a)} total found)
 Type B (low rating + praise): {len(type_b_pool)} reviews in context ({len(type_b)} total found)
+
+Each review below is tagged with its real ID, e.g. "[ID: 252185142, Rating: ...]". Copy that exact
+ID into the "review_id" field for any review you flag — never invent or paraphrase an ID.
 
 Reviews:
 {context}
@@ -97,7 +100,7 @@ For each contradiction, provide deep analysis. Return:
 {{
   "contradictions": [
     {{
-      "review_id": "SAMPLE_UN50U7900FFXZA_XXXX",
+      "review_id": "<the exact ID from this review's [ID: ...] tag above>",
       "rating": 5,
       "contradiction_type": "type_a",
       "mismatch_category": "hidden_complaint|accidental_low_rating|service_failure_with_product_praise|non_product_issue",

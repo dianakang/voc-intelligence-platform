@@ -27,7 +27,12 @@ export function SentimentPieChart({ data }: Props) {
               <Cell key={index} fill={COLORS[entry.name] || "#1428a0"} />
             ))}
           </Pie>
-          <Tooltip formatter={(value) => [Number(value), "Reviews"]} />
+          <Tooltip
+            formatter={(value, name) => [
+              Number(value),
+              typeof name === "string" ? name.charAt(0).toUpperCase() + name.slice(1) : name,
+            ]}
+          />
         </PieChart>
       </ResponsiveContainer>
       {/* Plain HTML legend instead of Recharts' leader-line labels, which clip
@@ -36,7 +41,7 @@ export function SentimentPieChart({ data }: Props) {
         {data.map((d) => (
           <span key={d.name} className="flex items-center gap-1.5 text-xs text-gray-700">
             <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: COLORS[d.name] || "#1428a0" }} />
-            {d.name.charAt(0).toUpperCase() + d.name.slice(1)} {total === 0 ? 0 : Math.round((d.value / total) * 100)}%
+            {d.name.charAt(0).toUpperCase() + d.name.slice(1)} {total === 0 ? 0 : Math.round((d.value / total) * 100)}% ({d.value})
           </span>
         ))}
       </div>

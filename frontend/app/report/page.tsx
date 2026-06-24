@@ -37,9 +37,9 @@ function stripEmDashes<T>(value: T): T {
 }
 
 // A few fields use " — " as a deliberate label/explanation delimiter that
-// downstream parsing splits on (see actual_value_drivers rendering and
-// parsePositioningPriorities). Those are kept raw here; each consumer cleans
-// its own derived output strings after splitting on the dash.
+// downstream parsing splits on (see actual_value_drivers rendering). Those
+// are kept raw here; each consumer cleans its own derived output strings
+// after splitting on the dash.
 function sanitizeReport(raw: VOCResult): VOCResult {
   const sanitized = stripEmDashes(raw);
   return {
@@ -53,11 +53,19 @@ function sanitizeReport(raw: VOCResult): VOCResult {
     positioning_analysis: raw.positioning_analysis
       ? {
           ...sanitized.positioning_analysis!,
-          positioning_recommendation: raw.positioning_analysis.positioning_recommendation,
           defend: raw.positioning_analysis.defend,
           differentiate: raw.positioning_analysis.differentiate,
           fix: raw.positioning_analysis.fix,
           monitor: raw.positioning_analysis.monitor,
+          // Older saved reports stored this as one paragraph string; split it into
+          // sentences so a stale/in-flight report file still renders as scannable
+          // bullets instead of one wall of text (or crashing on .map).
+          positioning_recommendation: Array.isArray(raw.positioning_analysis.positioning_recommendation)
+            ? sanitized.positioning_analysis!.positioning_recommendation
+            : stripEmDashes(raw.positioning_analysis.positioning_recommendation as unknown as string)
+                .split(/(?<=[.!?])\s+(?=[A-Z])/)
+                .map((s) => s.trim())
+                .filter(Boolean),
         }
       : sanitized.positioning_analysis,
   };
@@ -753,9 +761,10 @@ function parseInsight(raw: string): { headline: string; detail: string } {
   // Pattern: "Headline sentence.** Detail text"  (LLM bold bullet stripped of leading **)
   const boldSplit = raw.match(/^([\s\S]+?\.\s*)\*+\s*([\s\S]*)$/);
   if (boldSplit) return { headline: boldSplit[1].trim(), detail: boldSplit[2].trim() };
-  // Fallback: split at first ". "
+  // Fallback: split at first ". " — no upper length bound, since a legitimately long
+  // first sentence shouldn't fall back to rendering the entire insight as a bold headline.
   const dot = raw.indexOf(". ");
-  if (dot > 0 && dot < 100) return { headline: raw.slice(0, dot + 1), detail: raw.slice(dot + 2) };
+  if (dot > 0) return { headline: raw.slice(0, dot + 1), detail: raw.slice(dot + 2) };
   return { headline: raw, detail: "" };
 }
 
@@ -816,75 +825,6 @@ function ExecutiveSummarySection({ summary, insights }: { summary: string; insig
             </button>
           )}
         </div>
-      )}
-    </div>
-  );
-}
-
-// ── Positioning priority cards ────────────────────────────────────────────────
-
-function parsePositioningPriorities(text: string) {
-  // Try format: (1) LABEL — Topic: text
-  const numbered = [...text.matchAll(/\((\d+)\)\s+([^—]+?)\s+—\s+([^:]+):\s+([\s\S]*?)(?=\s*\(\d+\)|$)/g)];
-  if (numbered.length > 0) {
-    const introEnd = text.search(/\s*\(\d+\)/);
-    return stripEmDashes({
-      intro: introEnd > 0 ? text.slice(0, introEnd).trim() : "",
-      priorities: numbered.map((m, i) => ({
-        num: String(i + 1),
-        label: m[2].trim(),
-        topic: m[3].trim(),
-        body: m[4].trim(),
-      })),
-    });
-  }
-  // Try format: TIMEFRAME (period): text  e.g. "IMMEDIATE (0-3 months):"
-  const timeboxed = [...text.matchAll(/([A-Z][A-Z\s-]+?)\s*\([^)]+\):\s*([\s\S]*?)(?=[A-Z]{3,}[^a-z]*\([^)]+\):|$)/g)];
-  if (timeboxed.length > 0) {
-    const introEnd = text.search(/[A-Z]{3,}[^a-z]*\([^)]+\):/);
-    return stripEmDashes({
-      intro: introEnd > 0 ? text.slice(0, introEnd).trim() : "",
-      priorities: timeboxed.map((m, i) => ({
-        num: String(i + 1),
-        label: m[1].trim(),
-        topic: "",
-        body: m[2].trim(),
-      })),
-    });
-  }
-  return stripEmDashes({ intro: text, priorities: [] });
-}
-
-const PRIORITY_PALETTE: Record<number, { bg: string; border: string; badge: string; num: string }> = {
-  1: { bg: "bg-red-50",    border: "border-red-200",    badge: "bg-red-100 text-red-700",       num: "bg-red-500 text-white" },
-  2: { bg: "bg-orange-50", border: "border-orange-200", badge: "bg-orange-100 text-orange-700", num: "bg-orange-500 text-white" },
-  3: { bg: "bg-brand-50",   border: "border-brand-200",   badge: "bg-brand-100 text-brand-700",     num: "bg-brand-500 text-white" },
-  4: { bg: "bg-gray-50",   border: "border-gray-200",   badge: "bg-gray-100 text-gray-700",     num: "bg-gray-500 text-white" },
-};
-
-function PriorityCard({ num, label, topic, body }: { num: string; label: string; topic: string; body: string }) {
-  const [expanded, setExpanded] = useState(false);
-  const colors = PRIORITY_PALETTE[parseInt(num)] ?? PRIORITY_PALETTE[4];
-  const sentenceEnd = body.search(/[.!?]\s/);
-  const summary = sentenceEnd > 0 ? body.slice(0, sentenceEnd + 1) : body;
-  const rest = sentenceEnd > 0 ? body.slice(sentenceEnd + 2).trim() : null;
-  return (
-    <div className={`rounded-xl border ${colors.border} ${colors.bg} p-4`}>
-      <div className="flex items-start gap-3 mb-2">
-        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${colors.num}`}>{num}</span>
-        <div className="flex-1 min-w-0">
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${colors.badge}`}>{label}</span>
-          <h4 className="font-semibold text-gray-900 text-sm mt-1.5">{topic}</h4>
-        </div>
-      </div>
-      <p className="text-sm text-gray-700 leading-relaxed pl-9">{summary}</p>
-      {rest && (
-        <>
-          {expanded && <p className="text-sm text-gray-600 leading-relaxed pl-9 mt-2">{rest}</p>}
-          <button onClick={() => setExpanded(!expanded)} className="pl-9 mt-1.5 text-xs text-brand-600 hover:underline">
-            {expanded ? "Show less ↑" : "Read more ↓"}
-          </button>
-        </>
       )}
     </div>
   );
@@ -1074,7 +1014,7 @@ function ComplaintCard({ c }: { c: Complaint }) {
             >
               {c.issue_type === "purchase_experience" ? "Purchase Experience" : "Product Issue"}
             </span>
-            <span className="text-xs text-red-600 font-medium">{c.frequency_pct.toFixed(1)}% of reviews</span>
+            <span className="text-xs text-red-600 font-medium">{c.frequency_pct.toFixed(1)}% of negative reviews</span>
           </div>
           <p className="text-sm text-gray-600 leading-relaxed">{expanded ? c.root_cause : snippet}</p>
           {hasMore && (
@@ -1306,27 +1246,19 @@ function SectionAccordion({
               <CompetitorCard key={comp.name} comp={comp} />
             ))}
 
-            {(() => {
-              const { intro, priorities } = parsePositioningPriorities(
-                result.positioning_analysis.positioning_recommendation
-              );
-              return priorities.length > 0 ? (
-                <div>
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Priority Action Areas</h3>
-                  {intro && <p className="text-sm text-gray-600 leading-relaxed mb-4">{intro}</p>}
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {priorities.map(p => (
-                      <PriorityCard key={p.num} {...p} />
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-brand-50 border border-brand-200 rounded-xl p-5">
-                  <h3 className="text-sm font-semibold text-brand-800 mb-2">Positioning Recommendation</h3>
-                  <p className="text-sm text-brand-700 leading-relaxed">{stripEmDashes(result.positioning_analysis.positioning_recommendation)}</p>
-                </div>
-              );
-            })()}
+            {result.positioning_analysis.positioning_recommendation.length > 0 && (
+              <div className="bg-white border border-gray-200 rounded-xl p-5">
+                <h3 className="text-sm font-semibold text-gray-900 mb-4">Positioning Recommendation</h3>
+                <ol className="space-y-4">
+                  {result.positioning_analysis.positioning_recommendation.map((body, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-700 text-xs font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                      <p className="text-sm text-gray-700 leading-relaxed">{body}</p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
           </div>
         </section>
       )}

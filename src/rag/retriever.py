@@ -40,12 +40,14 @@ class ReviewRetriever:
     def retrieve_positive(self, query: str, top_k: int = 10) -> list[Review]:
         return self.retrieve_by_rating(query, 4, 5, top_k)
 
-    def format_for_context(self, reviews: list[Review], max_chars: int = 6000) -> str:
+    def format_for_context(self, reviews: list[Review], max_chars: int = 6000, include_ids: bool = False) -> str:
         lines = []
         total = 0
         for r in reviews:
             text = r.cleaned_text or r.text
-            entry = f"[Rating: {r.rating}/5, Date: {r.date or 'N/A'}]\n{text}"
+            tag = f"ID: {r.review_id}, Rating: {r.rating}/5, Date: {r.date or 'N/A'}" if include_ids \
+                else f"Rating: {r.rating}/5, Date: {r.date or 'N/A'}"
+            entry = f"[{tag}]\n{text}"
             if total + len(entry) > max_chars:
                 break
             lines.append(entry)
