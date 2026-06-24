@@ -96,7 +96,11 @@ WHAT CUSTOMERS VALUE (actual positive experiences):
 CUSTOMER REVIEWS WITH EXPECTATION SIGNALS:
 {context}
 
-Identify 7-8 key expectation dimensions. For each:
+Identify 7-8 key expectation dimensions — each one must trace back to a DISTINCT underlying complaint
+or root cause. If two candidate dimensions would both be evidenced by the same underlying issue (e.g.
+a "Brand Quality" gap and a "Reliability" gap that are both really just about the same screen/panel
+failures, narrated from two different angles), merge them into ONE dimension rather than splitting the
+same root cause into two entries with different framing. For each:
 {{
   "expectation_gaps": [
     {{

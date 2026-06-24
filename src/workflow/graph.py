@@ -240,16 +240,17 @@ def run_parallel_analysis(state: VOCWorkflowState) -> dict:
          lambda snap: CompetitivePositioningAgent().analyze(reviews, retriever, snap, product_spec=product_spec)),
         ("ExpectationGapAgent", "Expectation gap analysis", ["expectation_gaps"],
          lambda snap: ExpectationGapAgent().analyze(reviews, retriever, snap, product_spec=product_spec)),
-        ("SegmentDivergenceAnalysisAgent", "Segment divergence analysis", ["segment_divergence_analysis"],
-         lambda snap: SegmentDivergenceAnalysisAgent().analyze(reviews, retriever, snap, product_spec=product_spec)),
         ("CXActionAgent", "CX action generation", ["cx_actions"],
          lambda snap: CXActionAgent().analyze(reviews, retriever, snap)),
     ]
-    # Synthesizes a recommended action per issue from complaints (issue_type), expectation
-    # gaps, and CX actions, not frequency/impact alone — so it must run after wave 2.
+    # Both of these read result.expectation_gaps / result.cx_actions (to point to an existing
+    # fix instead of restating it) and/or result.complaints, all written by wave 2 — so they
+    # must run after wave 2, not alongside ExpectationGapAgent/CXActionAgent in it.
     WAVE_3 = [
         ("ImportanceAnalysisAgent", "Importance matrix", ["importance_matrix"],
          lambda snap: ImportanceAnalysisAgent().analyze(reviews, retriever, snap, product_spec=product_spec)),
+        ("SegmentDivergenceAnalysisAgent", "Segment divergence analysis", ["segment_divergence_analysis"],
+         lambda snap: SegmentDivergenceAnalysisAgent().analyze(reviews, retriever, snap, product_spec=product_spec)),
     ]
 
     def _run_wave(tasks: list[tuple[str, str, list[str], Any]]) -> None:

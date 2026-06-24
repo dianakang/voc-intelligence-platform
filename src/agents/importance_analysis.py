@@ -104,12 +104,13 @@ SAMPLE REVIEWS (high/low impact):
 Identify ALL issues and classify them. For each issue:
 - issue_type: "product_defect" if it's a defect in the product itself, "purchase_experience" if it's about
   delivery/account/installation/pickup — match against the complaint categories above where possible.
-- recommended_action: ONE concrete next step. If a CX action already covers this issue, say so and
-  recommend closing the loop on it (e.g. "publish the existing FAQ on dead pixel claims to the PDP")
-  rather than proposing a duplicate fix. If a product_defect with no existing mitigation, recommend an
-  engineering/QA action. If a purchase_experience issue with no mitigation, recommend a CX/marketing action.
 - linked_expectation_gap: the matching dimension name from the expectation gap findings above, or "" if none.
 - linked_cx_action: the matching title from the CX actions above, or "" if none.
+- recommended_action: leave this as an EMPTY STRING whenever you set linked_expectation_gap or
+  linked_cx_action above — the full fix is already written out in full there, and this report shows
+  only one or the other, never both, so writing both means duplicating the same recommendation twice.
+  Only fill in recommended_action (one concrete next step) when NEITHER link applies, i.e. this is a
+  genuinely new issue with no existing mitigation to point to.
 
 Return:
 {{

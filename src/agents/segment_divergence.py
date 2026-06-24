@@ -71,6 +71,12 @@ class SegmentDivergenceAnalysisAgent(BaseAgent):
         satisfaction_summary = "\n".join(
             f"- {s.factor}: {s.positive_rate:.0f}% positive" for s in result.satisfaction_drivers[:6]
         )
+        gaps_summary = "\n".join(
+            f"- {g.dimension}: {g.recommended_action}" for g in result.expectation_gaps[:8]
+        ) or "(none identified yet)"
+        cx_summary = "\n".join(
+            f"- {a.title} (addresses: {a.related_issue})" for a in result.cx_actions[:8]
+        ) or "(none generated yet)"
 
         product_label = product_spec.product_name if product_spec and product_spec.product_name else result.model
 
@@ -88,6 +94,17 @@ EVIDENCE POOL:
 Interpret the reviews through segment lenses appropriate to this specific product category — e.g.
 core-performance-first, price-sensitive, usability-focused, brand-premium expectation, and
 reliability-focused customers.
+
+EXISTING FIX RECOMMENDATIONS FROM ELSEWHERE IN THIS PIPELINE (do not re-derive or restate these):
+Expectation gap fixes:
+{gaps_summary}
+CX actions already drafted:
+{cx_summary}
+
+For "priority_actions" specifically: if the top fix for a segment's pain point is already covered by
+one of the items above, write a short cross-reference instead of restating it in full (e.g. "See
+Expectation Gap: Warranty & Support" rather than re-describing the warranty SLA fix). Only write out a
+new action in full if it is not already covered above.
 
 Return JSON in this shape:
 {{
